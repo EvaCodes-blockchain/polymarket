@@ -1,0 +1,49 @@
+name: polymarket-social
+
+services:
+  # Local EVM chain for the MVP (see documentation_polymarket_social/README.md,
+  # "Architectural decisions"). Deterministic mnemonic so the account/role
+  # mapping documented in testing-integration.md (Section 2.2) is stable:
+  #   0 deployer/admin, 1 oracle resolver, 2-5 traders, 6 market creator.
+  ganache:
+    image: trufflesuite/ganache:v7.9.2
+    command:
+      - --chain.chainId=1337
+      - --chain.networkId=1337
+      - --wallet.mnemonic=justify social prediction market mvp test test test test test test junk
+      - --wallet.totalAccounts=10
+      - --wallet.defaultBalance=1000
+      - --miner.blockTime=0
+      - --server.host=0.0.0.0
+      - --server.port=8545
+    ports:
+      - "8545:8545"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          node -e "fetch('http://localhost:8545',{method:'POST',headers:{'content-type':'application/json'},body:'{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_chainId\",\"params\":[]}'}).then(r=>r.json()).then(j=>process.exit(j.result==='0x539'?0:1)).catch(()=>process.exit(1))"
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: justify
+      POSTGRES_USER: justify
+      POSTGRES_PASSWORD: justify
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U justify -d justify"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

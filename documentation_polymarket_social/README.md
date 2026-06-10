@@ -17,6 +17,8 @@ are the planned baseline for the production system.
 |----------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [overview.md](overview.md)                               | Project vision, target audiences, core user experience, main functional areas, and a technical snapshot of the prototype. **Start here.**                                                                                     |
 | [functional-requirements.md](functional-requirements.md) | Detailed, numbered functional requirements (FR-…) for every feature visible in the prototype: auth, feed, social graph, market cards, trading, portfolio, profiles, notifications — plus the list of known gaps (Section 15). |
+| [testing-integration.md](testing-integration.md)         | API integration-testing strategy: Docker Compose test environment (Ganache, PostgreSQL, mocks), per-API coverage matrix, cross-API flow scenarios, data management, CI gates.                                                 |
+| [ui-testing.md](ui-testing.md)                           | End-to-end UI testing strategy: Playwright setup, injected test wallet, page objects, critical user journeys (J1–J8), component-behavior specs, browser/viewport matrix.                                                      |
 
 ## UML diagrams (PlantUML)
 
