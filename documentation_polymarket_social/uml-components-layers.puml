@@ -1,0 +1,116 @@
+@startuml uml-components-layers
+title PolyMarket Social ("Justify") — System Layers (UML Component Diagram)
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam package {
+  BackgroundColor #FAFAFA
+  BorderColor #888888
+}
+
+package "Presentation Layer — Web Client (HTML prototype)" as presentation {
+  [Feed Page\n(index.html)] as FeedPage
+  [Markets Page\n(market.html)] as MarketsPage
+  [Trading Page\n(trade.html / trade_founder.html)] as TradingPage
+  [Portfolio Page\n(portfolio.html)] as PortfolioPage
+  [Profile & Settings\n(profile.html / edit-profile.html)] as ProfilePages
+  [Notifications Page\n(notification.html)] as NotificationsPage
+  [Create Market Page\n(create.html)] as CreatePage
+  [Help Center\n(help.html)] as HelpPage
+
+  [Embedded Market Card Widget\n(flip-to-trade, payout calculator)] as MarketCard
+  [Custom Behaviors\n(js/custom.js: card flip, sliders,\nfollow toggles, dark mode)] as CustomJS
+  [UI Foundation\n(Bootstrap 5, jQuery 3.6,\nSlick, Chart.js, icon fonts)] as UIFoundation
+}
+
+package "Client Integration Layer" as clientIntegration {
+  [Auth Client\n(Google Identity Services)] as AuthClient
+  [Wallet Connector\n(Web3.js, Coinbase Wallet SDK,\nWalletConnect v1, chain switch to 8453)] as WalletConnector
+}
+
+package "Application Layer — planned production backend" as application {
+  [Auth & Identity Service] as AuthService
+  [Social Service\n(posts "Vogel", comments,\nlikes, reposts)] as SocialService
+  [Social Graph Service\n(follow/unfollow, suggestions,\nverified accounts)] as SocialGraphService
+  [Market Service\n(catalog, hashtags, creation\nrequests, moderation)] as MarketService
+  [Trading Service\n(orders, pricing, charts)] as TradingService
+  [Portfolio Service\n(positions, P&L)] as PortfolioService
+  [Notification Service] as NotificationService
+  [Search Service\n(users, posts, markets)] as SearchService
+}
+
+package "Data Layer" as data {
+  database "Application Database\n(users, posts, markets,\norders, positions)" as AppDB
+  [Media Storage\n(avatars, post images,\nmarket thumbnails)] as MediaStorage
+}
+
+package "External Services & Blockchain" as external {
+  [Google OAuth 2.0 / OIDC] as GoogleOAuth
+  [Wallet Providers\n(MetaMask, Trust Wallet,\nCoinbase Wallet, WalletConnect)] as WalletProviders
+  [Infura RPC] as InfuraRPC
+  [Base Network\n(chain ID 8453, settlement)] as BaseChain
+  [Oracle Sources\n(market-resolution proof URLs)] as OracleSources
+}
+
+interface "REST / GraphQL API" as API
+interface "JSON-RPC" as JsonRpc
+
+' --- Presentation layer internals ---
+FeedPage ..> MarketCard : embeds
+PortfolioPage ..> MarketCard : embeds
+ProfilePages ..> MarketCard : embeds
+TradingPage ..> CustomJS
+MarketCard ..> CustomJS : flip & payout logic
+FeedPage ..> UIFoundation
+MarketsPage ..> UIFoundation
+CustomJS ..> UIFoundation
+
+' --- Presentation -> Client integration ---
+FeedPage ..> AuthClient : sign-in modal
+FeedPage ..> WalletConnector : wallet sign-in
+TradingPage ..> WalletConnector : connect to trade
+
+' --- Presentation -> Application (via API) ---
+presentation -- API
+API -- AuthService
+API -- SocialService
+API -- SocialGraphService
+API -- MarketService
+API -- TradingService
+API -- PortfolioService
+API -- NotificationService
+API -- SearchService
+
+' --- Client integration -> External ---
+AuthClient ..> GoogleOAuth : OAuth 2.0 / OIDC
+WalletConnector ..> WalletProviders : account access,\nchain switch
+WalletConnector -- JsonRpc
+JsonRpc -- InfuraRPC
+
+' --- Application -> Data ---
+AuthService ..> AppDB
+SocialService ..> AppDB
+SocialGraphService ..> AppDB
+MarketService ..> AppDB
+TradingService ..> AppDB
+PortfolioService ..> AppDB
+NotificationService ..> AppDB
+SearchService ..> AppDB
+SocialService ..> MediaStorage
+MarketService ..> MediaStorage
+
+' --- Application -> External ---
+AuthService ..> GoogleOAuth : token verification
+TradingService ..> InfuraRPC : on-chain settlement
+MarketService ..> OracleSources : resolution proof
+InfuraRPC ..> BaseChain
+
+legend bottom
+  The Presentation and Client Integration layers exist in the static
+  HTML prototype (hard-coded data). The Application and Data layers
+  are the production baseline implied by the functional requirements
+  (functional-requirements.md); the prototype has no backend.
+endlegend
+
+@enduml

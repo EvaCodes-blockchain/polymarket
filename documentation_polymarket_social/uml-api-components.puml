@@ -1,0 +1,148 @@
+@startuml uml-api-components
+title PolyMarket Social ("Justify") — API Components (UML Component Diagram)
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam package {
+  BackgroundColor #FAFAFA
+  BorderColor #888888
+}
+
+actor "Web Client\n(prototype pages +\nmarket-card widget)" as Client
+
+package "API Gateway" as gateway {
+  [API Gateway\n(routing, rate limiting,\nsession / JWT validation)] as Gateway
+}
+
+package "Identity & Access APIs" as identityApis {
+  [Auth API] as AuthAPI
+  interface "POST /auth/google/callback\nPOST /auth/email\nFR-AUTH-2, FR-AUTH-3" as IAuth
+  [Wallet Auth API] as WalletAuthAPI
+  interface "POST /auth/wallet/nonce\nPOST /auth/wallet/verify\nFR-AUTH-4 (Base 8453)" as IWalletAuth
+  [Users API] as UsersAPI
+  interface "GET/PATCH /users/{handle}\nPUT /users/me/settings\nFR-PROF-1..6" as IUsers
+}
+
+package "Social APIs" as socialApis {
+  [Posts API\n("Vogel")] as PostsAPI
+  interface "GET /feed?tab=feed|people|trending\nPOST /posts (500 chars, media)\nPATCH/DELETE /posts/{id}\nFR-FEED-1..5, FR-FEED-9" as IPosts
+  [Comments API] as CommentsAPI
+  interface "GET/POST /posts/{id}/comments\nPOST /comments/{id}/like|reply\nFR-FEED-7, FR-TRD-4" as IComments
+  [Engagement API] as EngagementAPI
+  interface "POST /posts/{id}/like|repost|share\nFR-FEED-6" as IEngagement
+  [Social Graph API] as GraphAPI
+  interface "POST/DELETE /users/{handle}/follow\nGET /users/{handle}/followers|following\nGET /suggestions/who-to-follow\nFR-SOC-10..12, FR-NAV-5" as IGraph
+}
+
+package "Market & Trading APIs" as marketApis {
+  [Markets API] as MarketsAPI
+  interface "GET /markets?hashtag=…\nGET /markets/{id}\nGET /markets/movers\nFR-MKT-1..3, FR-NAV-4" as IMarkets
+  [Market Creation API] as CreationAPI
+  interface "POST /market-requests\n(name, description, photo,\noracle proof, type)\nFR-CRT-1" as ICreation
+  [Orders API] as OrdersAPI
+  interface "POST /markets/{id}/orders\n(buy/sell, market type,\namount, outcome)\nFR-CARD-2..3, FR-TRD-3" as IOrders
+  [Market Data API] as MarketDataAPI
+  interface "GET /markets/{id}/prices\nGET /markets/{id}/chart?tf=1H..ALL\nFR-CARD-1, FR-TRD-2" as IMarketData
+  [Portfolio API] as PortfolioAPI
+  interface "GET /portfolio/positions\n(amount, price, value, P&L)\nFR-PORT-1..2" as IPortfolio
+}
+
+package "Supporting APIs" as supportApis {
+  [Notifications API] as NotificationsAPI
+  interface "GET /notifications\n(follow, like, repost)\nFR-NOT-1" as INotifications
+  [Search API] as SearchAPI
+  interface "GET /search?q=…\n(users, posts, markets)\nFR-NAV-3" as ISearch
+  [Media API] as MediaAPI
+  interface "POST /media\n(images, video embeds)\nFR-FEED-3" as IMedia
+  [Support API] as SupportAPI
+  interface "POST /support/requests\nFR-HELP-1" as ISupport
+}
+
+package "External Dependencies" as external {
+  [Google OAuth 2.0 / OIDC] as GoogleOAuth
+  [Base Network via Infura RPC\n(chain ID 8453)] as BaseChain
+  [Oracle Sources\n(resolution proof URLs)] as OracleSources
+  database "Application Database" as AppDB
+  [Media Storage] as MediaStorage
+}
+
+' --- Client to gateway ---
+Client --> Gateway : HTTPS / JSON
+
+' --- Gateway routes to provided interfaces ---
+Gateway --> IAuth
+Gateway --> IWalletAuth
+Gateway --> IUsers
+Gateway --> IPosts
+Gateway --> IComments
+Gateway --> IEngagement
+Gateway --> IGraph
+Gateway --> IMarkets
+Gateway --> ICreation
+Gateway --> IOrders
+Gateway --> IMarketData
+Gateway --> IPortfolio
+Gateway --> INotifications
+Gateway --> ISearch
+Gateway --> IMedia
+Gateway --> ISupport
+
+' --- APIs provide their interfaces ---
+IAuth - AuthAPI
+IWalletAuth - WalletAuthAPI
+IUsers - UsersAPI
+IPosts - PostsAPI
+IComments - CommentsAPI
+IEngagement - EngagementAPI
+IGraph - GraphAPI
+IMarkets - MarketsAPI
+ICreation - CreationAPI
+IOrders - OrdersAPI
+IMarketData - MarketDataAPI
+IPortfolio - PortfolioAPI
+INotifications - NotificationsAPI
+ISearch - SearchAPI
+IMedia - MediaAPI
+ISupport - SupportAPI
+
+' --- Inter-API dependencies ---
+PostsAPI ..> MarketsAPI : embed market cards\n(FR-CARD-1)
+PostsAPI ..> MediaAPI : attach images/video
+PortfolioAPI ..> MarketDataAPI : current prices for P&L
+OrdersAPI ..> MarketDataAPI : execution price
+EngagementAPI ..> NotificationsAPI : like / repost events
+GraphAPI ..> NotificationsAPI : follow events
+CreationAPI ..> MediaAPI : market photo upload
+CreationAPI ..> MarketsAPI : publish approved market
+
+' --- External dependencies ---
+AuthAPI ..> GoogleOAuth : verify ID token
+WalletAuthAPI ..> BaseChain : verify signature,\nchain check
+OrdersAPI ..> BaseChain : on-chain settlement
+MarketsAPI ..> OracleSources : resolution proof
+
+AuthAPI ..> AppDB
+UsersAPI ..> AppDB
+PostsAPI ..> AppDB
+CommentsAPI ..> AppDB
+EngagementAPI ..> AppDB
+GraphAPI ..> AppDB
+MarketsAPI ..> AppDB
+CreationAPI ..> AppDB
+OrdersAPI ..> AppDB
+PortfolioAPI ..> AppDB
+NotificationsAPI ..> AppDB
+SearchAPI ..> AppDB
+SupportAPI ..> AppDB
+MediaAPI ..> MediaStorage
+
+legend bottom
+  Planned production API surface derived from the functional requirements
+  (functional-requirements.md); the prototype itself is static and calls no
+  backend. Each interface lists representative endpoints and the FR items
+  it serves. Admin/moderation APIs for the market-approval flow are a known
+  gap (Section 15) and are intentionally out of scope here.
+endlegend
+
+@enduml
