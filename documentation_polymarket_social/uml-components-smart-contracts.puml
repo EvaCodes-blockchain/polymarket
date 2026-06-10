@@ -1,0 +1,73 @@
+@startuml uml-components-smart-contracts
+title PolyMarket Social ("Justify") — Smart Contracts (UML Component Diagram)
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam package {
+  BackgroundColor #FAFAFA
+  BorderColor #888888
+}
+
+actor "Trader Wallet\n(MetaMask et al.\nvia Web3.js)" as Wallet
+[Backend\n(Orders API / Trading Service,\nWallet Auth API)] as Backend
+[Contract Deployment\n(Truffle/Hardhat migrations,\nseed markets & accounts)] as Deployer
+
+node "Docker" as DockerHost {
+  package "Ganache EVM Node (chain ID 1337, JSON-RPC :8545)" as chain {
+
+    package "Market Lifecycle" as lifecycle {
+      [MarketFactory\n(creates markets from approved\nrequests; registry of deployed\nmarkets; FR-CRT-1)] as MarketFactory
+      [PredictionMarket\n(one instance per market:\nquestion, close time, outcomes,\nstate: Open / Closed / Resolved)] as PredictionMarket
+      [OracleResolver\n(records oracle-proof reference,\nresolver reports winning outcome,\nFR-CRT-1 oracle proof)] as OracleResolver
+    }
+
+    package "Trading & Settlement" as trading {
+      [MarketAMM\n(CPMM pool per market:\nbuy/sell outcome shares,\nprice in cents = implied\nprobability; FR-CARD-2..3,\nFR-TRD-3)] as MarketAMM
+      [OutcomeToken\n(ERC-1155 conditional shares:\nYES / NO per market;\nportfolio positions,\nFR-PORT-2)] as OutcomeToken
+      [CollateralToken\n(MockUSDC ERC-20 —\ntest collateral minted\nto Ganache accounts)] as CollateralToken
+    }
+
+    package "Platform" as platform {
+      [FeeTreasury\n(trading-fee collection;\ncreator fee split is a\nknown gap, Section 15)] as FeeTreasury
+      [AccessControl\n(owner/admin roles:\nfactory permissions,\nresolver assignment)] as AccessControl
+    }
+  }
+}
+
+interface "JSON-RPC\n(eth_call, eth_sendRawTransaction)" as JsonRpc
+interface "Contract Events\n(MarketCreated, Trade,\nMarketResolved, Redeemed)" as Events
+
+' --- Off-chain actors -> chain ---
+Wallet --> JsonRpc : sign & send\ntransactions
+Backend --> JsonRpc : submit settlement,\nread prices & positions
+Backend --> Events : index events\n(market data, portfolio,\nnotifications)
+Deployer --> JsonRpc : deploy & seed\n(MVP fixtures)
+JsonRpc -- chain
+Events -- chain
+
+' --- Contract relationships ---
+MarketFactory ..> PredictionMarket : deploys per\napproved market
+MarketFactory ..> MarketAMM : deploys paired pool
+MarketFactory ..> AccessControl : only authorized\ncreator/moderator
+PredictionMarket ..> OutcomeToken : mints/burns\noutcome shares
+PredictionMarket ..> OracleResolver : awaits resolution
+PredictionMarket ..> CollateralToken : escrows collateral,\npays out winners
+MarketAMM ..> OutcomeToken : swaps shares
+MarketAMM ..> CollateralToken : takes/returns\ncollateral
+MarketAMM ..> FeeTreasury : trading fees
+OracleResolver ..> AccessControl : resolver role
+FeeTreasury ..> AccessControl : withdrawal role
+
+legend bottom
+  MVP scope: all contracts are deployed to a local Ganache EVM node in
+  Docker (chain ID 1337); CollateralToken is a mock ERC-20 minted to
+  test accounts, and OracleResolver resolution is performed manually by
+  a trusted resolver account referencing the market's oracle-proof URL
+  (FR-CRT-1). Migration to a public network (e.g., Base) with real
+  collateral (USDC) and a decentralized oracle is deferred to a later
+  phase. Creator-fee earnings and market management controls are known
+  gaps (functional-requirements.md, Section 15).
+endlegend
+
+@enduml

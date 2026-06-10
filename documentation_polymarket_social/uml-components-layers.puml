@@ -26,7 +26,7 @@ package "Presentation Layer — Web Client (HTML prototype)" as presentation {
 
 package "Client Integration Layer" as clientIntegration {
   [Auth Client\n(Google Identity Services)] as AuthClient
-  [Wallet Connector\n(Web3.js, Coinbase Wallet SDK,\nWalletConnect v1, chain switch to 8453)] as WalletConnector
+  [Wallet Connector\n(Web3.js, Coinbase Wallet SDK,\nWalletConnect v1, switch to\nlocal Ganache chain 1337)] as WalletConnector
 }
 
 package "Application Layer — planned production backend" as application {
@@ -45,12 +45,16 @@ package "Data Layer" as data {
   [Media Storage\n(avatars, post images,\nmarket thumbnails)] as MediaStorage
 }
 
-package "External Services & Blockchain" as external {
+package "External Services" as external {
   [Google OAuth 2.0 / OIDC] as GoogleOAuth
   [Wallet Providers\n(MetaMask, Trust Wallet,\nCoinbase Wallet, WalletConnect)] as WalletProviders
-  [Infura RPC] as InfuraRPC
-  [Base Network\n(chain ID 8453, settlement)] as BaseChain
   [Oracle Sources\n(market-resolution proof URLs)] as OracleSources
+}
+
+package "Blockchain — MVP" as blockchain {
+  node "Docker" as DockerHost {
+    [Ganache EVM Node\n(local chain ID 1337,\nJSON-RPC :8545,\nsettlement)] as Ganache
+  }
 }
 
 interface "REST / GraphQL API" as API
@@ -86,7 +90,7 @@ API -- SearchService
 AuthClient ..> GoogleOAuth : OAuth 2.0 / OIDC
 WalletConnector ..> WalletProviders : account access,\nchain switch
 WalletConnector -- JsonRpc
-JsonRpc -- InfuraRPC
+JsonRpc -- Ganache
 
 ' --- Application -> Data ---
 AuthService ..> AppDB
@@ -102,15 +106,17 @@ MarketService ..> MediaStorage
 
 ' --- Application -> External ---
 AuthService ..> GoogleOAuth : token verification
-TradingService ..> InfuraRPC : on-chain settlement
+TradingService ..> Ganache : on-chain settlement\n(JSON-RPC)
 MarketService ..> OracleSources : resolution proof
-InfuraRPC ..> BaseChain
 
 legend bottom
   The Presentation and Client Integration layers exist in the static
   HTML prototype (hard-coded data). The Application and Data layers
   are the production baseline implied by the functional requirements
   (functional-requirements.md); the prototype has no backend.
+  MVP scope: on-chain settlement targets a local Ganache EVM node in
+  Docker (chain ID 1337) instead of Base mainnet; migration to a public
+  network (e.g., Base, chain ID 8453) is deferred to a later phase.
 endlegend
 
 @enduml
