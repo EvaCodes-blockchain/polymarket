@@ -1,7 +1,9 @@
 # Polymarket Platform Reference
 
 **Document version:** 1.0
+
 **Date:** 2026-06-11
+
 **Source:** Official Polymarket developer documentation — <https://docs.polymarket.com>
 (machine-readable index: <https://docs.polymarket.com/llms.txt>)
 

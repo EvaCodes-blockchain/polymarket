@@ -1,7 +1,9 @@
 # PolyMarket Social ("Justify") — Project Overview
 
 **Document version:** 1.0
+
 **Date:** 2026-06-11
+
 **Source:** Analysis of the HTML prototype in `html-polymarket-social-prototype/`
 
 ---
