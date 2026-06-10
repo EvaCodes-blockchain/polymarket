@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <!-- Required meta tags -->
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="icon" type="image/png" href="img/logo.png">
+      <title>Justify — Trade Smarter, Together</title>
+      <meta name="description" content="Vogel - Social Network & Community HTML Template">
+      <meta name="keywords" content="bootstrap5, e-learning, forum, games, online course, Social Community, social events, social feed, social media, social media template, social network html, social sharing, twitter">
+      <!-- Bootstrap CSS -->
+      <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+      <!-- Slich Slider -->
+      <link href="vendor/slick/slick/slick.css" rel="stylesheet">
+      <link href="vendor/slick/slick/slick-theme.css" rel="stylesheet">
+      <!-- Icofont -->
+      <link href="vendor/icofont/icofont.min.css" rel="stylesheet">
+      <!-- Font Icons -->
+      <link href="vendor/icons/css/materialdesignicons.min.css" rel="stylesheet" type="text/css">
+      <!-- Custom Css -->
+      <link href="css/style.css" rel="stylesheet">
+      <!-- Material Icons -->
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+      <script src="https://accounts.google.com/gsi/client" async defer></script>
+         
+         
+<!-- Подключи перед этим в HTML -->
+<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+<script src="https://unpkg.com/@coinbase/wallet-sdk"></script>
+<script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+
+<script type="module">
+document.addEventListener("DOMContentLoaded", function () {
+  const INFURA_URL = "https://base-mainnet.infura.io/v3/fdde75e2b1014e2fbaad70653d54987e";
+  const BASE_CHAIN_ID = 8453;
+
+  const redirectAfterConnect = () => {
+    window.location.href = "/login.html";
+  };
+
+  const handleError = (name, error) => {
+    console.error(`${name} error:`, error);
+    alert(`${name} error:\n${error?.message || error}`);
+  };
+
+  // ========== MetaMask / TrustWallet ==========
+  const connectInjected = async () => {
+    try {
+      if (!window.ethereum) throw new Error("No Ethereum provider found");
+
+      const provider = window.ethereum;
+      const accounts = await provider.request({ method: "eth_requestAccounts" });
+      const chainId = await provider.request({ method: "eth_chainId" });
+
+      if (parseInt(chainId, 16) !== BASE_CHAIN_ID) {
+        await provider.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x" + BASE_CHAIN_ID.toString(16) }]
+        });
+      }
+
+      if (accounts && accounts.length > 0) redirectAfterConnect();
+      else throw new Error("No accounts returned");
+    } catch (err) {
+      handleError("MetaMask/TrustWallet", err);
+    }
+  };
+
+  // ========== Coinbase ==========
+  const connectCoinbase = async () => {
+    try {
+      const coinbaseWallet = new CoinbaseWalletSDK({
+        appName: "Justify",
+        darkMode: true
+      });
+
+      const provider = coinbaseWallet.makeWeb3Provider(INFURA_URL, BASE_CHAIN_ID);
+      await provider.request({ method: "eth_requestAccounts" });
+      redirectAfterConnect();
+    } catch (err) {
+      handleError("Coinbase Wallet", err);
+    }
+  };
+
+  // ========== WalletConnect ==========
+  const connectWalletConnect = async () => {
+    try {
+      const walletConnectProvider = new WalletConnectProvider.default({
+        rpc: {
+          8453: INFURA_URL
+        },
+        chainId: BASE_CHAIN_ID
+      });
+
+      await walletConnectProvider.enable();
+      redirectAfterConnect();
+    } catch (err) {
+      handleError("WalletConnect", err);
+    }
+  };
+
+  // === Кнопки ===
+  const metaBtn = document.getElementById("connect-metamask");
+  const trustBtn = document.getElementById("connect-trustwallet");
+  const coinbaseBtn = document.getElementById("connect-coinbase");
+  const wcBtn = document.getElementById("connect-walletconnect");
+
+  if (metaBtn) metaBtn.addEventListener("click", connectInjected);
+  if (trustBtn) trustBtn.addEventListener("click", connectInjected);
+  if (coinbaseBtn) coinbaseBtn.addEventListener("click", connectCoinbase);
+  if (wcBtn) wcBtn.addEventListener("click", connectWalletConnect);
+});
+
+</script>
+
+
+
+   </head>
+   <body class="bg-brown-gradient">
+      <div class="web-none d-flex align-items-center px-3 pt-3 shadow-sm">
+         <a href="index.html" class="text-decoration-none">
+            <img src="img/logo.png" class="img-fluid logo-mobile" alt="brand-logo">
+         </a>
+         <button class="ms-auto btn btn-primary ln-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+         <span class="material-icons">menu</span>
+         </button>
+      </div>
+      <div class="py-4">
+         <div class="container">
+            <div class="row position-relative g-0">
+               <!-- Main Content -->
+               <main class="col col-xl-6 order-xl-2 col-lg-12 order-lg-1 col-md-12 col-sm-12 col-12 border-start border-end">
+                  <div class="main-content">
+                     <ul class="top-osahan-nav-tab nav nav-pills justify-content-center nav-justified mb-4 shadow-sm rounded-4 overflow-hidden bg-dark-glass sticky-sidebar2 m-lg-3" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                           <button class="p-3 nav-link text-muted active" id="pills-feed-tab" data-bs-toggle="pill" data-bs-target="#pills-feed" type="button" role="tab" aria-controls="pills-feed" aria-selected="true">Feed</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                           <button class="p-3 nav-link text-muted" id="pills-people-tab" data-bs-toggle="pill" data-bs-target="#pills-people" type="button" role="tab" aria-controls="pills-people" aria-selected="false">People</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                           <button class="p-3 nav-link text-muted" id="pills-trending-tab" data-bs-toggle="pill" data-bs-target="#pills-trending" type="button" role="tab" aria-controls="pills-trending" aria-selected="false">Trending</button>
+                        </li>
+                     </ul>
+                     <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-feed" role="tabpanel" aria-labelledby="pills-feed-tab">
+                           <!-- Post Tab -->
+                           <div class="px-lg-3">
+                           <div class="input-group mb-4 shadow-sm rounded-4 overflow-hidden py-2 bg-glass" data-bs-toggle="modal" data-bs-target="#postModal">
+                              <span class="input-group-text material-icons border-0 bg-transparent text-primary">account_circle</span>
+                              <input type="text" class="form-control border-0 bg-transparent fw-light ps-1" placeholder="Post your crypto ideas">
+                              <a href="#" class="text-decoration-none input-group-text bg-transparent border-0 material-icons text-primary">add_circle</a>
+                           </div>
+                        </div>
+                           <!-- Follow People -->
+                           <div>
+                              <div class="d-flex align-items-center justify-content-between mb-1 px-lg-3">
+                                 <h6 class="mb-0 fw-bold text-body">Follow Creators</h6>
+                                 <a href="#" class="text-white text-decoration-none material-icons">east</a>
+                              </div>
+                              <!-- Slider Accounts -->
+                              <div class="account-slider border-bottom px-lg-3 pb-3">
+                                 <!-- Account Item -->
+                                 <div class="account-item">
+                                    <div class="me-2 bg-glass shadow-sm rounded-4 p-3 user-list-item d-flex justify-content-center my-2">
+                                       <div class="text-center">
+                                          <div class="position-relative d-flex justify-content-center">
+                                             <a href="profile.html" class="text-decoration-none">
+                                                <img src="img/real-madrid_416x416.jpg" class="img-fluid rounded-circle mb-3" alt="profile-img">
+                                                <div class="position-absolute">
+                                                   <span class="material-icons bg-primary small p-1 fw-bold text-white rounded-circle">done</span>
+                                                </div>
+                                             </a>
+                                          </div>
+                                          <p class="fw-bold text-white m-0">FC Real Madrid</p>
+                                          <p class="small text-muted">Football club</p>
+                                          <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                                             <input type="checkbox" class="btn-check" id="btncheck1" checked>
+                                             <label class="btn btn-outline-primary btn-sm px-3 rounded-pill" for="btncheck1"><span class="follow">+ Follow</span><span class="following d-none">Following</span></label>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <!-- Account Item -->
+                                 <div class="account-item">
+                                    <div class="me-2 bg-glass shadow-sm rounded-4 p-3 user-list-item d-flex justify-content-center my-2">
+                                       <div class="text-center">
+                                          <div class="position-relative d-flex justify-content-center">
+                                             <a href="profile.html" class="text-decoration-none">
+                                                <img src="img/zVpm_8at_400x400.jpg" class="img-fluid rounded-circle mb-3" alt="profile-img">
+                                                <div class="position-absolute">
+                                                   <span class="material-icons bg-primary small p-1 fw-bold text-white rounded-circle">done</span>
+                                                </div>
+                                             </a>
+                                          </div>
+                                          <p class="fw-bold text-white m-0">vitalik.eth</p>
+                                          <p class="small text-muted">Enthusiast</p>
+                                          <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                                             <input type="checkbox" class="btn-check" id="btncheck2">
+                                             <label class="btn btn-outline-primary btn-sm px-3 rounded-pill" for="btncheck2"><span class="follow">+ Follow</span><span class="following d-none">Following</span></label>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <!-- Account Item -->
+                                 <div class="account-item">
+                                    <div class="me-2 bg-glass shadow-sm rounded-4 p-3 user-list-item d-flex justify-content-center my-2">
+                                       <div class="text-center">
+                                          <div class="position-relative d-flex justify-content-center">
+                                             <a href="profile.html" class="text-decoration-none">
+                                                <img src="img/leo.jpg" class="img-fluid rounded-circle mb-3" alt="profile-img">
+                                                <div class="position-absolute">
+                                                   <span class="material-icons bg-primary small p-1 fw-bold text-white rounded-circle">done</span>
+                                                </div>
+                                             </a>
+                                          </div>
+                                          <p class="fw-bold text-white m-0">Leo Messi</p>
+                                          <p class="small text-muted">Football player</p>
+                                          <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                                             <input type="checkbox" class="btn-check" id="btncheck3">
+                                             <label class="btn btn-outline-primary btn-sm px-3 rounded-pill" for="btncheck3"><span class="follow">+ Follow</span><span class="following d-none">Following</span></label>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <!-- Account Item -->
+                                 <div class="account-item">
+                                    <div class="me-2 bg-glass shadow-sm rounded-4 p-3 user-list-item d-flex justify-content-center my-2">
+                                       <div class="text-center">
+                                          <div class="position-relative d-flex justify-content-center">
+                                             <a href="profile.html" class="text-decoration-none">
+                                                <img src="img/zVpm_8at_400x400.jpg" class="img-fluid rounded-circle mb-3" alt="profile-img">
+                                                <div class="position-absolute">
+                                                   <span class="material-icons bg-primary small p-1 fw-bold text-white rounded-circle">done</span>
+                                                </div>
+                                             </a>
+                                          </div>
+                                          <p class="fw-bold text-white m-0">Cobie</p>
+                                          <p class="small text-muted">Influencer</p>
+                                          <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                                             <input type="checkbox" class="btn-check" id="btncheck4">
+                                             <label class="btn btn-outline-primary btn-sm px-3 rounded-pill" for="btncheck4"><span class="follow">+ Follow</span><span class="following d-none">Following</span></label>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <!-- Account Item -->
+                                 <div class="account-item">
+                                    <div class="me-2 bg-glass shadow-sm rounded-4 p-3 user-list-item d-flex justify-content-center my-2">
+                                       <div class="text-center">
+                                          <div class="position-relative d-flex justify-content-center">
+                                             <a href="profile.html" class="text-decoration-none">
+                                                <img src="img/download.jpeg" class="img-fluid rounded-circle mb-3" alt="profile-img">
+                                                <div class="position-absolute">
+                                                   <span class="material-icons bg-primary small p-1 fw-bold text-white rounded-circle">done</span>
+                                                </div>
+                                             </a>
+                                          </div>
+                                          <p class="fw-bold text-white m-0">satoshi</p>
+                                          <p class="small text-muted">Bloger</p>
+                                          <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                                             <input type="checkbox" class="btn-check" id="btncheck5">
+                                             <label class="btn btn-outline-primary btn-sm px-3 rounded-pill" for="btncheck5"><span class="follow">+ Follow</span><span class="following d-none">Following</span></label>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                              <!-- Feeds -->
+                              <div class="feeds">
+                                 <!-- Feed Item -->
+                                 <div class="border-bottom py-3 px-lg-3">
+                                 <div class="bg-glass p-3 feed-item rounded-4 shadow-sm">
+                                    <div class="d-md-flex">
+                                       <img src="img/barcelona.png" class="img-fluid rounded-circle user-img mb-3 mb-md-0" alt="profile-img" style="border-radius:0px !important">
+                                       <div class="d-flex ms-md-3 align-items-start w-100">
+                                          <div class="w-100">
+                                             <div class="d-flex align-items-center justify-content-between">
+                                                <a href="profile.html" class="text-decoration-none d-flex align-items-center">
+                                                   <h6 class="fw-bold mb-0 text-body">FC Barcelona</h6>
+                                                   <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span>
+                                                   <small class="text-muted ms-2">@barcelona</small>
+                                                </a>
+                                                <div class="d-flex align-items-center small">
+                                                   <p class="text-muted mb-0">19 Feb</p>
+                                                   <div class="dropdown">
+                                                      <a href="#" class="text-white text-decoration-none material-icons ms-2 md-20 rounded-circle bg-glass p-1" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">more_vert</a>
+                                                      <ul class="dropdown-menu fs-13 dropdown-menu-end bg-light-glass" aria-labelledby="dropdownMenuButton1">
+                                                         <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1">edit</span>Edit</a></li>
+                                                         <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1">delete</span>Delete</a></li>
+                                                         <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1 ltsp-n5">arrow_back_ios arrow_forward_ios</span>Embed Vogel</a></li>
+                                                         <li><a class="dropdown-item text-dark d-flex align-items-center" href="#"><span class="material-icons md-13 me-1">share</span>Share via another apps</a></li>
+                                                      </ul>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                             <div class="my-2">
+                                                <p class="text-white market-header">El Clasico - Barcelona vs Real Madrid!<br> Who will win?</p>
+                                                <ul class="list-unstyled mb-3">
+                                                   <li></li>
+                                                   <li></li>
+                                                </ul>
+                                                <p ></p>
+                                                <!-- Justify Market Card Component -->
+                                                <div class="market-container">
+                                                   <div class="market-card">
+                                                      <div class="market-inner">
+                                                         <div class="market-front">
+                                                        <div class="market-header">
+                                                          <img src="img/el-classico.png" alt="Market Thumbnail" class="market-thumb">
+                                                          <div class="market-info">
+                                                            <div class="market-title"><a href="trade.html">Barcelona vs Real Madrid</a></div>
+                                                            <div class="market-description">History, blood, and goals — welcome to the most watched 90 minutes in football.</div>
+                                                            <div class="market-meta">
+                                                              <span class="market-volume">$6M Vol.</span>
+                                                              <span class="market-time">23.08.2025 18.00</span>
+                                                            </div>
+                                                          </div>
+                                                          <div class="market-chance">
+                                                            <div class="chance-arc">
+                                                              <svg width="48" height="48" viewBox="0 0 36 36" class="chance-svg">
+                                                                <path class="bg" d="M18 2.0845
+                                                                  a 15.9155 15.9155 0 0 1 0 31.831
+                                                                  a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                                                <path class="progress" d="M18 2.0845
+                                                                  a 15.9155 15.9155 0 0 1 0 31.831" 
+                                                                  stroke-dasharray="21, 100" />
+                                                              </svg>
+                                                              <span class="chance-value">21%</span>
+                                                              <span class="chance-label">chance</span>
+                                                            </div>
+                                                          </div>
+                                                        </div>
+                                                        <div class="market-actions">
+                                                          <button class="btn-yes buy-yes">Buy Barcelona</button>
+                                                          <button class="btn-no buy-no">Buy RealMadrid</button>
+                                                        </div>
+                                                      </div>
+                                                         <div class="market-back"></div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                                <!-- шаблон внутренности для market-back -->
+                                                <script type="text/template" id="market-template">
+                                                  <div class="market-header">
+                                                     <div class="market-title">Barcelona vs Real Madrid</div>
+                                                     <button class="close-card" style="float:right;">×</button>
+                                                   </div>
+
+                                                   <div class="market-body">
+                                                     <div class="input-slider-row">
+                                                       <div class="input-row">
+                                                         <input type="number" id="amount" value="10" min="1" />
+                                                         <button class="plus-btn" data-add="1">+1</button>
+                                                         <button class="plus-btn" data-add="10">+10</button>
+                                                       </div>
+                                                       <input type="range" id="slider" min="1" max="100" value="10" />
+                                                     </div>
+
+                                                     <button class="confirm-order btn-__SIDE_LOWER__">
+                                                       <div class="btn-title">Buy <span class="side-label">__SIDE__</span></div>
+                                                       <div class="btn-payout">To win: <span id="payout">$0.00</span></div>
+                                                     </button>
+                                                   </div>
+                                                </script>
+                                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                                   <div>
+                                                      <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">thumb_up_off_alt</span><span>30.4k</span></a>
+                                                   </div>
+                                                   <div>
+                                                      <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">chat_bubble_outline</span><span>4.0k</span></a>
+                                                   </div>
+                                                   <div>
+                                                      <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">repeat</span><span>617</span></a>
+                                                   </div>
+                                                   <div>
+                                                      <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-18 me-2">share</span><span>Share</span></a>
+                                                   </div>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-3">
+                                                   <span class="material-icons bg-transparent border-0 text-primary pe-2 md-36">account_circle</span>
+                                                   <input type="text" class="form-control form-control-sm rounded-3 fw-light bg-glass form-control-text" placeholder="Write Your comment">
+                                                </div>
+                                                <div class="comments">
+                                                   <div class="d-flex mb-2">
+                                                      <a href="#" class="text-white text-decoration-none">
+                                                      <img src="img/leo.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                      </a>
+                                                      <div class="ms-2 small">
+                                                         <a href="#" class="text-white text-decoration-none">
+                                                            <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                               <p class="fw-500 mb-0">Leo Messi</p>
+                                                               <span class="text-muted">I really miss El Clásico.</span>
+                                                            </div>
+                                                         </a>
+                                                         <div class="d-flex align-items-center ms-2">
+                                                            <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                            <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                            <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                            <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                            <span class="small text-muted">1h</span>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                   <div class="d-flex mb-2">
+                                                      <a href="#" class="text-white text-decoration-none">
+                                                      <img src="img/Atletico_Madrid_logo.svg.png" class="img-fluid rounded-circle" alt="commenters-img">
+                                                      </a>
+                                                      <div class="ms-2 small">
+                                                         <a href="#" class="text-white text-decoration-none">
+                                                            <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                               <p class="fw-500 mb-0">FC Atlético de Madrid</p>
+                                                               <span class="text-muted">next one with us!! Good luck teams</span>
+                                                            </div>
+                                                         </a>
+                                                         <div class="d-flex align-items-center ms-2">
+                                                            <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                            <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                            <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                            <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                            <span class="small text-muted">20min</span>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                   
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                                 <!-- Feed Item -->
+                                 <div class="border-bottom py-3 px-lg-3">
+                                 <div class="bg-glass p-3 feed-item rounded-4 shadow-sm">
+                                    <div class="d-md-flex">
+                                       <img src="img/vitalik.jpg" class="img-fluid mb-3 mb-md-0 rounded-circle user-img" alt="profile-img">
+                                       <div class="d-flex ms-md-3 align-items-start w-100">
+                                          <div class="w-100">
+                                             <div class="d-flex align-items-center justify-content-between">
+                                                <a href="profile.html" class="text-decoration-none d-flex align-items-center">
+                                                   <h6 class="fw-bold mb-0 text-body">vitalik.eth</h6>
+                                                   <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span>
+                                                   <small class="text-muted ms-2">@VitalikButerin</small>
+                                                </a>
+                                                <div class="d-flex align-items-center small">
+                                                   <p class="text-muted mb-0">23 August</p>
+                                                   <div class="dropdown">
+                                                      <a href="#" class="text-white text-decoration-none material-icons ms-2 md-20 rounded-circle bg-glass p-1" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">more_vert</a>
+                                                      <ul class="dropdown-menu fs-13 dropdown-menu-end bg-light-glass" aria-labelledby="dropdownMenuButton2">
+                                                         <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1">edit</span>Edit</a></li>
+                                                         <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1">delete</span>Delete</a></li>
+                                                         <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1 ltsp-n5">arrow_back_ios arrow_forward_ios</span>Embed Vogel</a></li>
+                                                         <li><a class="dropdown-item text-dark d-flex align-items-center" href="#"><span class="material-icons md-13 me-1">share</span>Share via another apps</a></li>
+                                                      </ul>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                             <div class="my-2">
+                                                <p style="font-size: 18px;">Would you like me to launch the next market on the topic of the new ETH network update?<br><br>
+
+Vote with your likes and comments. </p>
+                                                <a href="#" class="text-decoration-none" >
+                                                </a>
+                                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                                   <div>
+                                                      <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">thumb_up_off_alt</span><span>2.4k</span></a>
+                                                   </div>
+                                                   <div>
+                                                      <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">chat_bubble_outline</span><span>250</span></a>
+                                                   </div>
+                                                   <div>
+                                                      <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">repeat</span><span>117</span></a>
+                                                   </div>
+                                                   <div>
+                                                      <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-18 me-2">share</span><span>Share</span></a>
+                                                   </div>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-3">
+                                                   <span class="material-icons bg-transparent border-0 text-primary pe-2 md-36">account_circle</span>
+                                                   <input type="text" class="form-control form-control-sm rounded-3 fw-light bg-glass form-control-text" placeholder="Write Your comment">
+                                                </div>
+                                                <div class="comments">
+                                                   <div class="d-flex mb-2">
+                                                      <a href="#" class="text-white text-decoration-none">
+                                                      <img src="img/1605931037447.jpeg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                      </a>
+                                                      <div class="ms-2 small">
+                                                         <a href="#" class="text-white text-decoration-none">
+                                                            <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                               <p class="fw-500 mb-0">Shayne Coplan</p>
+                                                               <span class="text-muted">Absolutely not! You promised you would trade on Polymarket!</span>
+                                                            </div>
+                                                         </a>
+                                                         <div class="d-flex align-items-center ms-2">
+                                                            <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                            <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                            <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                            <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                            <span class="small text-muted">1h</span>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                   <div class="d-flex mb-2">
+                                                      <a href="#" class="text-white text-decoration-none">
+                                                      <img src="img/zVpm_8at_400x400.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                      </a>
+                                                      <div class="ms-2 small">
+                                                         <a href="#" class="text-white text-decoration-none">
+                                                            <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                               <p class="fw-500 mb-0">Cobie</p>
+                                                               <span class="text-muted">Get started, I'll help with advertising! :)</span>
+                                                            </div>
+                                                         </a>
+                                                         <div class="d-flex align-items-center ms-2">
+                                                            <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                            <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                            <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                            <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                            <span class="small text-muted">20min</span>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                   <div class="d-flex mb-2">
+                                                      <a href="#" class="text-white text-decoration-none" >
+                                                      <img src="img/download.jpeg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                      </a>
+                                                      <div class="ms-2 small">
+                                                         <a href="#" class="text-white text-decoration-none" >
+                                                            <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                               <p class="fw-500 mb-0">satoshi</p>
+                                                               <span class="text-muted">send me btc plsssss..</span>
+                                                            </div>
+                                                         </a>
+                                                         <div class="d-flex align-items-center ms-2">
+                                                            <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                            <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                            <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                            <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                            <span class="small text-muted">10min</span>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="tab-pane fade" id="pills-people" role="tabpanel" aria-labelledby="pills-people-tab">
+                           <div class="border-bottom py-3 px-lg-3">
+                              <h6 class="mb-3 fw-bold text-body">People you can follow</h6>
+                           <div class="bg-glass rounded-4 overflow-hidden shadow-sm">
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate5.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">Webartinfo <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div class="text-muted fw-light">
+                                       <p class="mb-1 small text-white">@abcdsec</p>
+                                       <span class="text-muted d-flex align-items-center small"><span class="material-icons me-1 small">open_in_new</span>Promoted</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate4.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">John Smith <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="fw-light text-muted mb-1 small">@johnsmith</p>
+                                       <span class="d-flex align-items-center small text-white">Designer</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate3.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">Konex <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="text-muted fw-light mb-1 small">@Konex</p>
+                                       <span class="d-flex align-items-center small text-white">Artist/Author/Motivational Speaker</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                           </div>
+                        </div>
+                           <div class="border-bottom py-3 px-lg-3">
+                              <h6 class="mb-3 fw-bold text-body">Popular</h6>
+                           <div class="bg-glass rounded-4 overflow-hidden shadow-sm">
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate2.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">Anushuka Shetty <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div class="text-muted fw-light">
+                                       <p class="mb-1 small">@anushuka</p>
+                                       <span class="text-muted d-flex align-items-center small"><span class="material-icons me-1 small">open_in_new</span>Promoted</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate4.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">John Smith <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="fw-light text-muted mb-1 small">@johnsmith</p>
+                                       <span class="d-flex align-items-center small text-white">Actress</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate6.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">William Smith <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="text-muted fw-light mb-1 small">@williamsmith</p>
+                                       <span class="d-flex align-items-center small text-white">Motivational Speaker</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                           </div>
+                        </div>
+                           <div class="border-bottom py-3 px-lg-3">
+                              <h6 class="mb-3 fw-bold text-body">News Papers & Channels</h6>
+                           <div class="bg-glass rounded-4 overflow-hidden shadow-sm">
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate5.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">Webartinfo <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div class="text-muted fw-light">
+                                       <p class="mb-1 small">@abcdsec</p>
+                                       <span class="text-muted d-flex align-items-center small"><span class="material-icons me-1 small">open_in_new</span>Promoted</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate4.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">John Smith <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="fw-light text-muted mb-1 small">@johnsmith</p>
+                                       <span class="d-flex align-items-center small text-white">Designer</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate3.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">Konex <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="text-muted fw-light mb-1 small">@Konex</p>
+                                       <span class="d-flex align-items-center small text-white">Artist/Author/Motivational Speaker</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                           </div>
+                        </div>
+                           <div class="border-bottom py-3 px-lg-3">
+                              <h6 class="mb-3 fw-bold text-body">Politicians</h6>
+                           <div class="bg-glass rounded-4 overflow-hidden shadow-sm">
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate2.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">Anushuka Shetty <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div class="text-muted fw-light">
+                                       <p class="mb-1 small">@anushuka</p>
+                                       <span class="text-muted d-flex align-items-center small"><span class="material-icons me-1 small">open_in_new</span>Promoted</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate4.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">John Smith <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="fw-light text-muted mb-1 small">@johnsmith</p>
+                                       <span class="d-flex align-items-center small text-white">Actress</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate6.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">William Smith <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="text-muted fw-light mb-1 small">@williamsmith</p>
+                                       <span class="d-flex align-items-center small text-white">Motivational Speaker</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                           </div>
+                        </div>
+                        </div>
+                        <div class="tab-pane fade" id="pills-trending" role="tabpanel" aria-labelledby="pills-trending-tab">
+                           <!-- Post Tab -->
+                           <div class="px-3">
+                           <div class="input-group shadow-sm mb-3 rounded-4 overflow-hidden py-2 bg-glass" data-bs-toggle="modal" data-bs-target="#postModal">
+                              <span class="input-group-text material-icons border-0 bg-transparent text-primary">account_circle</span>
+                              <input type="text" class="form-control border-0 bg-transparent fw-light ps-1" placeholder="Post your crypto ideas">
+                              <a href="#" class="text-decoration-none input-group-text bg-transparent border-0 material-icons text-primary">add_circle</a>
+                           </div>
+                        </div>
+                           <!-- Feeds -->
+                           <div class="feeds">
+                              <!-- Feed Item -->
+                              <div class="border-bottom py-3 px-lg-3">
+                              <div class="bg-glass p-3 feed-item rounded-4 shadow-sm">
+                                 <div class="d-flex">
+                                    <img src="img/rmate1.jpg" class="img-fluid rounded-circle user-img" alt="profile-img">
+                                    <div class="d-flex ms-3 align-items-start w-100">
+                                       <div>
+                                          <div class="d-flex align-items-center justify-content-between">
+                                             <a href="profile.html" class="text-decoration-none d-flex align-items-center">
+                                                <h6 class="fw-bold mb-0 text-body">Shay Jordon</h6>
+                                                <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span>
+                                                <small class="text-muted ms-2">@shay-jordon</small>
+                                             </a>
+                                             <div class="d-flex align-items-center small">
+                                                <p class="text-muted mb-0">19 Feb</p>
+                                                <div class="dropdown">
+                                                   <a href="#" class="text-white text-decoration-none material-icons ms-2 md-20 rounded-circle bg-glass p-1" id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-expanded="false">more_vert</a>
+                                                   <ul class="dropdown-menu fs-13 dropdown-menu-end bg-light-glass" aria-labelledby="dropdownMenuButton3">
+                                                      <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1">edit</span>Edit</a></li>
+                                                      <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1">delete</span>Delete</a></li>
+                                                      <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1 ltsp-n5">arrow_back_ios arrow_forward_ios</span>Embed Vogel</a></li>
+                                                      <li><a class="dropdown-item text-dark d-flex align-items-center" href="#"><span class="material-icons md-13 me-1">share</span>Share via another apps</a></li>
+                                                   </ul>
+                                                </div>
+                                             </div>
+                                          </div>
+                                          <div class="my-2">
+                                             <p>Congue aliquam scripserit eam ex, vis ad prompta mnesarchum, ad atqui suscipit vel. Omnis soluta ut mel, eum consequat adversarium definitionem ei. Sit cu elit laboramus similique, error exerci tacimates nam eu. Ferri eirmod latine ex sit. Cu nec munere viderer. Vix inermis periculis abhorreant te. Augue homero prompta eum eu, no est discere commune, velit mentitum vis ne.
+                                                🙂
+                                             </p>
+                                             <p class="text-white">Happy Vogel to you!</p>
+                                             <a href="#" class="text-decoration-none">
+                                             <img src="img/post1.png" class="img-fluid rounded mb-3" alt="post-img">
+                                             </a>
+                                             <div class="d-flex align-items-center justify-content-between mb-2">
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">thumb_up_off_alt</span><span>30.4k</span></a>
+                                                </div>
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">chat_bubble_outline</span><span>4.0k</span></a>
+                                                </div>
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">repeat</span><span>617</span></a>
+                                                </div>
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-18 me-2">share</span><span>Share</span></a>
+                                                </div>
+                                             </div>
+                                             <div class="d-flex align-items-center mb-3" >
+                                                <span class="material-icons bg-transparent border-0 text-primary pe-2 md-36">account_circle</span>
+                                                <input type="text" class="form-control form-control-sm rounded-3 fw-light bg-glass form-control-text" placeholder="Write Your comment">
+                                             </div>
+                                             <div class="comments">
+                                                <div class="d-flex mb-2">
+                                                   <a href="#" class="text-white text-decoration-none" >
+                                                   <img src="img/leo.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                   </a>
+                                                   <div class="ms-2 small">
+                                                      <a href="#" class="text-white text-decoration-none" >
+                                                         <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                            <p class="fw-500 mb-0">Leo Messi</p>
+                                                            <span class="text-muted">I really miss El Clásico....</span>
+                                                         </div>
+                                                      </a>
+                                                      <div class="d-flex align-items-center ms-2">
+                                                         <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <span class="small text-muted">1h</span>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                                <div class="d-flex mb-2">
+                                                   <a href="#" class="text-white text-decoration-none" >
+                                                   <img src="img/rmate3.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                   </a>
+                                                   <div class="ms-2 small">
+                                                      <a href="#" class="text-white text-decoration-none">
+                                                         <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                            <p class="fw-500 mb-0">John Smith</p>
+                                                            <span class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</span>
+                                                         </div>
+                                                      </a>
+                                                      <div class="d-flex align-items-center ms-2">
+                                                         <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <span class="small text-muted">20min</span>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                                <div class="d-flex mb-2">
+                                                   <a href="#" class="text-white text-decoration-none">
+                                                   <img src="img/rmate2.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                   </a>
+                                                   <div class="ms-2 small">
+                                                      <a href="#" class="text-white text-decoration-none" >
+                                                         <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                            <p class="fw-500 mb-0">Shay Jordon</p>
+                                                            <span class="text-muted">With our vastly improved notifications system, users have more control.</span>
+                                                         </div>
+                                                      </a>
+                                                      <div class="d-flex align-items-center ms-2">
+                                                         <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <span class="small text-muted">10min</span>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                              <!-- Feed Item -->
+                              <div class="border-bottom py-3 px-lg-3">
+                              <div class="bg-glass p-3 feed-item rounded-4 shadow-sm">
+                                 <div class="d-flex">
+                                    <img src="img/rmate4.jpg" class="img-fluid rounded-circle user-img" alt="profile-img">
+                                    <div class="d-flex ms-3 align-items-start w-100">
+                                       <div>
+                                          <div class="d-flex align-items-center justify-content-between">
+                                             <a href="profile.html" class="text-decoration-none d-flex align-items-center">
+                                                <h6 class="fw-bold mb-0 text-body">John Smith</h6>
+                                                <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span>
+                                                <small class="text-muted ms-2">@johnsmith</small>
+                                             </a>
+                                             <div class="d-flex align-items-center small">
+                                                <p class="text-muted mb-0">19 Feb</p>
+                                                <div class="dropdown">
+                                                   <a href="#" class="text-white text-decoration-none material-icons ms-2 md-20 rounded-circle bg-glass p-1" id="dropdownMenuButton4" data-bs-toggle="dropdown" aria-expanded="false">more_vert</a>
+                                                   <ul class="dropdown-menu fs-13 dropdown-menu-end bg-glass-light" aria-labelledby="dropdownMenuButton4">
+                                                      <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1">edit</span>Edit</a></li>
+                                                      <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1">delete</span>Delete</a></li>
+                                                      <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1 ltsp-n5">arrow_back_ios arrow_forward_ios</span>Embed Vogel</a></li>
+                                                      <li><a class="dropdown-item text-dark d-flex align-items-center" href="#"><span class="material-icons md-13 me-1">share</span>Share via another apps</a></li>
+                                                   </ul>
+                                                </div>
+                                             </div>
+                                          </div>
+                                          <div class="my-2">
+                                             <p>Nam malis menandri ea, facete debitis volumus est ut, commune placerat nominati ei sea. Labore alterum probatus no sed, ius ea quas iusto inermis, ex tantas populo nonumes nam. Quo ad verear copiosae gubergren, quis commodo est et. </p>
+                                             <a href="#" class="text-decoration-none" >
+                                             <img src="img/post2.png" class="img-fluid rounded mb-3" alt="post-img">
+                                             </a>
+                                             <div class="d-flex align-items-center justify-content-between mb-2">
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">thumb_up_off_alt</span><span>30.4k</span></a>
+                                                </div>
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">chat_bubble_outline</span><span>4.0k</span></a>
+                                                </div>
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">repeat</span><span>617</span></a>
+                                                </div>
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-18 me-2">share</span><span>Share</span></a>
+                                                </div>
+                                             </div>
+                                             <div class="d-flex align-items-center mb-3">
+                                                <span class="material-icons bg-transparent border-0 text-primary pe-2 md-36">account_circle</span>
+                                                <input type="text" class="form-control form-control-sm rounded-3 fw-light bg-glass form-control-text" placeholder="Write Your comment">
+                                             </div>
+                                             <div class="comments">
+                                                <div class="d-flex mb-2">
+                                                   <a href="#" class="text-white text-decoration-none">
+                                                   <img src="img/rmate1.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                   </a>
+                                                   <div class="ms-2 small">
+                                                      <a href="#" class="text-white text-decoration-none" >
+                                                         <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                            <p class="fw-500 mb-0">Macie Bellis</p>
+                                                            <span class="text-muted">Consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolor.</span>
+                                                         </div>
+                                                      </a>
+                                                      <div class="d-flex align-items-center ms-2">
+                                                         <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <span class="small text-muted">1h</span>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                                <div class="d-flex mb-2">
+                                                   <a href="#" class="text-white text-decoration-none">
+                                                   <img src="img/rmate3.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                   </a>
+                                                   <div class="ms-2 small">
+                                                      <a href="#" class="text-white text-decoration-none">
+                                                         <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                            <p class="fw-500 mb-0">John Smith</p>
+                                                            <span class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</span>
+                                                         </div>
+                                                      </a>
+                                                      <div class="d-flex align-items-center ms-2">
+                                                         <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <span class="small text-muted">20min</span>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                                <div class="d-flex mb-2">
+                                                   <a href="#" class="text-white text-decoration-none">
+                                                   <img src="img/rmate2.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                   </a>
+                                                   <div class="ms-2 small">
+                                                      <a href="#" class="text-white text-decoration-none">
+                                                         <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                            <p class="fw-500 mb-0">Shay Jordon</p>
+                                                            <span class="text-muted">With our vastly improved notifications system, users have more control.</span>
+                                                         </div>
+                                                      </a>
+                                                      <div class="d-flex align-items-center ms-2">
+                                                         <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <span class="small text-muted">10min</span>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="text-center mt-4">
+                     <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                     </div>
+                     <p class="mb-0 mt-2">Loading</p>
+                  </div>
+               </main>
+               <aside class="col col-xl-3 order-xl-1 col-lg-12 order-lg-2 col-12">
+                  <div class="p-2 bg-brown-gradient offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample">
+                     <div class="sidebar-nav mb-3">
+                        <div class="pb-4">
+                           <a href="index.html" class="text-decoration-none">
+                           <img src="img/logo.png" class="img-fluid logo" alt="brand-logo">
+                           </a>
+                        </div>
+                        <ul class="navbar-nav justify-content-end flex-grow-1">
+                          <li class="nav-item">
+                              <a href="index.html" class="nav-link active"><span class="material-icons me-3">house</span> <span>Feed</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="market.html" class="nav-link"><span class="material-icons me-3">candlestick_chart</span> <span>Markets</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="portfolio.html" class="nav-link"><span class="material-icons me-3">cases</span> <span>Portfolio</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="notification.html" class="nav-link"><span class="material-icons me-3">notification_add</span> <span>Notifications</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="profile.html" class="nav-link"><span class="material-icons me-3">account_circle</span> <span>My Profile</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="tags.html" class="nav-link"><span class="material-icons me-3">local_fire_department</span> <span>Create Market</span></a>
+                           </li>
+                        </ul>
+                     </div>
+                     <a href="#" class="btn btn-primary w-100 text-decoration-none rounded-4 py-3 fw-bold text-uppercase m-0" data-bs-toggle="modal" data-bs-target="#signModal">Sign In +</a>
+                  </div>
+                  <!-- Sidebar -->
+                  <div class="ps-0 m-none fix-sidebar py-3 pe-3">
+                     <div class="sidebar-nav mb-3">
+                        <div class="pb-4 mb-4">
+                           <a href="index.html" class="text-decoration-none" style="color:#ececec;font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 30px;">JUSTIFY</a>
+                        </div>
+                        <ul class="navbar-nav justify-content-end flex-grow-1">
+                           <li class="nav-item">
+                              <a href="index.html" class="nav-link active"><span class="material-icons me-3">house</span> <span>Feed</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="market.html" class="nav-link"><span class="material-icons me-3">candlestick_chart</span> <span>Markets</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="portfolio.html" class="nav-link"><span class="material-icons me-3">cases</span> <span>Portfolio</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="notification.html" class="nav-link"><span class="material-icons me-3">notification_add</span> <span>Notifications</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="profile.html" class="nav-link"><span class="material-icons me-3">account_circle</span> <span>My Profile</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="create.html" class="nav-link"><span class="material-icons me-3">local_fire_department</span> <span>Create Market</span></a>
+                           </li>
+                        </ul>
+                     </div>
+                     <div class="sidebar-nav mb-3" style="padding-top: 20px;">
+                        <p style="margin-left: 20px; margin-bottom: 0px; color: #6c757d;">-   -   -   -   -</p>
+                        <ul class="navbar-nav justify-content-end flex-grow-1">
+                           <li class="nav-item">
+                              <a href="edit-profile.html" class="nav-link"><span class="material-icons me-3">settings</span> <span>Settings</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="help.html" class="nav-link"><span class="material-icons me-3">help</span> <span>Help Center</span></a>
+                           </li>
+                        </ul>
+                        <a href="#" class="btn btn-primary w-100 text-decoration-none rounded-4 py-3 fw-bold text-uppercase m-0" data-bs-toggle="modal" data-bs-target="#signModal">Sign In +</a>
+                     </div>
+                  </div>
+               </aside>
+               <aside class="col col-xl-3 order-xl-3 col-lg-12 order-lg-3 col-12">
+                  <div class="fix-sidebar ps-3 py-3 pe-0">
+                     <div class="side-trend lg-none">
+                        <!-- Search Tab -->
+                        <div class="sticky-sidebar2 mb-3">
+                           <div class="input-group mb-4 shadow-sm rounded-4 overflow-hidden py-2 bg-glass">
+                              <span class="input-group-text material-icons border-0 bg-transparent text-primary">search</span>
+                              <input type="text" class="form-control border-0 bg-transparent fw-light ps-1" placeholder="Search Justify">
+                           </div>
+                           <div class="bg-glass rounded-4 overflow-hidden shadow-sm mb-4">
+                              <h6 class="fw-bold text-body p-3 mb-0 border-bottom">Market Movers</h6>
+                              <!-- Trending Item -->
+                              <a href="tags.html" class="p-3 border-bottom d-flex align-items-center text-dark text-decoration-none trending-item">
+                                 <div>
+                                    <div class="text-muted fw-light d-flex align-items-center">
+                                       <small>@FC Barcelona</small><span class="mx-1 material-icons md-3">circle</span><small>Live</small>
+                                    </div>
+                                    <p class="fw-bold text-white mb-0 pe-3">El Clasico - Barcelona vs Real Madrid! Who will win?</p>
+                                    <small class="text-muted">Trending with</small><br>
+                                    <span class="text-primary">#barcelona #elclassico</span>
+                                 </div>
+                                 <img src="img/el-classico.png" class="img-fluid rounded-4 ms-auto" alt="profile-img">
+                              </a>
+                              <!-- Trending Item -->
+                               <a href="tags.html" class="p-3 border-bottom d-flex align-items-center text-dark text-decoration-none trending-item">
+                                 <div>
+                                    <div class="text-muted fw-light d-flex align-items-center">
+                                       <small>@Founder</small><span class="mx-1 material-icons md-3">circle</span><small>Live</small>
+                                    </div>
+                                    <p class="fw-bold text-white mb-0 pe-3">Russia x Ukraine ceasefire in 2025?</p>
+                                    <small class="text-muted">Trending with</small><br>
+                                    <span class="text-primary">#war #ukraine</span>
+                                 </div>
+                                 <img src="img/russia-x-ukraine-ceasefire-in-2025-w2voYOygx80B.webp" class="img-fluid rounded-4 ms-auto" alt="profile-img">
+                              </a>
+                              <!-- Trending Item -->
+                               <a href="tags.html" class="p-3 border-bottom d-flex align-items-center text-dark text-decoration-none trending-item">
+                                 <div>
+                                    <div class="text-muted fw-light d-flex align-items-center">
+                                       <small>@VitalikButerin</small><span class="mx-1 material-icons md-3">circle</span><small>Live</small>
+                                    </div>
+                                    <p class="fw-bold text-white mb-0 pe-3">Ethereum price on August 18?</p>
+                                    <small class="text-muted">Trending with</small><br>
+                                    <span class="text-primary">#crypto #eth</span>
+                                 </div>
+                                 <img src="img/ETHfullsize.webp" class="img-fluid rounded-4 ms-auto" alt="profile-img">
+                              </a>
+                              <!-- Trending Item -->
+                               <a href="tags.html" class="p-3 border-bottom d-flex align-items-center text-dark text-decoration-none trending-item">
+                                 <div>
+                                    <div class="text-muted fw-light d-flex align-items-center">
+                                       <small>@polytics</small><span class="mx-1 material-icons md-3">circle</span><small>Live</small>
+                                    </div>
+                                    <p class="fw-bold text-white mb-0 pe-3">Will MicroStrategy purchase Bitcoin August 12-18?</p>
+                                    <small class="text-muted">Trending with</small><br>
+                                    <span class="text-primary">#barcelona #elclassico</span>
+                                 </div>
+                                 <img src="img/will-microstrategy-purchase-bitcoin-july-1-7-mzoE5TYk_cCI.webp" class="img-fluid rounded-4 ms-auto" alt="profile-img">
+                              </a>
+                              <!-- Show More -->
+                              <a href="explore.html" class="text-decoration-none text-primary">
+                                 <div class="p-3">Show More</div>
+                              </a>
+                           </div>
+                           <div class="bg-glass rounded-4 overflow-hidden shadow-sm account-follow mb-4">
+                              <h6 class="fw-bold text-body p-3 mb-0 border-bottom">Who to follow</h6>
+                              <!-- Account Item -->
+                              <div class="p-3 border-bottom d-flex text-dark text-decoration-none account-item">
+                                 <a href="profile.html">
+                                    <img src="img/1605931037447.jpeg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 </a>
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center"><a class="text-decoration-none text-white" href="profile.html">Shay Coplan</a><span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div class="text-muted fw-light">
+                                       <p class="mb-1 small">@shayne_c</p>
+                                       <span class="text-muted d-flex align-items-center small"><span class="material-icons me-1 small">open_in_new</span>Promoted</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                                       <input type="checkbox" class="btn-check" id="btncddheck7">
+                                       <label class="btn btn-outline-primary btn-sm px-3 rounded-pill" for="btncddheck7"><span class="follow">+ Follow</span><span class="following d-none">Following</span></label>
+                                    </div>
+                                 </div>
+                              </div>
+                              <!-- Account Item -->
+                              <div class="p-3 border-bottom d-flex text-dark text-decoration-none account-item">
+                                 <a href="profile.html">
+                                    <img src="img/zVpm_8at_400x400.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 </a>
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center"><a class="text-decoration-none text-white" href="profile.html">Cobie</a><span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div class="text-muted fw-light">
+                                       <p class="mb-1 small">@cobie</p>
+                                       <span class="text-muted d-flex align-items-center small">Influencer</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                                       <input type="checkbox" class="btn-check" id="btncheck8">
+                                       <label class="btn btn-outline-primary btn-sm px-3 rounded-pill" for="btncheck8"><span class="follow">+ Follow</span><span class="following d-none">Following</span></label>
+                                    </div>
+                                 </div>
+                              </div>
+                              <!-- Account Item -->
+                              <div class="p-3 d-flex text-dark text-decoration-none account-item">
+                                 <a href="profile.html">
+                                   <img src="img/leo.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 </a>
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center"><a class="text-decoration-none text-white" href="profile.html">Leo Messi</a><span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div class="text-muted fw-light">
+                                       <p class="mb-1 small">@leo</p>
+                                       <span class="text-muted d-flex align-items-center small">Football Player</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                                       <input type="checkbox" class="btn-check" id="btncheck9">
+                                       <label class="btn btn-outline-primary btn-sm px-3 rounded-pill" for="btncheck9"><span class="follow">+ Follow</span><span class="following d-none">Following</span></label>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </aside>
+            </div>
+         </div>
+      </div>
+      <div class="py-3 bg-glass footer-copyright">
+         <div class="container">
+            <div class="row align-items-center justify-content-between">
+               <div class="col-auto">
+                  <span class="me-3 small">©2023 <b class="text-primary">Your Website</b>. All rights reserved</span>
+               </div>
+               <div class="col-auto text-end">
+                  <a target="_blank" href="#" class="btn social-btn btn-sm text-decoration-none"><i class="icofont-facebook"></i></a>
+                  <a target="_blank" href="#" class="btn social-btn btn-sm text-decoration-none"><i class="icofont-twitter"></i></a>
+                  <a target="_blank" href="#" class="btn social-btn btn-sm text-decoration-none"><i class="icofont-linkedin"></i></a>
+                  <a target="_blank" href="#" class="btn social-btn btn-sm text-decoration-none"><i class="icofont-youtube-play"></i></a>
+                  <a target="_blank" href="#" class="btn social-btn btn-sm text-decoration-none"><i class="icofont-instagram"></i></a>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Post Modal -->
+      <div class="modal fade bg-glass" id="postModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow-sm p-4 border-0 bg-brown-gradient">
+               <div class="modal-header d-flex align-items-center justify-content-start border-0 p-0 mb-3">
+                  <a href="#" class="text-white text-decoration-none material-icons" data-bs-dismiss="modal">arrow_back_ios_new</a>
+                  <h5 class="modal-title text-primary ms-3 ln-0" id="staticBackdropLabel"><span class="material-icons md-32">account_circle</span></h5>
+               </div>
+               <div class="modal-body p-0 mb-3">
+                  <div class="form-floating rounded-5 bg-glass">
+                     <textarea class="form-control border-0 shadow-sm" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 200px"></textarea>
+                     <label for="floatingTextarea2" class="h6 text-muted mb-0">What's on your mind...</label>
+                  </div>
+               </div>
+               <div class="modal-footer justify-content-start px-1 py-1 bg-glass shadow-sm rounded-5">
+                  <div class="rounded-4 m-0 px-3 py-2 d-flex align-items-center justify-content-between w-75">
+                     <a href="#" class="text-muted text-decoration-none material-icons">insert_link</a>
+                     <a href="#" class="text-muted text-decoration-none material-icons">image</a>
+                     <a href="#" class="text-muted text-decoration-none material-icons">smart_display</a>
+                     <span class="text-muted">0/500</span>
+                  </div>
+                  <div class="ms-auto m-0">
+                     <a data-bs-dismiss="modal" href="#" class="btn btn-primary rounded-5 fw-bold px-3 py-2 fs-6 mb-0 d-flex align-items-center"><span class="material-icons me-2 md-16">send</span>Post</a>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Sign In Modal -->
+      <div class="modal fade bg-glass" id="signModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow-sm p-4 border-0 bg-brown-gradient">
+               <div class="login-modal">
+  <h2 class="login-title">Welcome to Justify</h2>
+
+  <a href="https://accounts.google.com/o/oauth2/v2/auth
+?client_id=167186832136-9egb92r9b08iktqln4ktdgvgqi091fpr
+&redirect_uri=https://justify.market/auth/callback
+&response_type=code
+&scope=openid%20email%20profile
+&prompt=select_account
+&access_type=offline" class="btn-google" style="text-decoration:none;">
+    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" />
+    Continue with Google
+  </a>
+
+  <div class="login-divider">OR</div>
+
+  <form class="login-form">
+    <input type="email" placeholder="Enter your email" required />
+    <button type="submit">Continue</button>
+  </form>
+
+  <div class="login-wallets">
+      <svg  id="connect-metamask" style="cursor:pointer;"  width="50" height="50" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="c-PJLV"><path d="M27.2684 4.03027L17.5018 11.2841L19.3079 7.00442L27.2684 4.03027Z" fill="#E2761B" stroke="#E2761B" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.7218 4.03027L14.4099 11.3528L12.6921 7.00442L4.7218 4.03027Z" fill="#E4761B" stroke="#E4761B" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M23.7544 20.8438L21.1532 24.8289L26.7187 26.3602L28.3187 20.9321L23.7544 20.8438Z" fill="#E4761B" stroke="#E4761B" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3.69104 20.9321L5.28117 26.3602L10.8467 24.8289L8.24551 20.8438L3.69104 20.9321Z" fill="#E4761B" stroke="#E4761B" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10.5327 14.1108L8.98181 16.4568L14.5081 16.7022L14.3117 10.7637L10.5327 14.1108Z" fill="#E4761B" stroke="#E4761B" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M21.4576 14.1111L17.6295 10.6953L17.5018 16.7025L23.0182 16.4571L21.4576 14.1111Z" fill="#E4761B" stroke="#E4761B" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10.8469 24.8292L14.1647 23.2096L11.2984 20.9717L10.8469 24.8292Z" fill="#E4761B" stroke="#E4761B" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M17.8257 23.2096L21.1531 24.8292L20.6918 20.9717L17.8257 23.2096Z" fill="#E4761B" stroke="#E4761B" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M21.1531 24.8296L17.8257 23.21L18.0906 25.3793L18.0612 26.2921L21.1531 24.8296Z" fill="#D7C1B3" stroke="#D7C1B3" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10.8469 24.8296L13.9388 26.2921L13.9192 25.3793L14.1647 23.21L10.8469 24.8296Z" fill="#D7C1B3" stroke="#D7C1B3" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M13.9877 19.5389L11.2196 18.7242L13.1729 17.8311L13.9877 19.5389Z" fill="#233447" stroke="#233447" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M18.0023 19.5389L18.8171 17.8311L20.7802 18.7242L18.0023 19.5389Z" fill="#233447" stroke="#233447" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10.8468 24.8289L11.3179 20.8438L8.24561 20.9321L10.8468 24.8289Z" fill="#CD6116" stroke="#CD6116" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M20.6821 20.8438L21.1532 24.8289L23.7544 20.9321L20.6821 20.8438Z" fill="#CD6116" stroke="#CD6116" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M23.0182 16.4565L17.5018 16.7019L18.0122 19.5387L18.827 17.8308L20.7902 18.7239L23.0182 16.4565Z" fill="#CD6116" stroke="#CD6116" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M11.2198 18.7239L13.1829 17.8308L13.9878 19.5387L14.5081 16.7019L8.98181 16.4565L11.2198 18.7239Z" fill="#CD6116" stroke="#CD6116" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8.98181 16.4565L11.2983 20.9718L11.2198 18.7239L8.98181 16.4565Z" fill="#E4751F" stroke="#E4751F" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M20.7901 18.7239L20.6919 20.9718L23.0181 16.4565L20.7901 18.7239Z" fill="#E4751F" stroke="#E4751F" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14.508 16.7021L13.9878 19.5389L14.6356 22.886L14.7828 18.4788L14.508 16.7021Z" fill="#E4751F" stroke="#E4751F" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M17.5017 16.7021L17.2367 18.4689L17.3545 22.886L18.0121 19.5389L17.5017 16.7021Z" fill="#E4751F" stroke="#E4751F" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M18.0121 19.5388L17.3545 22.886L17.8257 23.2099L20.6918 20.972L20.79 18.7241L18.0121 19.5388Z" fill="#F6851B" stroke="#F6851B" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M11.2196 18.7241L11.2981 20.972L14.1644 23.2099L14.6355 22.886L13.9877 19.5388L11.2196 18.7241Z" fill="#F6851B" stroke="#F6851B" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M18.0615 26.2917L18.0908 25.3788L17.8455 25.1628H14.145L13.9192 25.3788L13.9388 26.2917L10.8469 24.8291L11.9267 25.7126L14.1155 27.234H17.875L20.0736 25.7126L21.1533 24.8291L18.0615 26.2917Z" fill="#C0AD9E" stroke="#C0AD9E" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M17.8258 23.2096L17.3546 22.8857H14.6357L14.1646 23.2096L13.9191 25.379L14.1449 25.163H17.8454L18.0907 25.379L17.8258 23.2096Z" fill="#161616" stroke="#161616" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M27.6806 11.7552L28.5149 7.75041L27.2683 4.03027L17.8257 11.0387L21.4575 14.1109L26.591 15.6128L27.7296 14.2876L27.2389 13.9342L28.0241 13.2178L27.4156 12.7465L28.2007 12.1478L27.6806 11.7552Z" fill="#763D16" stroke="#763D16" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3.48486 7.75041L4.3192 11.7552L3.78916 12.1478L4.57441 12.7465L3.97566 13.2178L4.7609 13.9342L4.27012 14.2876L5.39892 15.6128L10.5325 14.1109L14.1644 11.0387L4.72164 4.03027L3.48486 7.75041Z" fill="#763D16" stroke="#763D16" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M26.591 15.6122L21.4575 14.1104L23.0181 16.4564L20.6919 20.9716L23.7544 20.9323H28.3186L26.591 15.6122Z" fill="#F6851B" stroke="#F6851B" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10.5326 14.1104L5.39897 15.6122L3.69104 20.9323H8.24551L11.2982 20.9716L8.98168 16.4564L10.5326 14.1104Z" fill="#F6851B" stroke="#F6851B" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path><path d="M17.5018 16.7018L17.8258 11.0381L19.3177 7.00391H12.6921L14.1645 11.0381L14.5081 16.7018L14.6258 18.4883L14.6356 22.8856H17.3546L17.3742 18.4883L17.5018 16.7018Z" fill="#F6851B" stroke="#F6851B" stroke-width="0.269931" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      <svg width="50" height="50" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" class="c-PJLV"><rect width="44" height="44" fill="#ffffff"></rect><path fill-rule="evenodd" clip-rule="evenodd" d="M33.0246 11.8662C33.4096 11.8662 33.774 12.0243 34.0421 12.2925C34.3102 12.5675 34.4615 12.9387 34.4546 13.3168C34.3859 17.4143 34.2277 20.5493 33.9321 23.0312C33.6433 25.5131 33.2102 27.3556 32.5571 28.8475C32.1171 29.8443 31.574 30.6693 30.9346 31.3706C30.0752 32.2987 29.0921 32.9725 28.0196 33.6119C27.561 33.8861 27.0843 34.1568 26.5842 34.4408C25.5172 35.0468 24.3441 35.713 23.0146 36.6025C22.5333 36.9256 21.9077 36.9256 21.4265 36.6025C20.0766 35.7026 18.8879 35.0281 17.8112 34.4173C17.5718 34.2815 17.3379 34.1488 17.109 34.0175C15.8509 33.2887 14.7165 32.5943 13.7265 31.5906C13.0665 30.9306 12.4959 30.1262 12.0421 29.1706C11.4234 27.8918 11.004 26.345 10.6946 24.3443C10.2821 21.67 10.0759 18.1706 10.0002 13.3168C9.99336 12.9387 10.1377 12.5675 10.4059 12.2925C10.674 12.0243 11.0452 11.8662 11.4302 11.8662H12.0215C13.8433 11.8731 17.8652 11.6943 21.344 8.98559C21.8596 8.58683 22.5815 8.58683 23.0971 8.98559C26.5759 11.6943 30.5977 11.8731 32.4265 11.8662H33.0246ZM29.8277 27.9331C30.2746 27.0118 30.6459 25.74 30.9277 23.9112C31.2646 21.725 31.4709 18.755 31.5671 14.7125C29.4221 14.6506 25.7371 14.2381 22.224 11.8731C18.7109 14.2312 15.0259 14.6437 12.8877 14.7125C12.9633 18.0537 13.1146 20.6525 13.3552 22.6943C13.6302 25.0181 14.0221 26.5925 14.5102 27.6993C14.8333 28.435 15.1909 28.9643 15.6171 29.4318C16.1877 30.0575 16.9096 30.5731 17.8927 31.1643C18.3005 31.409 18.7502 31.6635 19.2396 31.9406C20.1116 32.4341 21.1099 32.9991 22.224 33.7081C23.3175 33.0107 24.3014 32.4515 25.1633 31.9616C25.4231 31.8139 25.6717 31.6725 25.909 31.5356C27.119 30.8412 28.0127 30.2637 28.6796 29.59C29.1265 29.1293 29.4909 28.6275 29.8277 27.9331Z" fill="#3375BB"></path></svg>
+      <svg id="connect-coinbase" style="cursor:pointer;" width="50" height="50" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="c-PJLV"><circle cx="10" cy="10" r="10" fill="#0052FF"></circle><rect rx="27%" width="20" height="20" fill="#0052FF"></rect><path fill-rule="evenodd" clip-rule="evenodd" d="M10.0001 17C13.8661 17 17.0001 13.866 17.0001 10C17.0001 6.13401 13.8661 3 10.0001 3C6.13413 3 3.00012 6.13401 3.00012 10C3.00012 13.866 6.13413 17 10.0001 17ZM8.25012 7.71429C7.95427 7.71429 7.71441 7.95414 7.71441 8.25V11.75C7.71441 12.0459 7.95427 12.2857 8.25012 12.2857H11.7501C12.046 12.2857 12.2858 12.0459 12.2858 11.75V8.25C12.2858 7.95414 12.046 7.71429 11.7501 7.71429H8.25012Z" fill="white"></path></svg>
+      <svg id="connect-walletconnect" style="cursor:pointer;"  width="50" height="50" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="c-PJLV" style="position: relative; top: -5px; left: -5px;"><path d="M9.58818 11.8556C13.1293 8.31442 18.8706 8.31442 22.4117 11.8556L22.8379 12.2818C23.015 12.4588 23.015 12.7459 22.8379 12.9229L21.3801 14.3808C21.2915 14.4693 21.148 14.4693 21.0595 14.3808L20.473 13.7943C18.0026 11.3239 13.9973 11.3239 11.5269 13.7943L10.8989 14.4223C10.8104 14.5109 10.6668 14.5109 10.5783 14.4223L9.12041 12.9645C8.94336 12.7875 8.94336 12.5004 9.12041 12.3234L9.58818 11.8556ZM25.4268 14.8706L26.7243 16.1682C26.9013 16.3452 26.9013 16.6323 26.7243 16.8093L20.8737 22.6599C20.6966 22.8371 20.4096 22.8371 20.2325 22.6599L16.0802 18.5076C16.0359 18.4634 15.9641 18.4634 15.9199 18.5076L11.7675 22.6599C11.5905 22.8371 11.3034 22.8371 11.1264 22.66C11.1264 22.66 11.1264 22.6599 11.1264 22.6599L5.27561 16.8092C5.09856 16.6322 5.09856 16.3451 5.27561 16.168L6.57313 14.8706C6.75019 14.6934 7.03726 14.6934 7.21431 14.8706L11.3668 19.023C11.411 19.0672 11.4828 19.0672 11.5271 19.023L15.6793 14.8706C15.8563 14.6934 16.1434 14.6934 16.3205 14.8706L20.473 19.023C20.5172 19.0672 20.589 19.0672 20.6332 19.023L24.7856 14.8706C24.9627 14.6935 25.2498 14.6935 25.4268 14.8706Z" fill="#3B99FC"></path></svg>
+  </div>
+
+  <p class="login-terms">By continuing, you agree to our <a href="#">Terms</a> and <a href="#">Privacy</a>.</p>
+</div>
+
+            </div>
+         </div>
+      </div>
+      <!-- Language Modal -->
+      <div class="modal fade bg-glass" id="languageModal" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-sm rounded-4 bg-brown-gradient p-4">
+               <div class="modal-header border-0 p-1">
+                  <h6 class="modal-title fw-bold text-body fs-6 d-flex justify-content-center" id="exampleModalLabel1">Choose Language</h6>
+                  <a href="#" class="text-muted text-decoration-none material-icons ms-2 md-" data-bs-dismiss="modal">close</a>
+               </div>
+               <form>
+                  <div class="modal-body pt-0 px-0">
+                     <div class="row py-3 gy-3 m-0">
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="hindi1">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between" for="hindi1">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">हिंदी</small>
+                           <small class="ln-18">Hindi</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="english2" checked>
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between" for="english2">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">English</small>
+                           <small class="ln-18">English</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="kannada3">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between" for="kannada3">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">ಕನ್ನಡ</small>
+                           <small class="ln-18">kannada</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="tamil4">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between" for="tamil4">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">தமிழ்</small>
+                           <small class="ln-18">Tamil</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="punjabi5">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between mb-2" for="punjabi5">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">ਪੰਜਾਬੀ</small>
+                           <small class="ln-18">Punjabi</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="punjabi511f">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between mb-2" for="punjabi511f">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">Türk</small>
+                           <small class="ln-18">Turkish</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="punjabi51f">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between mb-2" for="punjabi51f">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">français</small>
+                           <small class="ln-18">French</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="other">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between mb-2" for="other">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">Other</small>
+                           <small class="ln-18">Other</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="modal-footer border-0 p-1">
+                     <button type="button" class="btn btn-primary w-100 text-decoration-none rounded-5 py-3 fw-bold text-uppercase m-0" data-bs-dismiss="modal">Submit</button>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </div>
+      <!-- Comment Modal -->
+      <div class="modal fade bg-glass" id="commentModal" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow-sm overflow-hidden border-0 bg-brown-gradient">
+               <div class="modal-header d-none">
+                  <h5 class="modal-title" id="exampleModalLabel2">Modal title</h5>
+                  <a href="#" class="text-muted text-decoration-none material-icons ms-2 md-" data-bs-dismiss="modal">close</a>
+               </div>
+               <div class="modal-body p-0">
+                  <div class="row m-0">
+                     <div class="col-sm-7 px-0 m-sm-none">
+                        <!-- Image Slider -->
+                        <div class="image-slider">
+                           <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                              <div class="carousel-indicators">
+                                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                              </div>
+                              <div class="carousel-inner">
+                                 <div class="carousel-item active">
+                                    <img src="img/post-img1.jpg" class="d-block w-100" alt="...">
+                                 </div>
+                                 <div class="carousel-item">
+                                    <img src="img/post-img2.jpg" class="d-block w-100" alt="...">
+                                 </div>
+                                 <div class="carousel-item">
+                                    <img src="img/post-img3.jpg" class="d-block w-100" alt="...">
+                                 </div>
+                              </div>
+                              <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                              <span class="visually-hidden">Previous</span>
+                              </button>
+                              <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                              <span class="visually-hidden">Next</span>
+                              </button>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-sm-5 content-body px-web-0">
+                        <div class="d-flex flex-column h-600">
+                           <div class="d-flex p-3 border-bottom">
+                              <img src="img/rmate4.jpg" class="img-fluid rounded-circle user-img" alt="profile-img">
+                              <div class="d-flex align-items-center justify-content-between w-100">
+                                 <a href="profile.html" class="text-decoration-none ms-3">
+                                    <div class="d-flex align-items-center">
+                                       <h6 class="fw-bold text-body mb-0">iamosahan</h6>
+                                       <p class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon mb-0">done</p>
+                                    </div>
+                                    <p class="text-muted mb-0 small">@johnsmith</p>
+                                 </a>
+                                 <div class="small dropdown">
+                                    <a href="#" class="text-muted text-decoration-none material-icons ms-2 md-" data-bs-dismiss="modal">close</a>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="comments p-3">
+                              <div class="d-flex mb-2">
+                                 <img src="img/rmate1.jpg" class="img-fluid rounded-circle" alt="profile-img">
+                                 <div class="ms-2 small">
+                                    <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text text-dark">
+                                       <p class="fw-500 text-white mb-0">Macie Bellis</p>
+                                       <span class="text-muted">Consectetur adipisicing elit.</span>
+                                    </div>
+                                    <div class="d-flex align-items-center ms-2">
+                                       <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                       <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                       <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                       <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                       <span class="small text-muted">1h</span>
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="d-flex mb-2">
+                                 <img src="img/rmate3.jpg" class="img-fluid rounded-circle" alt="profile-img">
+                                 <div class="ms-2 small">
+                                    <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text text-dark">
+                                       <p class="fw-500 text-white mb-0">John Smith</p>
+                                       <span class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</span>
+                                    </div>
+                                    <div class="d-flex align-items-center ms-2">
+                                       <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                       <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                       <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                       <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                       <span class="small text-muted">20min</span>
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="d-flex mb-2">
+                                 <img src="img/rmate2.jpg" class="img-fluid rounded-circle" alt="profile-img">
+                                 <div class="ms-2 small">
+                                    <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text text-dark">
+                                       <p class="fw-500 text-white mb-0">Shay Jordon</p>
+                                       <span class="text-muted">With our vastly improved notifications system, users have more control.</span>
+                                    </div>
+                                    <div class="d-flex align-items-center ms-2">
+                                       <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                       <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                       <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                       <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                       <span class="small text-muted">10min</span>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="border-top p-3 mt-auto">
+                              <div class="d-flex align-items-center justify-content-between mb-2">
+                                 <div>
+                                    <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">thumb_up_off_alt</span><span>30.4k</span></a>
+                                 </div>
+                                 <div>
+                                    <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">repeat</span><span>617</span></a>
+                                 </div>
+                                 <div>
+                                    <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-18 me-2">share</span><span>Share</span></a>
+                                 </div>
+                              </div>
+                              <div class="d-flex align-items-center">
+                                 <span class="material-icons bg-transparent border-0 text-primary pe-2 md-36">account_circle</span>
+                                 <div class="d-flex align-items-center border rounded-4 px-3 py-1 w-100">
+                                    <input type="text" class="form-control form-control-sm p-0 rounded-3 fw-light bg-transparent border-0 form-control-text" placeholder="Write Your comment">
+                                    <a href="#" class="border-0 text-primary ps-2 text-decoration-none">Post</a>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="modal-footer d-none">
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Jquery Js -->
+      <script src="vendor/jquery/jquery.min.js"></script>
+      <!-- Bootstrap Bundle Js -->
+      <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+      <!-- Custom Js -->
+      <script src="js/custom.js"></script>
+      <!-- Slick Js -->
+      <script src="vendor/slick/slick/slick.min.js"></script>
+  
+
+      
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script>
+        $(function () {
+  const priceYes = 0.21;
+  const priceNo = 0.8;
+
+  function updatePayout() {
+    const amount = parseFloat($('#amount').val());
+    const label = $('.side-label').text().trim().toLowerCase();
+    const price = label === 'yes' ? priceYes : priceNo;
+
+    if (!isNaN(amount) && price > 0) {
+      const payout = (amount / price).toFixed(2);
+      $('#payout').text(`$${payout}`);
+      $('#payout-inline').text(`$${payout}`);
+    }
+  }
+
+  // Flip + load template
+  $('.buy-yes, .buy-no').on('click', function () {
+    const isYes = $(this).hasClass('buy-yes');
+    const label = isYes ? 'Yes' : 'No';
+    const labelLower = label.toLowerCase();
+    const $card = $(this).closest('.market-card');
+    const template = $('#market-template').html();
+
+    const filled = template
+      .replace(/__SIDE__/g, label)
+      .replace(/__SIDE_LOWER__/g, labelLower);
+
+    $card.find('.market-back').html(filled);
+
+    requestAnimationFrame(() => {
+      $card.addClass('flipped');
+      const backHeight = $card.find('.market-back')[0].scrollHeight;
+      // $card.find('.market-inner').css('min-height', backHeight + 'px');
+      setTimeout(() => updatePayout(), 50);
+    });
+  });
+
+  // Закрытие
+  $(document).on('click', '.close-card', function () {
+    const $card = $(this).closest('.market-card');
+    $card.removeClass('flipped');
+    setTimeout(() => {
+      $card.find('.market-back').empty();
+    }, 500);
+  });
+
+  // +1/+10
+  $(document).on('click', '.plus-btn', function () {
+    const add = parseInt($(this).data('add'));
+    const $input = $('#amount');
+    $input.val(parseInt($input.val()) + add);
+    $('#slider').val($input.val());
+    updatePayout();
+  });
+
+  // Ползунок
+  $(document).on('input', '#slider', function () {
+    $('#amount').val($(this).val());
+    updatePayout();
+  });
+
+  // Ручной ввод
+  $(document).on('input', '#amount', updatePayout);
+});
+
+
+  
+  
+  
+  
+    window.onload = function () {
+    google.accounts.id.initialize({
+      client_id: "167186832136-9egb92r9b08iktqln4ktdgvgqi091fpr.apps.googleusercontent.com", // замени здесь
+      callback: handleCredentialResponse,
+      ux_mode: "popup" // это важно!
+    });
+
+    const loginButton = document.getElementById("google-login-btn");
+
+    if (loginButton) {
+      loginButton.addEventListener("click", function () {
+        google.accounts.id.prompt(); // показывает окно выбора аккаунта
+      });
+    }
+  };
+
+  function handleCredentialResponse(response) {
+    console.log("Encoded JWT ID token: " + response.credential);
+    // 🔐 Отправь токен на бэкенд или сохрани сессии, в зависимости от твоей логики
+  }
+  
+
+      </script>
+   </body>
+</html>

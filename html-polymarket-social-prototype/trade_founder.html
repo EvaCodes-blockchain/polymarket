@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <!-- Required meta tags -->
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="icon" type="image/png" href="img/logo.png">
+      <title>Justify — Trade Smarter, Together</title>
+      <meta name="description" content="Vogel - Social Network & Community HTML Template">
+      <meta name="keywords" content="bootstrap5, e-learning, forum, games, online course, Social Community, social events, social feed, social media, social media template, social network html, social sharing, twitter">
+      <!-- Bootstrap CSS -->
+      <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+      <!-- Slich Slider -->
+      <link href="vendor/slick/slick/slick.css" rel="stylesheet">
+      <link href="vendor/slick/slick/slick-theme.css" rel="stylesheet">
+      <!-- Icofont -->
+      <link href="vendor/icofont/icofont.min.css" rel="stylesheet">
+      <!-- Font Icons -->
+      <link href="vendor/icons/css/materialdesignicons.min.css" rel="stylesheet" type="text/css">
+      <!-- Custom Css -->
+      <link href="css/style.css" rel="stylesheet">
+      <!-- Material Icons -->
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <style>
+      .market-container {
+  max-width: 100%;
+}
+
+.market-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.team-icon {
+  width: 50px;
+  vertical-align: middle;
+}
+
+.market-meta {
+  color: #aaa;
+  font-size: 0.9em;
+}
+
+.market-graph-section {
+  background: #161b22;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.chart-toggles {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.chart-toggles button {
+  background: transparent;
+  border: none;
+  color: #ccc;
+  padding: 6px 12px;
+  margin: 0 3px;
+  cursor: pointer;
+}
+
+.chart-toggles .active {
+  color: white;
+  font-weight: bold;
+  border-bottom: 2px solid white;
+}
+
+.market-trade {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.market-buttons button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button.yes {
+  background-color: #355E3B;
+  color: white;
+}
+
+button.no {
+  background-color: #B1332F;
+  color: white;
+}
+         
+         
+.trade-box {
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 100%;
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+   margin-bottom:25x;
+}
+
+.trade-tabs {
+  display: block;
+   margin-bottom: 25px;
+}
+         
+         .stop-float {
+  clear: both; /* Элемент не подвергнется обтеканию */
+}
+
+.trade-tabs .tab {
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  color: #aaa;
+  padding-bottom: 4px;
+  cursor: pointer;
+  font-size: 16px;
+   float:left;
+}
+
+.trade-tabs .tab.active {
+  color: white;
+  border-bottom: 2px solid white;
+}
+
+.dropdown {
+  font-size: 14px;
+  color: #ccc;
+   float:right;
+}
+
+.trade-options {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.option {
+  flex: 1;
+  margin: 0 4px;
+  border: none;
+  padding: 10px 0;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  background: #1c2a3d;
+  color: #ccc;
+}
+
+.option.active.yes {
+  background: #355E3B;
+  color: white;
+}
+
+.option.active.no {
+  background: #c62828;
+  color: white;
+}
+
+.trade-inputs label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.amount-row {
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.dollar {
+  margin-right: 4px;
+  color: #aaa;
+}
+
+.amount-row input {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  font-size: 24px;
+  color: white;
+  width: 100%;
+  outline: none;
+}
+
+.quick-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.quick-buttons button {
+  flex: 1;
+  background: #2a3547;
+  border: none;
+  border-radius: 6px;
+  color: #ccc;
+  padding: 6px 0;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.trade-button {
+  width: 100%;
+  background: #2196f3;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 10px 0;
+  border: none;
+  border-radius: 8px;
+  margin-top: 16px;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .page-container {
+    width: 80%;
+  }
+}
+
+      </style>
+   </head>
+   <body class="bg-brown-gradient">
+      <div class="web-none d-flex align-items-center px-3 pt-3 shadow-sm">
+         <a href="index.html" class="text-decoration-none">
+         <img src="img/logo.png" class="img-fluid logo-mobile" alt="brand-logo">
+         </a>
+         <button class="ms-auto btn btn-primary ln-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+         <span class="material-icons">menu</span>
+         </button>
+      </div>
+      <div class="py-4">
+         <div class="container-fluid page-container" >
+            <div class="row position-relative g-0">
+               <!-- Main Content -->
+               <main class="col col-xl-6 col-xxl-8 order-xl-2 col-lg-12 order-lg-1 col-md-12 col-sm-12 col-12 border-start border-end">
+                  <div class="main-content">
+                     
+                     <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-feed" role="tabpanel" aria-labelledby="pills-feed-tab">
+                      
+                        </div>
+                           <!-- Follow People -->
+                           <div>
+                              <div class="d-flex align-items-center justify-content-between mb-1 px-lg-3">
+                                 <h6 class="mb-0 fw-bold text-body">Trading panel</h6>
+                                 <a href="#" class="text-white text-decoration-none material-icons">east</a>
+                              </div>
+                              <!-- Slider Accounts -->
+                              
+                              <!-- Feeds -->
+                              <div class="feeds">
+                                 <!-- Feed Item -->
+                                 <div class="border-bottom py-3 px-lg-3">
+                                 <div class="bg-glass p-3 feed-item rounded-4 shadow-sm">
+                                    <div class="d-md-flex">
+                                       <img src="img/images.jpeg" class="mb-3 mb-md-0 img-fluid rounded-circle user-img" alt="profile-img">
+                                       <div class="d-flex ms-md-3 align-items-start w-100">
+                                          <div class="w-100">
+                                             <div class="d-flex align-items-center justify-content-between">
+                                                <a href="profile.html" class="text-decoration-none d-flex align-items-center">
+                                                   <h6 class="fw-bold mb-0 text-body">founder</h6>
+                                                   <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span>
+                                                   <small class="text-muted ms-2">@founder</small>
+                                                </a>
+                                                <div class="d-flex align-items-center small">
+                                                   <p class="text-muted mb-0">23 Aug</p>
+                                                   <div class="dropdown">
+                                                      <a href="#" class="text-white text-decoration-none material-icons ms-2 md-20 rounded-circle bg-glass p-1" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">more_vert</a>
+                                                      <ul class="dropdown-menu fs-13 dropdown-menu-end bg-light-glass" aria-labelledby="dropdownMenuButton1">
+                                                         <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1">edit</span>Edit</a></li>
+                                                         <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1">delete</span>Delete</a></li>
+                                                         <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1 ltsp-n5">arrow_back_ios arrow_forward_ios</span>Embed Vogel</a></li>
+                                                         <li><a class="dropdown-item text-dark d-flex align-items-center" href="#"><span class="material-icons md-13 me-1">share</span>Share via another apps</a></li>
+                                                      </ul>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                             <div class="my-2">
+                                                <p class="text-white market-header"></p>
+                                                <ul class="list-unstyled mb-3">
+                                                   <li></li>
+                                                   <li></li>
+                                                </ul>
+                                                <p ></p>
+                                                <!-- Justify Market Card Component -->
+                                                <div class="market-container">
+                                                <div class="market-container">
+                                                 <div class="market-header">
+                                                   <h2>Ukraine x Russia ceasefire in 2025?</h2>
+                                                   <p class="market-meta">$14M Vol • 23.08.2025 18:00</p>
+                                                 </div>
+
+                                                 <div class="market-graph-section">
+                                                   <canvas id="marketChart"></canvas>
+                                                   <div class="chart-toggles">
+                                                     <button>1H</button>
+                                                     <button>6H</button>
+                                                     <button>1D</button>
+                                                     <button>1W</button>
+                                                     <button>1M</button>
+                                                     <button class="active">ALL</button>
+                                                   </div>
+                                                 </div>
+
+                                               <div class="trade-box">
+  <div class="trade-tabs">
+    <button class="tab active">Buy</button>
+    <button class="tab">Sell</button>
+    <div class="dropdown">Market ▼</div>
+     <div class="stop-float"></div>
+  </div>
+
+  <div class="trade-options">
+    <button class="option yes active">Yes 38¢</button>
+    <button class="option no">No 63¢</button>
+  </div>
+
+  <div class="trade-inputs">
+    <label>Amount</label>
+    <div class="amount-row">
+      <span class="dollar">$</span>
+      <input type="number" placeholder="0" value="0" />
+    </div>
+    <div class="quick-buttons">
+      <button>+$1</button>
+      <button>+$20</button>
+      <button>+$100</button>
+      <button>Max</button>
+    </div>
+  </div>
+
+  <button class="trade-button">Trade</button>
+</div>
+                                               </div>
+                                                   
+                                                   
+                                                <!-- шаблон внутренности для market-back -->
+                                                <script type="text/template" id="market-template">
+                                                  <div class="market-header">
+                                                     <div class="market-title">Barcelona vs Real Madrid</div>
+                                                     <button class="close-card" style="float:right;">×</button>
+                                                   </div>
+
+                                                   <div class="market-body">
+                                                     <div class="input-slider-row">
+                                                       <div class="input-row">
+                                                         <input type="number" id="amount" value="10" min="1" />
+                                                         <button class="plus-btn" data-add="1">+1</button>
+                                                         <button class="plus-btn" data-add="10">+10</button>
+                                                       </div>
+                                                       <input type="range" id="slider" min="1" max="100" value="10" />
+                                                     </div>
+
+                                                     <button class="confirm-order btn-__SIDE_LOWER__">
+                                                       <div class="btn-title">Buy <span class="side-label">__SIDE__</span></div>
+                                                       <div class="btn-payout">To win: <span id="payout">$0.00</span></div>
+                                                     </button>
+                                                   </div>
+                                                </script>
+                                                <div class="d-flex align-items-center justify-content-between mb-2" style="margin-bottom:15px !important;">
+                                                   <div>
+                                                      <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">thumb_up_off_alt</span><span>30.4k</span></a>
+                                                   </div>
+                                                   <div>
+                                                      <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">chat_bubble_outline</span><span>4.0k</span></a>
+                                                   </div>
+                                                   <div>
+                                                      <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">repeat</span><span>617</span></a>
+                                                   </div>
+                                                   <div>
+                                                      <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-18 me-2">share</span><span>Share</span></a>
+                                                   </div>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-3" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                   <span class="material-icons bg-transparent border-0 text-primary pe-2 md-36">account_circle</span>
+                                                   <input type="text" class="form-control form-control-sm rounded-3 fw-light bg-glass form-control-text" placeholder="Write Your comment">
+                                                </div>
+                                                <div class="comments">
+                                                   <div class="d-flex mb-2">
+                                                      <a href="#" class="text-white text-decoration-none">
+                                                      <img src="img/leo.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                      </a>
+                                                      <div class="ms-2 small">
+                                                         <a href="#" class="text-white text-decoration-none">
+                                                            <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                               <p class="fw-500 mb-0">Leo Messi</p>
+                                                               <span class="text-muted">peace</span>
+                                                            </div>
+                                                         </a>
+                                                         <div class="d-flex align-items-center ms-2">
+                                                            <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                            <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                            <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                            <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                            <span class="small text-muted">1h</span>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                   <div class="d-flex mb-2">
+                                                      <a href="#" class="text-white text-decoration-none">
+                                                      <img src="img/Atletico_Madrid_logo.svg.png" class="img-fluid rounded-circle" alt="commenters-img">
+                                                      </a>
+                                                      <div class="ms-2 small">
+                                                         <a href="#" class="text-white text-decoration-none">
+                                                            <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                               <p class="fw-500 mb-0">FC Atlético de Madrid</p>
+                                                               <span class="text-muted">peace</span>
+                                                            </div>
+                                                         </a>
+                                                         <div class="d-flex align-items-center ms-2">
+                                                            <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                            <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                            <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                            <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                            <span class="small text-muted">20min</span>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                   
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                                 <!-- Feed Item -->
+                              
+                              </div>
+                           </div>
+                        </div>
+                        <div class="tab-pane fade" id="pills-people" role="tabpanel" aria-labelledby="pills-people-tab">
+                           <div class="border-bottom py-3 px-lg-3">
+                              <h6 class="mb-3 fw-bold text-body">People you can follow</h6>
+                           <div class="bg-glass rounded-4 overflow-hidden shadow-sm">
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate5.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">Webartinfo <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div class="text-muted fw-light">
+                                       <p class="mb-1 small text-white">@abcdsec</p>
+                                       <span class="text-muted d-flex align-items-center small"><span class="material-icons me-1 small">open_in_new</span>Promoted</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate4.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">John Smith <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="fw-light text-muted mb-1 small">@johnsmith</p>
+                                       <span class="d-flex align-items-center small text-white">Designer</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate3.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">Konex <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="text-muted fw-light mb-1 small">@Konex</p>
+                                       <span class="d-flex align-items-center small text-white">Artist/Author/Motivational Speaker</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                           </div>
+                        </div>
+                           <div class="border-bottom py-3 px-lg-3">
+                              <h6 class="mb-3 fw-bold text-body">Popular</h6>
+                           <div class="bg-glass rounded-4 overflow-hidden shadow-sm">
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate2.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">Anushuka Shetty <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div class="text-muted fw-light">
+                                       <p class="mb-1 small">@anushuka</p>
+                                       <span class="text-muted d-flex align-items-center small"><span class="material-icons me-1 small">open_in_new</span>Promoted</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate4.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">John Smith <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="fw-light text-muted mb-1 small">@johnsmith</p>
+                                       <span class="d-flex align-items-center small text-white">Actress</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate6.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">William Smith <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="text-muted fw-light mb-1 small">@williamsmith</p>
+                                       <span class="d-flex align-items-center small text-white">Motivational Speaker</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                           </div>
+                        </div>
+                           <div class="border-bottom py-3 px-lg-3">
+                              <h6 class="mb-3 fw-bold text-body">News Papers & Channels</h6>
+                           <div class="bg-glass rounded-4 overflow-hidden shadow-sm">
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate5.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">Webartinfo <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div class="text-muted fw-light">
+                                       <p class="mb-1 small">@abcdsec</p>
+                                       <span class="text-muted d-flex align-items-center small"><span class="material-icons me-1 small">open_in_new</span>Promoted</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate4.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">John Smith <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="fw-light text-muted mb-1 small">@johnsmith</p>
+                                       <span class="d-flex align-items-center small text-white">Designer</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate3.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">Konex <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="text-muted fw-light mb-1 small">@Konex</p>
+                                       <span class="d-flex align-items-center small text-white">Artist/Author/Motivational Speaker</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                           </div>
+                        </div>
+                           <div class="border-bottom py-3 px-lg-3">
+                              <h6 class="mb-3 fw-bold text-body">Politicians</h6>
+                           <div class="bg-glass rounded-4 overflow-hidden shadow-sm">
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate2.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">Anushuka Shetty <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div class="text-muted fw-light">
+                                       <p class="mb-1 small">@anushuka</p>
+                                       <span class="text-muted d-flex align-items-center small"><span class="material-icons me-1 small">open_in_new</span>Promoted</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 border-bottom d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate4.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">John Smith <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="fw-light text-muted mb-1 small">@johnsmith</p>
+                                       <span class="d-flex align-items-center small text-white">Actress</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                              <!-- Account Item -->
+                              <a href="profile.html" class="p-3 d-flex text-dark text-decoration-none account-item pf-item">
+                                 <img src="img/rmate6.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center text-white">William Smith <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div>
+                                       <p class="text-muted fw-light mb-1 small">@williamsmith</p>
+                                       <span class="d-flex align-items-center small text-white">Motivational Speaker</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <span class="btn btn-outline-primary btn-sm px-3 rounded-pill">+ Follow</span>
+                                 </div>
+                              </a>
+                           </div>
+                        </div>
+                        </div>
+                        <div class="tab-pane fade" id="pills-trending" role="tabpanel" aria-labelledby="pills-trending-tab">
+                           <!-- Post Tab -->
+                           <div class="px-3">
+                           <div class="input-group shadow-sm mb-3 rounded-4 overflow-hidden py-2 bg-glass" data-bs-toggle="modal" data-bs-target="#postModal">
+                              <span class="input-group-text material-icons border-0 bg-transparent text-primary">account_circle</span>
+                              <input type="text" class="form-control border-0 bg-transparent fw-light ps-1" placeholder="What's on your mind.">
+                              <a href="#" class="text-decoration-none input-group-text bg-transparent border-0 material-icons text-primary">add_circle</a>
+                           </div>
+                        </div>
+                           <!-- Feeds -->
+                           <div class="feeds">
+                              <!-- Feed Item -->
+                              <div class="border-bottom py-3 px-lg-3">
+                              <div class="bg-glass p-3 feed-item rounded-4 shadow-sm">
+                                 <div class="d-flex">
+                                    <img src="img/rmate1.jpg" class="img-fluid rounded-circle user-img" alt="profile-img">
+                                    <div class="d-flex ms-3 align-items-start w-100">
+                                       <div>
+                                          <div class="d-flex align-items-center justify-content-between">
+                                             <a href="profile.html" class="text-decoration-none d-flex align-items-center">
+                                                <h6 class="fw-bold mb-0 text-body">Shay Jordon</h6>
+                                                <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span>
+                                                <small class="text-muted ms-2">@shay-jordon</small>
+                                             </a>
+                                             <div class="d-flex align-items-center small">
+                                                <p class="text-muted mb-0">19 Feb</p>
+                                                <div class="dropdown">
+                                                   <a href="#" class="text-white text-decoration-none material-icons ms-2 md-20 rounded-circle bg-glass p-1" id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-expanded="false">more_vert</a>
+                                                   <ul class="dropdown-menu fs-13 dropdown-menu-end bg-light-glass" aria-labelledby="dropdownMenuButton3">
+                                                      <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1">edit</span>Edit</a></li>
+                                                      <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1">delete</span>Delete</a></li>
+                                                      <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1 ltsp-n5">arrow_back_ios arrow_forward_ios</span>Embed Vogel</a></li>
+                                                      <li><a class="dropdown-item text-dark d-flex align-items-center" href="#"><span class="material-icons md-13 me-1">share</span>Share via another apps</a></li>
+                                                   </ul>
+                                                </div>
+                                             </div>
+                                          </div>
+                                          <div class="my-2">
+                                             <p>Congue aliquam scripserit eam ex, vis ad prompta mnesarchum, ad atqui suscipit vel. Omnis soluta ut mel, eum consequat adversarium definitionem ei. Sit cu elit laboramus similique, error exerci tacimates nam eu. Ferri eirmod latine ex sit. Cu nec munere viderer. Vix inermis periculis abhorreant te. Augue homero prompta eum eu, no est discere commune, velit mentitum vis ne.
+                                                🙂
+                                             </p>
+                                             <p class="text-white">Happy Vogel to you!</p>
+                                             <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                             <img src="img/post1.png" class="img-fluid rounded mb-3" alt="post-img">
+                                             </a>
+                                             <div class="d-flex align-items-center justify-content-between mb-2">
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">thumb_up_off_alt</span><span>30.4k</span></a>
+                                                </div>
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">chat_bubble_outline</span><span>4.0k</span></a>
+                                                </div>
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">repeat</span><span>617</span></a>
+                                                </div>
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-18 me-2">share</span><span>Share</span></a>
+                                                </div>
+                                             </div>
+                                             <div class="d-flex align-items-center mb-3" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                <span class="material-icons bg-transparent border-0 text-primary pe-2 md-36">account_circle</span>
+                                                <input type="text" class="form-control form-control-sm rounded-3 fw-light bg-glass form-control-text" placeholder="Write Your comment">
+                                             </div>
+                                             <div class="comments">
+                                                <div class="d-flex mb-2">
+                                                   <a href="#" class="text-white text-decoration-none" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                   <img src="img/rmate1.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                   </a>
+                                                   <div class="ms-2 small">
+                                                      <a href="#" class="text-white text-decoration-none" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                         <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                            <p class="fw-500 mb-0">Macie Bellis</p>
+                                                            <span class="text-muted">Consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolor.</span>
+                                                         </div>
+                                                      </a>
+                                                      <div class="d-flex align-items-center ms-2">
+                                                         <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <span class="small text-muted">1h</span>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                                <div class="d-flex mb-2">
+                                                   <a href="#" class="text-white text-decoration-none" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                   <img src="img/rmate3.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                   </a>
+                                                   <div class="ms-2 small">
+                                                      <a href="#" class="text-white text-decoration-none" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                         <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                            <p class="fw-500 mb-0">John Smith</p>
+                                                            <span class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</span>
+                                                         </div>
+                                                      </a>
+                                                      <div class="d-flex align-items-center ms-2">
+                                                         <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <span class="small text-muted">20min</span>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                                <div class="d-flex mb-2">
+                                                   <a href="#" class="text-white text-decoration-none" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                   <img src="img/rmate2.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                   </a>
+                                                   <div class="ms-2 small">
+                                                      <a href="#" class="text-white text-decoration-none" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                         <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                            <p class="fw-500 mb-0">Shay Jordon</p>
+                                                            <span class="text-muted">With our vastly improved notifications system, users have more control.</span>
+                                                         </div>
+                                                      </a>
+                                                      <div class="d-flex align-items-center ms-2">
+                                                         <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <span class="small text-muted">10min</span>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                              <!-- Feed Item -->
+                              <div class="border-bottom py-3 px-lg-3">
+                              <div class="bg-glass p-3 feed-item rounded-4 shadow-sm">
+                                 <div class="d-flex">
+                                    <img src="img/rmate4.jpg" class="img-fluid rounded-circle user-img" alt="profile-img">
+                                    <div class="d-flex ms-3 align-items-start w-100">
+                                       <div>
+                                          <div class="d-flex align-items-center justify-content-between">
+                                             <a href="profile.html" class="text-decoration-none d-flex align-items-center">
+                                                <h6 class="fw-bold mb-0 text-body">John Smith</h6>
+                                                <span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span>
+                                                <small class="text-muted ms-2">@johnsmith</small>
+                                             </a>
+                                             <div class="d-flex align-items-center small">
+                                                <p class="text-muted mb-0">19 Feb</p>
+                                                <div class="dropdown">
+                                                   <a href="#" class="text-white text-decoration-none material-icons ms-2 md-20 rounded-circle bg-glass p-1" id="dropdownMenuButton4" data-bs-toggle="dropdown" aria-expanded="false">more_vert</a>
+                                                   <ul class="dropdown-menu fs-13 dropdown-menu-end bg-glass-light" aria-labelledby="dropdownMenuButton4">
+                                                      <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1">edit</span>Edit</a></li>
+                                                      <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1">delete</span>Delete</a></li>
+                                                      <li><a class="dropdown-item text-dark" href="#"><span class="material-icons md-13 me-1 ltsp-n5">arrow_back_ios arrow_forward_ios</span>Embed Vogel</a></li>
+                                                      <li><a class="dropdown-item text-dark d-flex align-items-center" href="#"><span class="material-icons md-13 me-1">share</span>Share via another apps</a></li>
+                                                   </ul>
+                                                </div>
+                                             </div>
+                                          </div>
+                                          <div class="my-2">
+                                             <p>Nam malis menandri ea, facete debitis volumus est ut, commune placerat nominati ei sea. Labore alterum probatus no sed, ius ea quas iusto inermis, ex tantas populo nonumes nam. Quo ad verear copiosae gubergren, quis commodo est et. </p>
+                                             <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                             <img src="img/post2.png" class="img-fluid rounded mb-3" alt="post-img">
+                                             </a>
+                                             <div class="d-flex align-items-center justify-content-between mb-2">
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">thumb_up_off_alt</span><span>30.4k</span></a>
+                                                </div>
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">chat_bubble_outline</span><span>4.0k</span></a>
+                                                </div>
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">repeat</span><span>617</span></a>
+                                                </div>
+                                                <div>
+                                                   <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-18 me-2">share</span><span>Share</span></a>
+                                                </div>
+                                             </div>
+                                             <div class="d-flex align-items-center mb-3" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                <span class="material-icons bg-transparent border-0 text-primary pe-2 md-36">account_circle</span>
+                                                <input type="text" class="form-control form-control-sm rounded-3 fw-light bg-glass form-control-text" placeholder="Write Your comment">
+                                             </div>
+                                             <div class="comments">
+                                                <div class="d-flex mb-2">
+                                                   <a href="#" class="text-white text-decoration-none" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                   <img src="img/rmate1.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                   </a>
+                                                   <div class="ms-2 small">
+                                                      <a href="#" class="text-white text-decoration-none" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                         <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                            <p class="fw-500 mb-0">Macie Bellis</p>
+                                                            <span class="text-muted">Consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolor.</span>
+                                                         </div>
+                                                      </a>
+                                                      <div class="d-flex align-items-center ms-2">
+                                                         <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <span class="small text-muted">1h</span>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                                <div class="d-flex mb-2">
+                                                   <a href="#" class="text-white text-decoration-none" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                   <img src="img/rmate3.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                   </a>
+                                                   <div class="ms-2 small">
+                                                      <a href="#" class="text-white text-decoration-none" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                         <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                            <p class="fw-500 mb-0">John Smith</p>
+                                                            <span class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</span>
+                                                         </div>
+                                                      </a>
+                                                      <div class="d-flex align-items-center ms-2">
+                                                         <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <span class="small text-muted">20min</span>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                                <div class="d-flex mb-2">
+                                                   <a href="#" class="text-white text-decoration-none" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                   <img src="img/rmate2.jpg" class="img-fluid rounded-circle" alt="commenters-img">
+                                                   </a>
+                                                   <div class="ms-2 small">
+                                                      <a href="#" class="text-white text-decoration-none" data-bs-toggle="modal" data-bs-target="#commentModal">
+                                                         <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text">
+                                                            <p class="fw-500 mb-0">Shay Jordon</p>
+                                                            <span class="text-muted">With our vastly improved notifications system, users have more control.</span>
+                                                         </div>
+                                                      </a>
+                                                      <div class="d-flex align-items-center ms-2">
+                                                         <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                                         <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                                         <span class="small text-muted">10min</span>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  
+               </main>
+                <aside class="col col-xl-3 col-xxl-2 order-xl-1 col-lg-12 order-lg-2 col-12">
+                  <div class="p-2 bg-brown-gradient offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample">
+                     <div class="sidebar-nav mb-3">
+                        <div class="pb-4">
+                           <a href="index.html" class="text-decoration-none">
+                           <img src="img/logo.png" class="img-fluid logo" alt="brand-logo">
+                           </a>
+                        </div>
+                        <ul class="navbar-nav justify-content-end flex-grow-1">
+                          <li class="nav-item">
+                              <a href="index.html" class="nav-link "><span class="material-icons me-3">house</span> <span>Feed</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="market.html" class="nav-link active"><span class="material-icons me-3">candlestick_chart</span> <span>Markets</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="portfolio.html" class="nav-link"><span class="material-icons me-3">cases</span> <span>Portfolio</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="notification.html" class="nav-link"><span class="material-icons me-3">notification_add</span> <span>Notifications</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="profile.html" class="nav-link"><span class="material-icons me-3">account_circle</span> <span>My Profile</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="tags.html" class="nav-link"><span class="material-icons me-3">local_fire_department</span> <span>Create Market</span></a>
+                           </li>
+                        </ul>
+                     </div>
+                     <a href="#" class="btn btn-primary w-100 text-decoration-none rounded-4 py-3 fw-bold text-uppercase m-0" data-bs-toggle="modal" data-bs-target="#signModal">Sign In +</a>
+                  </div>
+                  <!-- Sidebar -->
+                  <div class="ps-0 m-none fix-sidebar py-3 pe-3">
+                     <div class="sidebar-nav mb-3">
+                        <div class="pb-4 mb-4">
+                           <a href="index.html" class="text-decoration-none" style="color:#ececec;font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 30px;">JUSTIFY</a>
+                        </div>
+                        <ul class="navbar-nav justify-content-end flex-grow-1">
+                           <li class="nav-item">
+                              <a href="index.html" class="nav-link "><span class="material-icons me-3">house</span> <span>Feed</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="market.html" class="nav-link active"><span class="material-icons me-3">candlestick_chart</span> <span>Markets</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="portfolio.html" class="nav-link"><span class="material-icons me-3">cases</span> <span>Portfolio</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="notification.html" class="nav-link"><span class="material-icons me-3">notification_add</span> <span>Notifications</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="profile.html" class="nav-link"><span class="material-icons me-3">account_circle</span> <span>My Profile</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="create.html" class="nav-link"><span class="material-icons me-3">local_fire_department</span> <span>Create Market</span></a>
+                           </li>
+                        </ul>
+                     </div>
+                     <div class="sidebar-nav mb-3" style="padding-top: 20px;">
+                        <p style="margin-left: 20px; margin-bottom: 0px; color: #6c757d;">-   -   -   -   -</p>
+                        <ul class="navbar-nav justify-content-end flex-grow-1">
+                           <li class="nav-item">
+                              <a href="edit-profile.html" class="nav-link"><span class="material-icons me-3">settings</span> <span>Settings</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a href="help.html" class="nav-link"><span class="material-icons me-3">help</span> <span>Help Center</span></a>
+                           </li>
+                        </ul>
+                        <a href="#" class="btn btn-primary w-100 text-decoration-none rounded-4 py-3 fw-bold text-uppercase m-0" data-bs-toggle="modal" data-bs-target="#signModal">Sign In +</a>
+                     </div>
+                  </div>
+               </aside>
+               <aside class="col col-xxl-2 col-xl-3 order-xl-3 col-lg-12 order-lg-3 col-12">
+                  <div class="fix-sidebar ps-3 py-3 pe-0">
+                     <div class="side-trend lg-none">
+                        <!-- Search Tab -->
+                        <div class="sticky-sidebar2 mb-3">
+                           <div class="input-group mb-4 shadow-sm rounded-4 overflow-hidden py-2 bg-glass">
+                              <span class="input-group-text material-icons border-0 bg-transparent text-primary">search</span>
+                              <input type="text" class="form-control border-0 bg-transparent fw-light ps-1" placeholder="Search Justify">
+                           </div>
+                           <div class="bg-glass rounded-4 overflow-hidden shadow-sm mb-4">
+                              <h6 class="fw-bold text-body p-3 mb-0 border-bottom">Market Movers</h6>
+                              <!-- Trending Item -->
+                              <a href="tags.html" class="p-3 border-bottom d-flex align-items-center text-dark text-decoration-none trending-item">
+                                 <div>
+                                    <div class="text-muted fw-light d-flex align-items-center">
+                                       <small>@FC Barcelona</small><span class="mx-1 material-icons md-3">circle</span><small>Live</small>
+                                    </div>
+                                    <p class="fw-bold text-white mb-0 pe-3">El Clasico - Barcelona vs Real Madrid! Who will win?</p>
+                                    <small class="text-muted">Trending with</small><br>
+                                    <span class="text-primary">#barcelona #elclassico</span>
+                                 </div>
+                                 <img src="img/el-classico.png" class="img-fluid rounded-4 ms-auto" alt="profile-img">
+                              </a>
+                              <!-- Trending Item -->
+                               <a href="tags.html" class="p-3 border-bottom d-flex align-items-center text-dark text-decoration-none trending-item">
+                                 <div>
+                                    <div class="text-muted fw-light d-flex align-items-center">
+                                       <small>@Founder</small><span class="mx-1 material-icons md-3">circle</span><small>Live</small>
+                                    </div>
+                                    <p class="fw-bold text-white mb-0 pe-3">Russia x Ukraine ceasefire in 2025?</p>
+                                    <small class="text-muted">Trending with</small><br>
+                                    <span class="text-primary">#war #ukraine</span>
+                                 </div>
+                                 <img src="img/russia-x-ukraine-ceasefire-in-2025-w2voYOygx80B.webp" class="img-fluid rounded-4 ms-auto" alt="profile-img">
+                              </a>
+                              <!-- Trending Item -->
+                               <a href="tags.html" class="p-3 border-bottom d-flex align-items-center text-dark text-decoration-none trending-item">
+                                 <div>
+                                    <div class="text-muted fw-light d-flex align-items-center">
+                                       <small>@VitalikButerin</small><span class="mx-1 material-icons md-3">circle</span><small>Live</small>
+                                    </div>
+                                    <p class="fw-bold text-white mb-0 pe-3">Ethereum price on August 18?</p>
+                                    <small class="text-muted">Trending with</small><br>
+                                    <span class="text-primary">#crypto #eth</span>
+                                 </div>
+                                 <img src="img/ETHfullsize.webp" class="img-fluid rounded-4 ms-auto" alt="profile-img">
+                              </a>
+                              <!-- Trending Item -->
+                               <a href="tags.html" class="p-3 border-bottom d-flex align-items-center text-dark text-decoration-none trending-item">
+                                 <div>
+                                    <div class="text-muted fw-light d-flex align-items-center">
+                                       <small>@polytics</small><span class="mx-1 material-icons md-3">circle</span><small>Live</small>
+                                    </div>
+                                    <p class="fw-bold text-white mb-0 pe-3">Will MicroStrategy purchase Bitcoin August 12-18?</p>
+                                    <small class="text-muted">Trending with</small><br>
+                                    <span class="text-primary">#barcelona #elclassico</span>
+                                 </div>
+                                 <img src="img/will-microstrategy-purchase-bitcoin-july-1-7-mzoE5TYk_cCI.webp" class="img-fluid rounded-4 ms-auto" alt="profile-img">
+                              </a>
+                              <!-- Show More -->
+                              <a href="explore.html" class="text-decoration-none text-primary">
+                                 <div class="p-3">Show More</div>
+                              </a>
+                           </div>
+                           <div class="bg-glass rounded-4 overflow-hidden shadow-sm account-follow mb-4">
+                              <h6 class="fw-bold text-body p-3 mb-0 border-bottom">Who to follow</h6>
+                              <!-- Account Item -->
+                              <div class="p-3 border-bottom d-flex text-dark text-decoration-none account-item">
+                                 <a href="profile.html">
+                                    <img src="img/1605931037447.jpeg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 </a>
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center"><a class="text-decoration-none text-white" href="profile.html">Shay Coplan</a><span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div class="text-muted fw-light">
+                                       <p class="mb-1 small">@shayne_c</p>
+                                       <span class="text-muted d-flex align-items-center small"><span class="material-icons me-1 small">open_in_new</span>Promoted</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                                       <input type="checkbox" class="btn-check" id="btncddheck7">
+                                       <label class="btn btn-outline-primary btn-sm px-3 rounded-pill" for="btncddheck7"><span class="follow">+ Follow</span><span class="following d-none">Following</span></label>
+                                    </div>
+                                 </div>
+                              </div>
+                              <!-- Account Item -->
+                              <div class="p-3 border-bottom d-flex text-dark text-decoration-none account-item">
+                                 <a href="profile.html">
+                                    <img src="img/zVpm_8at_400x400.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 </a>
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center"><a class="text-decoration-none text-white" href="profile.html">Cobie</a><span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div class="text-muted fw-light">
+                                       <p class="mb-1 small">@cobie</p>
+                                       <span class="text-muted d-flex align-items-center small">Influencer</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                                       <input type="checkbox" class="btn-check" id="btncheck8">
+                                       <label class="btn btn-outline-primary btn-sm px-3 rounded-pill" for="btncheck8"><span class="follow">+ Follow</span><span class="following d-none">Following</span></label>
+                                    </div>
+                                 </div>
+                              </div>
+                              <!-- Account Item -->
+                              <div class="p-3 d-flex text-dark text-decoration-none account-item">
+                                 <a href="profile.html">
+                                   <img src="img/leo.jpg" class="img-fluid rounded-circle me-3" alt="profile-img">
+                                 </a>
+                                 <div>
+                                    <p class="fw-bold mb-0 pe-3 d-flex align-items-center"><a class="text-decoration-none text-white" href="profile.html">Leo Messi</a><span class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon">done</span></p>
+                                    <div class="text-muted fw-light">
+                                       <p class="mb-1 small">@leo</p>
+                                       <span class="text-muted d-flex align-items-center small">Football Player</span>
+                                    </div>
+                                 </div>
+                                 <div class="ms-auto">
+                                    <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                                       <input type="checkbox" class="btn-check" id="btncheck9">
+                                       <label class="btn btn-outline-primary btn-sm px-3 rounded-pill" for="btncheck9"><span class="follow">+ Follow</span><span class="following d-none">Following</span></label>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </aside>
+            </div>
+         </div>
+      </div>
+      <div class="py-3 bg-glass footer-copyright">
+         <div class="container">
+            <div class="row align-items-center justify-content-between">
+               <div class="col-auto">
+                  <span class="me-3 small">©2023 <b class="text-primary">Your Website</b>. All rights reserved</span>
+               </div>
+               <div class="col-auto text-end">
+                  <a target="_blank" href="#" class="btn social-btn btn-sm text-decoration-none"><i class="icofont-facebook"></i></a>
+                  <a target="_blank" href="#" class="btn social-btn btn-sm text-decoration-none"><i class="icofont-twitter"></i></a>
+                  <a target="_blank" href="#" class="btn social-btn btn-sm text-decoration-none"><i class="icofont-linkedin"></i></a>
+                  <a target="_blank" href="#" class="btn social-btn btn-sm text-decoration-none"><i class="icofont-youtube-play"></i></a>
+                  <a target="_blank" href="#" class="btn social-btn btn-sm text-decoration-none"><i class="icofont-instagram"></i></a>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Post Modal -->
+      <div class="modal fade bg-glass" id="postModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow-sm p-4 border-0 bg-brown-gradient">
+               <div class="modal-header d-flex align-items-center justify-content-start border-0 p-0 mb-3">
+                  <a href="#" class="text-white text-decoration-none material-icons" data-bs-dismiss="modal">arrow_back_ios_new</a>
+                  <h5 class="modal-title text-primary ms-3 ln-0" id="staticBackdropLabel"><span class="material-icons md-32">account_circle</span></h5>
+               </div>
+               <div class="modal-body p-0 mb-3">
+                  <div class="form-floating rounded-5 bg-glass">
+                     <textarea class="form-control border-0 shadow-sm" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 200px"></textarea>
+                     <label for="floatingTextarea2" class="h6 text-muted mb-0">What's on your mind...</label>
+                  </div>
+               </div>
+               <div class="modal-footer justify-content-start px-1 py-1 bg-glass shadow-sm rounded-5">
+                  <div class="rounded-4 m-0 px-3 py-2 d-flex align-items-center justify-content-between w-75">
+                     <a href="#" class="text-muted text-decoration-none material-icons">insert_link</a>
+                     <a href="#" class="text-muted text-decoration-none material-icons">image</a>
+                     <a href="#" class="text-muted text-decoration-none material-icons">smart_display</a>
+                     <span class="text-muted">0/500</span>
+                  </div>
+                  <div class="ms-auto m-0">
+                     <a data-bs-dismiss="modal" href="#" class="btn btn-primary rounded-5 fw-bold px-3 py-2 fs-6 mb-0 d-flex align-items-center"><span class="material-icons me-2 md-16">send</span>Post</a>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Sign In Modal -->
+      <div class="modal fade bg-glass" id="signModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow-sm p-4 border-0 bg-brown-gradient">
+               <div class="modal-header border-0 p-1">
+                  <h6 class="modal-title fw-bold text-body fs-6" id="exampleModalLabel">Choose Language</h6>
+                  <a href="#" class="text-muted text-decoration-none material-icons ms-2 md-" data-bs-dismiss="modal">close</a>
+               </div>
+               <form>
+                  <div class="modal-body p-0">
+                     <div class="row py-3 gy-3 m-0">
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="hindi11">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between" for="hindi11">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">हिंदी</small>
+                           <small class="ln-18">Hindi</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="english21" checked>
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between" for="english21">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">English</small>
+                           <small class="ln-18">English</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="kannada31">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between" for="kannada31">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">ಕನ್ನಡ</small>
+                           <small class="ln-18">kannada</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="tamil41">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between" for="tamil41">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">தமிழ்</small>
+                           <small class="ln-18">Tamil</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="punjabi51">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between mb-2" for="punjabi51">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">ਪੰਜਾਬੀ</small>
+                           <small class="ln-18">Punjabi</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="punjabi5111">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between mb-2" for="punjabi5111">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">Türk</small>
+                           <small class="ln-18">Turkish</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="punjabi511">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between mb-2" for="punjabi511">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">français</small>
+                           <small class="ln-18">French</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="other1">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between mb-2" for="other1">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">Other</small>
+                           <small class="ln-18">Other</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                     </div>
+                     <div class="mt-5 login-register" id="number">
+                        <h6 class="fw-bold mx-1 mb-2 text-white">Register your Mobile Number</h6>
+                        <div class="row mx-0 mb-3">
+                           <div class="col-3 p-1">
+                              <div class="form-floating">
+                                 <select class="form-select rounded-5" id="floatingSelect" aria-label="Floating label select example">
+                                    <option selected>+91</option>
+                                    <option value="1">+34</option>
+                                    <option value="2">+434</option>
+                                    <option value="3">+343</option>
+                                 </select>
+                                 <label for="floatingSelect" class="text-muted">Code</label>
+                              </div>
+                           </div>
+                           <div class="col-9 p-1">
+                              <div class="form-floating d-flex align-items-end">
+                                 <input type="text" class="form-control rounded-5" id="floatingName" value="1234567890" placeholder="Enter Mobile Number">
+                                 <label for="floatingName" class="text-muted">Enter Mobile Number</label>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="p-1">
+                           <button type="button" class="btn btn-primary w-100 text-decoration-none rounded-5 py-3 fw-bold text-uppercase m-0" data-bs-dismiss="modal">Send OTP</button>
+                        </div>
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </div>
+      <!-- Language Modal -->
+      <div class="modal fade bg-glass" id="languageModal" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-sm rounded-4 bg-brown-gradient p-4">
+               <div class="modal-header border-0 p-1">
+                  <h6 class="modal-title fw-bold text-body fs-6 d-flex justify-content-center" id="exampleModalLabel1">Choose Language</h6>
+                  <a href="#" class="text-muted text-decoration-none material-icons ms-2 md-" data-bs-dismiss="modal">close</a>
+               </div>
+               <form>
+                  <div class="modal-body pt-0 px-0">
+                     <div class="row py-3 gy-3 m-0">
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="hindi1">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between" for="hindi1">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">हिंदी</small>
+                           <small class="ln-18">Hindi</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="english2" checked>
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between" for="english2">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">English</small>
+                           <small class="ln-18">English</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="kannada3">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between" for="kannada3">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">ಕನ್ನಡ</small>
+                           <small class="ln-18">kannada</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="tamil4">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between" for="tamil4">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">தமிழ்</small>
+                           <small class="ln-18">Tamil</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="punjabi5">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between mb-2" for="punjabi5">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">ਪੰਜਾਬੀ</small>
+                           <small class="ln-18">Punjabi</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="punjabi511f">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between mb-2" for="punjabi511f">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">Türk</small>
+                           <small class="ln-18">Turkish</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="punjabi51f">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between mb-2" for="punjabi51f">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">français</small>
+                           <small class="ln-18">French</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                        <!-- Langauge Item -->
+                        <div class="langauge-item col-6 col-md-3 px-1 mt-2">
+                           <input type="radio" class="btn-check" name="options-outlined" id="other">
+                           <label class="btn btn-language btn-sm px-2 py-2 rounded-5 d-flex align-items-center justify-content-between mb-2" for="other">
+                           <span class="text-start d-grid">
+                           <small class="ln-18">Other</small>
+                           <small class="ln-18">Other</small>
+                           </span>
+                           <span class="material-icons text-muted md-20">check_circle</span>
+                           </label>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="modal-footer border-0 p-1">
+                     <button type="button" class="btn btn-primary w-100 text-decoration-none rounded-5 py-3 fw-bold text-uppercase m-0" data-bs-dismiss="modal">Submit</button>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </div>
+      <!-- Comment Modal -->
+      <div class="modal fade bg-glass" id="commentModal" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow-sm overflow-hidden border-0 bg-brown-gradient">
+               <div class="modal-header d-none">
+                  <h5 class="modal-title" id="exampleModalLabel2">Modal title</h5>
+                  <a href="#" class="text-muted text-decoration-none material-icons ms-2 md-" data-bs-dismiss="modal">close</a>
+               </div>
+               <div class="modal-body p-0">
+                  <div class="row m-0">
+                     <div class="col-sm-7 px-0 m-sm-none">
+                        <!-- Image Slider -->
+                        <div class="image-slider">
+                           <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                              <div class="carousel-indicators">
+                                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                              </div>
+                              <div class="carousel-inner">
+                                 <div class="carousel-item active">
+                                    <img src="img/post-img1.jpg" class="d-block w-100" alt="...">
+                                 </div>
+                                 <div class="carousel-item">
+                                    <img src="img/post-img2.jpg" class="d-block w-100" alt="...">
+                                 </div>
+                                 <div class="carousel-item">
+                                    <img src="img/post-img3.jpg" class="d-block w-100" alt="...">
+                                 </div>
+                              </div>
+                              <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                              <span class="visually-hidden">Previous</span>
+                              </button>
+                              <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                              <span class="visually-hidden">Next</span>
+                              </button>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-sm-5 content-body px-web-0">
+                        <div class="d-flex flex-column h-600">
+                           <div class="d-flex p-3 border-bottom">
+                              <img src="img/rmate4.jpg" class="img-fluid rounded-circle user-img" alt="profile-img">
+                              <div class="d-flex align-items-center justify-content-between w-100">
+                                 <a href="profile.html" class="text-decoration-none ms-3">
+                                    <div class="d-flex align-items-center">
+                                       <h6 class="fw-bold text-body mb-0">iamosahan</h6>
+                                       <p class="ms-2 material-icons bg-primary p-0 md-16 fw-bold text-white rounded-circle ov-icon mb-0">done</p>
+                                    </div>
+                                    <p class="text-muted mb-0 small">@johnsmith</p>
+                                 </a>
+                                 <div class="small dropdown">
+                                    <a href="#" class="text-muted text-decoration-none material-icons ms-2 md-" data-bs-dismiss="modal">close</a>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="comments p-3">
+                              <div class="d-flex mb-2">
+                                 <img src="img/rmate1.jpg" class="img-fluid rounded-circle" alt="profile-img">
+                                 <div class="ms-2 small">
+                                    <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text text-dark">
+                                       <p class="fw-500 text-white mb-0">Macie Bellis</p>
+                                       <span class="text-muted">Consectetur adipisicing elit.</span>
+                                    </div>
+                                    <div class="d-flex align-items-center ms-2">
+                                       <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                       <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                       <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                       <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                       <span class="small text-muted">1h</span>
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="d-flex mb-2">
+                                 <img src="img/rmate3.jpg" class="img-fluid rounded-circle" alt="profile-img">
+                                 <div class="ms-2 small">
+                                    <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text text-dark">
+                                       <p class="fw-500 text-white mb-0">John Smith</p>
+                                       <span class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</span>
+                                    </div>
+                                    <div class="d-flex align-items-center ms-2">
+                                       <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                       <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                       <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                       <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                       <span class="small text-muted">20min</span>
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="d-flex mb-2">
+                                 <img src="img/rmate2.jpg" class="img-fluid rounded-circle" alt="profile-img">
+                                 <div class="ms-2 small">
+                                    <div class="bg-glass px-3 py-2 rounded-4 mb-1 chat-text text-dark">
+                                       <p class="fw-500 text-white mb-0">Shay Jordon</p>
+                                       <span class="text-muted">With our vastly improved notifications system, users have more control.</span>
+                                    </div>
+                                    <div class="d-flex align-items-center ms-2">
+                                       <a href="#" class="small text-muted text-decoration-none">Like</a>
+                                       <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                       <a href="#" class="small text-muted text-decoration-none">Reply</a>
+                                       <span class="fs-3 text-muted material-icons mx-1">circle</span>
+                                       <span class="small text-muted">10min</span>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="border-top p-3 mt-auto">
+                              <div class="d-flex align-items-center justify-content-between mb-2">
+                                 <div>
+                                    <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">thumb_up_off_alt</span><span>30.4k</span></a>
+                                 </div>
+                                 <div>
+                                    <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-20 me-2">repeat</span><span>617</span></a>
+                                 </div>
+                                 <div>
+                                    <a href="#" class="text-muted text-decoration-none d-flex align-items-start fw-light"><span class="material-icons md-18 me-2">share</span><span>Share</span></a>
+                                 </div>
+                              </div>
+                              <div class="d-flex align-items-center">
+                                 <span class="material-icons bg-transparent border-0 text-primary pe-2 md-36">account_circle</span>
+                                 <div class="d-flex align-items-center border rounded-4 px-3 py-1 w-100">
+                                    <input type="text" class="form-control form-control-sm p-0 rounded-3 fw-light bg-transparent border-0 form-control-text" placeholder="Write Your comment">
+                                    <a href="#" class="border-0 text-primary ps-2 text-decoration-none">Post</a>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="modal-footer d-none">
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Jquery Js -->
+      <script src="vendor/jquery/jquery.min.js"></script>
+      <!-- Bootstrap Bundle Js -->
+      <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+      <!-- Custom Js -->
+      <script src="js/custom.js"></script>
+      <!-- Slick Js -->
+      <script src="vendor/slick/slick/slick.min.js"></script>
+      
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script>
+        $(function () {
+  const priceYes = 0.21;
+  const priceNo = 0.8;
+
+  function updatePayout() {
+    const amount = parseFloat($('#amount').val());
+    const label = $('.side-label').text().trim().toLowerCase();
+    const price = label === 'yes' ? priceYes : priceNo;
+
+    if (!isNaN(amount) && price > 0) {
+      const payout = (amount / price).toFixed(2);
+      $('#payout').text(`$${payout}`);
+      $('#payout-inline').text(`$${payout}`);
+    }
+  }
+
+  // Flip + load template
+  $('.buy-yes, .buy-no').on('click', function () {
+    const isYes = $(this).hasClass('buy-yes');
+    const label = isYes ? 'Yes' : 'No';
+    const labelLower = label.toLowerCase();
+    const $card = $(this).closest('.market-card');
+    const template = $('#market-template').html();
+
+    const filled = template
+      .replace(/__SIDE__/g, label)
+      .replace(/__SIDE_LOWER__/g, labelLower);
+
+    $card.find('.market-back').html(filled);
+
+    requestAnimationFrame(() => {
+      $card.addClass('flipped');
+      const backHeight = $card.find('.market-back')[0].scrollHeight;
+      $card.find('.market-inner').css('min-height', backHeight + 'px');
+      setTimeout(() => updatePayout(), 50);
+    });
+  });
+
+  // Закрытие
+  $(document).on('click', '.close-card', function () {
+    const $card = $(this).closest('.market-card');
+    $card.removeClass('flipped');
+    setTimeout(() => {
+      $card.find('.market-back').empty();
+    }, 500);
+  });
+
+  // +1/+10
+  $(document).on('click', '.plus-btn', function () {
+    const add = parseInt($(this).data('add'));
+    const $input = $('#amount');
+    $input.val(parseInt($input.val()) + add);
+    $('#slider').val($input.val());
+    updatePayout();
+  });
+
+  // Ползунок
+  $(document).on('input', '#slider', function () {
+    $('#amount').val($(this).val());
+    updatePayout();
+  });
+
+  // Ручной ввод
+  $(document).on('input', '#amount', updatePayout);
+});
+         
+ const ctx = document.getElementById('marketChart').getContext('2d');
+
+// Генерируем 100 точек — как в реальной истории
+const labels = Array.from({ length: 100 }, (_, i) => {
+  const date = new Date();
+  date.setDate(date.getDate() - (100 - i));
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+});
+
+const data = {
+  labels: labels,
+  datasets: [{
+    label: 'Yes Price',
+    data: generateRandomWalk(100, 34), // функция ниже
+    borderColor: '#4fc3f7',
+    backgroundColor: 'transparent',
+    fill: false,
+    tension: 0,
+    borderWidth: 2,
+    pointRadius: 0,
+    pointHoverRadius: 0
+  }]
+};
+
+const config = {
+  type: 'line',
+  data: data,
+  options: {
+    responsive: true,
+    interaction: {
+      mode: 'index',
+      intersect: false
+    },
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        enabled: true,
+        backgroundColor: '#222',
+        titleColor: '#fff',
+        bodyColor: '#ddd',
+        borderColor: '#555',
+        borderWidth: 1,
+        callbacks: {
+          label: (context) => `Yes ${context.parsed.y}%`
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: '#aaa' },
+        grid: { color: '#1f1f1f' }
+      },
+      y: {
+        beginAtZero: false,
+        ticks: {
+          color: '#aaa',
+          callback: (value) => `${value}%`
+        },
+        min: 20,
+        max: 80,
+        grid: { color: '#1f1f1f' }
+      }
+    }
+  }
+};
+
+new Chart(ctx, config);
+
+// 🔧 Функция для генерации похожего движения как на Polymarket
+function generateRandomWalk(length, startValue) {
+  const values = [startValue];
+  for (let i = 1; i < length; i++) {
+    const prev = values[i - 1];
+    let next = prev + (Math.random() - 0.5) * 5; // +/- 2.5% шаг
+    next = Math.max(20, Math.min(80, next)); // clamp between 20% and 80%
+    values.push(parseFloat(next.toFixed(2)));
+  }
+  return values;
+}
+
+         
+         // Переключение вкладок Buy / Sell
+document.querySelectorAll('.trade-tabs .tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.trade-tabs .tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    
+    const label = document.querySelector('.trade-inputs label');
+    label.innerText = tab.innerText === 'Buy' ? 'Amount' : 'Shares';
+  });
+});
+
+// Быстрые кнопки
+document.querySelectorAll('.quick-buttons button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const value = btn.innerText.replace(/[^0-9]/g, '');
+    const input = document.querySelector('.amount-row input');
+    input.value = parseInt(input.value || 0) + parseInt(value || 0);
+  });
+});
+
+
+      </script>
+   </body>
+</html>
