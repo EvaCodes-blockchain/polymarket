@@ -19,6 +19,7 @@ are the planned baseline for the production system.
 | [functional-requirements.md](functional-requirements.md) | Detailed, numbered functional requirements (FR-…) for every feature visible in the prototype: auth, feed, social graph, market cards, trading, portfolio, profiles, notifications — plus the list of known gaps (Section 15). |
 | [testing-integration.md](testing-integration.md)         | API integration-testing strategy: Docker Compose test environment (Ganache, PostgreSQL, mocks), per-API coverage matrix, cross-API flow scenarios, data management, CI gates.                                                 |
 | [ui-testing.md](ui-testing.md)                           | End-to-end UI testing strategy: Playwright setup, injected test wallet, page objects, critical user journeys (J1–J8), component-behavior specs, browser/viewport matrix.                                                      |
+| [architecture-polymarket-platform-reference.md](architecture-polymarket-platform-reference.md) | How the **real Polymarket platform** works (from the official docs): APIs, CLOB order lifecycle, CTF outcome tokens, UMA resolution, auth, fees, WebSockets, contracts — and where our design differs (Section 10).  |
 
 ## UML diagrams (PlantUML)
 
@@ -53,3 +54,4 @@ The `.puml` files are [PlantUML](https://plantuml.com/) sources. To render them:
 3. [functional-requirements.md](functional-requirements.md) — what each feature must do.
 4. [uml-components-api.puml](uml-components-api.puml) — the API that backs those features.
 5. [uml-components-smart-contracts.puml](uml-components-smart-contracts.puml) — the on-chain settlement layer.
+6. [architecture-polymarket-platform-reference.md](architecture-polymarket-platform-reference.md) — how the real Polymarket implements the same mechanics, as a design reference.
