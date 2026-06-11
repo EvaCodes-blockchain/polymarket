@@ -3,32 +3,47 @@ title PolyMarket Social ("Justify") — Team Composition as a Parallel Flow\n48 
 
 skinparam shadowing false
 skinparam defaultFontSize 12
-skinparam activity {
-  BackgroundColor #FFFFFF
-  BorderColor #888888
-}
 skinparam partition {
   BackgroundColor #FAFAFA
   BorderColor #888888
 }
 
+' Activity color classes: phase0 = Phase-0 deliverable (blue),
+' mvp = seat on the CEO MVP critical path (orange) — see legend.
+' (Defaults live here too: a skinparam activity BackgroundColor would
+' override the per-class styles below.)
+<style>
+activityDiagram {
+  activity {
+    BackgroundColor #FFFFFF
+    LineColor #888888
+    .phase0 {
+      BackgroundColor #D6E8FF
+    }
+    .mvp {
+      BackgroundColor #FFE6CC
+    }
+  }
+}
+</style>
+
 start
 
 partition "Phase 0 — bootstrap (the only serialized work, team-composition.md §4)" {
   fork
-    #D6E8FF:OpenAPI specs ×16\n(BE seats draft,\nARCH-1 arbitrates);
+    :OpenAPI specs ×16\n(BE seats draft,\nARCH-1 arbitrates);<<phase0>>
   fork again
-    #D6E8FF:Solidity interfaces,\nevent catalog,\ncent/decimals conventions\n(ARCH-2 + SC-1..3);
+    :Solidity interfaces,\nevent catalog,\ncent/decimals conventions\n(ARCH-2 + SC-1..3);<<phase0>>
   fork again
-    #D6E8FF:Address artifact format,\nseed-market fixtures\n(SC-3 + QA-1);
+    :Address artifact format,\nseed-market fixtures\n(SC-3 + QA-1);<<phase0>>
   fork again
-    #D6E8FF:DB schema namespace\nallocation\n(ARCH-1 + BP-1);
+    :DB schema namespace\nallocation\n(ARCH-1 + BP-1);<<phase0>>
   fork again
-    #D6E8FF:Gateway skeleton,\nservice scaffold,\nroute registry\n(BP-1);
+    :Gateway skeleton,\nservice scaffold,\nroute registry\n(BP-1);<<phase0>>
   fork again
-    #D6E8FF:Design tokens, layout\nshell, data-testid scheme\n(FE-1 + QA-7);
+    :Design tokens, layout\nshell, data-testid scheme\n(FE-1 + QA-7);<<phase0>>
   fork again
-    #D6E8FF:docker-compose: api,\nstorage, oauth-mock,\noracle-mock\n(DO-1);
+    :docker-compose: api,\nstorage, oauth-mock,\noracle-mock\n(DO-1);<<phase0>>
   end fork
   :Contract freeze (rule G2) — ARCH-1 signs off;\nlater changes only via change control (§11);
 }
@@ -44,9 +59,9 @@ end note
 fork
   partition "Group A — Architecture & coordination (5)" {
     fork
-      #FFE6CC:ARCH-1\nChief Architect\nchange control,\narbitration;
+      :ARCH-1\nChief Architect\nchange control,\narbitration;<<mvp>>
     fork again
-      #FFE6CC:ARCH-2\nBlockchain\nArchitect;
+      :ARCH-2\nBlockchain\nArchitect;<<mvp>>
     fork again
       :ARCH-3\nTest Strategy\nArchitect;
     fork again
@@ -58,21 +73,21 @@ fork
 fork again
   partition "Group B — Smart contracts (3)" {
     fork
-      #FFE6CC:SC-1\nMarketFactory,\nPredictionMarket,\nOracleResolver;
+      :SC-1\nMarketFactory,\nPredictionMarket,\nOracleResolver;<<mvp>>
     fork again
-      #FFE6CC:SC-2\nMarketAMM,\nOutcomeToken,\nMockUSDC;
+      :SC-2\nMarketAMM,\nOutcomeToken,\nMockUSDC;<<mvp>>
     fork again
-      #FFE6CC:SC-3\nFeeTreasury,\nAccessControl,\nmigrations + seeding;
+      :SC-3\nFeeTreasury,\nAccessControl,\nmigrations + seeding;<<mvp>>
     end fork
   }
 fork again
   partition "Group C — Backend (17)" {
     fork
-      #FFE6CC:BP-1\nGateway &\nplatform;
+      :BP-1\nGateway &\nplatform;<<mvp>>
     fork again
-      #FFE6CC:BE-1\nAuth API;
+      :BE-1\nAuth API;<<mvp>>
     fork again
-      #FFE6CC:BE-2\nWallet\nAuth API;
+      :BE-2\nWallet\nAuth API;<<mvp>>
     fork again
       :BE-3\nUsers API;
     fork again
@@ -82,17 +97,17 @@ fork again
     fork again
       :BE-6\nEngagement\nAPI;
     fork again
-      #FFE6CC:BE-7\nSocial\nGraph API;
+      :BE-7\nSocial\nGraph API;<<mvp>>
     fork again
       :BE-8\nMarkets API;
     fork again
       :BE-9\nMarket\nCreation API;
     fork again
-      #FFE6CC:BE-10\nOrders API;
+      :BE-10\nOrders API;<<mvp>>
     fork again
-      #FFE6CC:BE-11\nMarket\nData API;
+      :BE-11\nMarket\nData API;<<mvp>>
     fork again
-      #FFE6CC:BE-12\nPortfolio\nAPI;
+      :BE-12\nPortfolio\nAPI;<<mvp>>
     fork again
       :BE-13\nNotifications\nAPI;
     fork again
@@ -106,13 +121,13 @@ fork again
 fork again
   partition "Group D — Web client (10)" {
     fork
-      #FFE6CC:FE-1\nLayout shell,\ndesign tokens;
+      :FE-1\nLayout shell,\ndesign tokens;<<mvp>>
     fork again
-      #FFE6CC:FE-2\nMarket-card\nwidget;
+      :FE-2\nMarket-card\nwidget;<<mvp>>
     fork again
-      #FFE6CC:FE-3\nAuth client;
+      :FE-3\nAuth client;<<mvp>>
     fork again
-      #FFE6CC:FE-4\nWallet\nconnector;
+      :FE-4\nWallet\nconnector;<<mvp>>
     fork again
       :FE-5\nFeed page;
     fork again
@@ -122,7 +137,7 @@ fork again
     fork again
       :FE-8\nPortfolio\npage;
     fork again
-      #FFE6CC:FE-9\nProfile &\nsettings;
+      :FE-9\nProfile &\nsettings;<<mvp>>
     fork again
       :FE-10\nSecondary\npages;
     end fork
@@ -130,21 +145,21 @@ fork again
 fork again
   partition "Group E — QA & test automation (11)" {
     fork
-      #FFE6CC:QA-1\nTest infra,\nfixtures;
+      :QA-1\nTest infra,\nfixtures;<<mvp>>
     fork again
-      #FFE6CC:QA-2\nIT: auth,\nusers;
+      :QA-2\nIT: auth,\nusers;<<mvp>>
     fork again
       :QA-3\nIT: social;
     fork again
-      #FFE6CC:QA-4\nIT: markets,\ntrading;
+      :QA-4\nIT: markets,\ntrading;<<mvp>>
     fork again
       :QA-5\nIT: portfolio,\nsupport;
     fork again
       :QA-6\nIT: cross-API\nflows;
     fork again
-      #FFE6CC:QA-7\nE2E framework,\npage objects;
+      :QA-7\nE2E framework,\npage objects;<<mvp>>
     fork again
-      #FFE6CC:QA-8\nE2E journeys\nJ1–J8;
+      :QA-8\nE2E journeys\nJ1–J8;<<mvp>>
     fork again
       :QA-9\nE2E component\nspecs;
     fork again
@@ -156,9 +171,9 @@ fork again
 fork again
   partition "Group F — DevOps & CI (2)" {
     fork
-      #FFE6CC:DO-1\nCompose\nenvironment;
+      :DO-1\nCompose\nenvironment;<<mvp>>
     fork again
-      #FFE6CC:DO-2\nCI pipelines,\nrelease gates;
+      :DO-2\nCI pipelines,\nrelease gates;<<mvp>>
     end fork
   }
 end fork
