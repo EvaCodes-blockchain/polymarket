@@ -3,10 +3,10 @@ import Providers from "@/components/Providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Justify — Trade Smarter, Together",
+  title: 'Justify — Trade Smarter, Together',
   description:
-    "Social prediction-market platform. Post ideas, follow creators, and trade on embedded markets.",
-  icons: { icon: "/img/logo.png" },
+    'Social prediction-market platform. Post ideas, follow creators, and trade on embedded markets.',
+  icons: { icon: '/img/logo.png' },
 };
 
 export default function RootLayout({
@@ -22,8 +22,8 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-brown-gradient min-h-screen">
-          <Providers>{children}</Providers>
-        </body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
