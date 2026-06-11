@@ -31,6 +31,22 @@ services:
       retries: 10
     restart: unless-stopped
 
+  # Static server for the human-made HTML prototype (the source of truth for
+  # product behavior). Served on :3001; port 3000 is reserved for the real
+  # web client when it exists.
+  prototype:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./html-polymarket-social-prototype:/usr/share/nginx/html:ro
+    ports:
+      - "3001:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:80/index.html"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   postgres:
     image: postgres:16-alpine
     environment:
