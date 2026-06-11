@@ -45,7 +45,7 @@ These check names must match what devops-engineer configures in `.github/workflo
 | Require conversation resolution | **Yes** |
 | Restrict who can push | **No one** (only merge via PR) |
 | Allow force pushes | **No** |
-| Allow deletions | **Yes** (orchestrator deletes after mvp merges to main) |
+| Allow deletions | **No** (`mvp` is the terminal delivery branch — never merged to main, never deleted) |
 
 ---
 
