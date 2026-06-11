@@ -1,8 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
+import { signIn } from 'next-auth/react';
 
-// Wallet SVG icons – identical markup to prototype
+// ── Wallet SVG icons (identical markup to prototype) ──────────────────────────
+
 const MetaMaskIcon = () => (
   <svg width="40" height="40" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M27.2684 4.03027L17.5018 11.2841L19.3079 7.00442L27.2684 4.03027Z" fill="#E2761B" stroke="#E2761B" strokeWidth="0.27" strokeLinecap="round" strokeLinejoin="round"/>
@@ -37,32 +39,95 @@ const WalletConnectIcon = () => (
   </svg>
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+
+type Mode = 'signin' | 'register';
+
 interface SignInModalProps {
   open: boolean;
   onClose: () => void;
 }
 
 export default function SignInModal({ open, onClose }: SignInModalProps) {
-  const [email, setEmail] = useState("");
+  const [mode, setMode] = useState<Mode>('signin');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const backdropRef = useRef<HTMLDivElement>(null);
+
+  // Reset on open
+  useEffect(() => {
+    if (open) {
+      setMode('signin');
+      setName('');
+      setEmail('');
+      setPassword('');
+      setError('');
+      setLoading(false);
+    }
+  }, [open]);
 
   // Close on backdrop click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (e.target === backdropRef.current) onClose();
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, [onClose]);
 
   // Close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === 'Escape') onClose();
     };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
   }, [onClose]);
+
+  const handleCredentials = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      if (mode === 'register') {
+        // POST /api/auth/register (backend-engineer's route)
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password }),
+        });
+        const data: { error?: string } = await res.json() as { error?: string };
+        if (!res.ok) {
+          setError(data.error ?? 'Registration failed');
+          setLoading(false);
+          return;
+        }
+        // Auto sign-in after registration
+      }
+
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Invalid email or password');
+        setLoading(false);
+        return;
+      }
+
+      // Success — close modal, page will re-render with session
+      onClose();
+    } catch {
+      setError('Something went wrong. Please try again.');
+      setLoading(false);
+    }
+  };
 
   if (!open) return null;
 
@@ -74,15 +139,25 @@ export default function SignInModal({ open, onClose }: SignInModalProps) {
       aria-modal="true"
       aria-labelledby="signin-title"
     >
-      <div className="bg-glass rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4 border border-white/10">
+      <div className="relative bg-glass rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4 border border-white/10">
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-white material-icons md-20 transition-colors"
+          aria-label="Close"
+        >
+          close
+        </button>
+
         <div className="login-modal">
           <h2 className="login-title" id="signin-title">
             Welcome to Justify
           </h2>
 
-          {/* Google */}
-          <a
-            href="/api/auth/signin/google"
+          {/* Google (only when env vars present — shown always per prototype, deactivates in local dev) */}
+          <button
+            type="button"
+            onClick={() => signIn('google', { callbackUrl: '/' })}
             className="btn-google"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -93,19 +168,43 @@ export default function SignInModal({ open, onClose }: SignInModalProps) {
               height={20}
             />
             Continue with Google
-          </a>
+          </button>
 
           {/* Divider */}
           <div className="login-divider">OR</div>
 
-          {/* Email */}
-          <form
-            className="login-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              // CEO-1: wire to NextAuth email provider in task #9
-            }}
-          >
+          {/* Mode toggle */}
+          <div className="flex rounded-xl overflow-hidden border border-white/10">
+            <button
+              type="button"
+              onClick={() => { setMode('signin'); setError(''); }}
+              className={`flex-1 py-2 text-sm font-medium transition-colors
+                ${mode === 'signin' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => { setMode('register'); setError(''); }}
+              className={`flex-1 py-2 text-sm font-medium transition-colors
+                ${mode === 'register' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
+              Register
+            </button>
+          </div>
+
+          {/* Form */}
+          <form className="login-form space-y-3" onSubmit={handleCredentials}>
+            {mode === 'register' && (
+              <input
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                autoComplete="name"
+              />
+            )}
             <input
               type="email"
               placeholder="Enter your email"
@@ -114,21 +213,41 @@ export default function SignInModal({ open, onClose }: SignInModalProps) {
               required
               autoComplete="email"
             />
-            <button type="submit">Continue</button>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+              autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
+            />
+
+            {error && (
+              <p className="text-red-400 text-xs text-center">{error}</p>
+            )}
+
+            <button type="submit" disabled={loading}>
+              {loading ? 'Please wait…' : mode === 'register' ? 'Create account' : 'Continue'}
+            </button>
           </form>
 
-          {/* Wallets — MetaMask active (CEO-3), others disabled */}
+          {/* Wallets — MetaMask wired in CEO-3 (task #13), others shown-but-disabled */}
           <div className="login-wallets gap-4">
             <button
-              title="MetaMask"
+              type="button"
+              title="MetaMask — connect wallet (CEO-3)"
               className="hover:opacity-80 transition-opacity"
               onClick={() => {
-                /* CEO-3: wagmi connect wired in task #13 */
+                onClose();
+                // CEO-3: wagmi connect dispatched via event; task #13 wires this
+                window.dispatchEvent(new CustomEvent('justify:connectWallet'));
               }}
             >
               <MetaMaskIcon />
             </button>
             <button
+              type="button"
               title="Trust Wallet (coming soon)"
               disabled
               className="opacity-40 cursor-not-allowed"
@@ -136,6 +255,7 @@ export default function SignInModal({ open, onClose }: SignInModalProps) {
               <TrustWalletIcon />
             </button>
             <button
+              type="button"
               title="Coinbase Wallet (coming soon)"
               disabled
               className="opacity-40 cursor-not-allowed"
@@ -143,6 +263,7 @@ export default function SignInModal({ open, onClose }: SignInModalProps) {
               <CoinbaseIcon />
             </button>
             <button
+              type="button"
               title="WalletConnect (coming soon)"
               disabled
               className="opacity-40 cursor-not-allowed"
@@ -151,22 +272,12 @@ export default function SignInModal({ open, onClose }: SignInModalProps) {
             </button>
           </div>
 
-          {/* Terms */}
+          {/* Terms — FR-AUTH-5 */}
           <p className="login-terms">
-            By continuing, you agree to our{" "}
-            <a href="/terms">Terms</a> and{" "}
-            <a href="/privacy">Privacy</a>.
+            By continuing, you agree to our{' '}
+            <a href="/terms">Terms</a> and <a href="/privacy">Privacy</a>.
           </p>
         </div>
-
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white material-icons md-20 transition-colors"
-          aria-label="Close"
-        >
-          close
-        </button>
       </div>
     </div>
   );
