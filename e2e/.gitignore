@@ -1,0 +1,6 @@
+# Playwright test artifacts — uploaded as CI artifacts, not tracked in git
+test-results/
+playwright-report/
+
+# Node
+node_modules/

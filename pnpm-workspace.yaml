@@ -1,6 +1,7 @@
 packages:
   - "web"
   - "contracts"
+  - "e2e"
 allowBuilds:
   '@prisma/client': true
   esbuild: true
