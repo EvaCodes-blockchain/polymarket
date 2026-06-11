@@ -32,7 +32,7 @@ main  (always releasable, protected)
 **Rules:**
 
 - Agents branch off `mvp`, **never directly off `main`**.
-- `main` is updated only by an MVP merge commit at phase close (see §8).
+- `main` is **never** updated by this team — `mvp` is the terminal delivery branch (see §8).
 - Force-push is disabled on `main` and `mvp`. Rebase your workstream branch locally before
   opening a PR; never rebase a shared branch.
 - Branch names must follow the pattern above — the PR template enforces this by convention and
@@ -203,30 +203,29 @@ Rules:
 **Workstream PR → `mvp` branch:** squash-merge. One clean commit per PR on the `mvp` branch.
 The squash commit title must be the PR's conventional-commit title.
 
-**`mvp` branch → `main`:** merge commit (no squash). This preserves the per-PR history on `main`
-and provides an obvious merge point for the changelog and rollback.
+**`mvp` is the terminal branch for MVP work — it is NEVER merged into `main`.**
+All delivery happens on `mvp`; `main` belongs to the upstream project and is not touched
+by this team. At MVP completion the orchestrator tags the `mvp` branch:
 
 ```bash
-# orchestrator performs this at MVP completion:
-git checkout main
-git merge --no-ff mvp -m "chore: merge mvp into main [vMVP-1.0.0]"
-git tag vMVP-1.0.0
-git push origin main --tags
+# orchestrator performs this at MVP completion (on the mvp branch):
+git tag vMVP-1.0.0 mvp
+git push origin vMVP-1.0.0
 ```
 
-No agent pushes to `main` or performs the MVP merge. Only the orchestrator does this.
+No one — agent or orchestrator — pushes to `main` or merges `mvp` into `main`.
 
 ---
 
 ## 9. Phase-exit tags & changelog
 
-At each milestone the orchestrator tags the `mvp` branch (and `main` at MVP completion):
+At each milestone the orchestrator tags the `mvp` branch:
 
 | Tag | Meaning |
 |---|---|
 | `mvp-phase0` | Foundations complete (workspaces, scaffolds, contracts deployed to Ganache) |
 | `mvp-ceo1` … `mvp-ceo4` | Each CEO flow demoable end-to-end |
-| `vMVP-1.0.0` | All four CEO flows green — merged to `main` |
+| `vMVP-1.0.0` | All four CEO flows green — MVP complete on the `mvp` branch |
 
 **Generating the changelog:**
 
