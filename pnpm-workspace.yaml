@@ -3,6 +3,7 @@ packages:
   - "contracts"
 allowBuilds:
   '@prisma/client': true
+  esbuild: true
   '@prisma/engines': true
   prisma: true
   unrs-resolver: true
