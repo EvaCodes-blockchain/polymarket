@@ -10,7 +10,7 @@ skinparam package {
 }
 
 actor "Trader Wallet\n(MetaMask et al.\nvia Web3.js)" as Wallet
-[Backend\n(Orders API / Trading Service,\nWallet Auth API)] as Backend
+[Backend\n(Orders API, Market Data API,\nPortfolio API, Wallet Auth API)] as Backend
 [Contract Deployment\n(Truffle/Hardhat migrations,\nseed markets & accounts)] as Deployer
 
 node "Docker" as DockerHost {
@@ -53,6 +53,7 @@ MarketFactory ..> AccessControl : only authorized\ncreator/moderator
 PredictionMarket ..> OutcomeToken : mints/burns\noutcome shares
 PredictionMarket ..> OracleResolver : awaits resolution
 PredictionMarket ..> CollateralToken : escrows collateral,\npays out winners
+MarketAMM ..> PredictionMarket : mints share pairs against\nescrowed collateral (full backing)
 MarketAMM ..> OutcomeToken : swaps shares
 MarketAMM ..> CollateralToken : takes/returns\ncollateral
 MarketAMM ..> FeeTreasury : trading fees
@@ -68,6 +69,13 @@ legend bottom
   collateral (USDC) and a decentralized oracle is deferred to a later
   phase. Creator-fee earnings and market management controls are known
   gaps (functional-requirements.md, Section 15).
+  Collateral invariant: every outstanding YES/NO pair is backed by exactly
+  $1 of collateral escrowed in its PredictionMarket; MarketAMM acquires
+  inventory by splitting escrowed collateral, never by unbacked minting —
+  so post-resolution redemption at $1/share is always funded.
+  Open item: MockUSDC decimals, cent-rounding rules, and the YES/NO
+  price-complement convention are unspecified (functional-requirements.md
+  Section 15, item 13).
 endlegend
 
 @enduml

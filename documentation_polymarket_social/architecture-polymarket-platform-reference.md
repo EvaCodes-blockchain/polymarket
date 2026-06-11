@@ -207,7 +207,7 @@ position value in eligible markets, sampled hourly and paid daily.
   the client, which must answer `pong` within 10 s or be disconnected.
 
 This is the model to copy for our live price updates on market cards and the portfolio page
-(currently unspecified in the FR document — see gap list).
+(unspecified in the FR document — tracked as Section 15, item 12).
 
 ## 7. Rate limits (selected)
 
@@ -270,8 +270,8 @@ write our own settlement contracts. The CTF contracts themselves are the open-so
 | Matching       | Off-chain CLOB + on-chain atomic settlement                 | **On-chain AMM** ([uml-components-smart-contracts.puml](uml-components-smart-contracts.puml)) | AMM is simpler for MVP but has no resting orders, no maker/taker distinction, and price impact on every trade. A later CLOB migration would change the Orders API contract substantially. |
 | Outcome tokens | ERC-1155 via Gnosis CTF, split/merge/redeem                 | ERC-1155 outcome tokens (aligned)                                                             | We can adopt CTF semantics (full collateralization, complement pricing) almost verbatim.                                                                                                  |
 | Resolution     | UMA Optimistic Oracle: bonds, 2 h challenge, DVM escalation | Trusted manual oracle resolver for MVP; "oracle proof" URL at creation                        | The proposal/challenge/bond flow is the long-term decentralization path already anticipated in our README.                                                                                |
-| Fees           | Taker-only `C × rate × p × (1−p)`, maker/taker rebates      | Not specified                                                                                 | A concrete, audited fee model we can adopt when fees become a requirement.                                                                                                                |
-| Live data      | WebSocket channels (market/user/sports)                     | Not specified (gap)                                                                           | Real-time price updates on feed cards will need an equivalent; Polymarket's channel/subscription design is a ready template.                                                              |
+| Fees           | Taker-only `C × rate × p × (1−p)`, maker/taker rebates      | MarketAMM routes trading fees to FeeTreasury (uml-components-smart-contracts.puml); fee rate and creator split unspecified — known gap (functional-requirements.md Section 15, item 2) | A concrete, audited fee model we can adopt when fees become a requirement.                                                                                                                |
+| Live data      | WebSocket channels (market/user/sports)                     | Not specified — gap (functional-requirements.md Section 15, item 12)                          | Real-time price updates on feed cards will need an equivalent; Polymarket's channel/subscription design is a ready template.                                                              |
 
 ## 11. Further reading
 

@@ -31,13 +31,16 @@ package "Client Integration Layer" as clientIntegration {
 
 package "Application Layer — planned production backend" as application {
   [Auth & Identity Service] as AuthService
+  [User Service\n(profiles, settings)] as UserService
   [Social Service\n(posts "Vogel", comments,\nlikes, reposts)] as SocialService
   [Social Graph Service\n(follow/unfollow, suggestions,\nverified accounts)] as SocialGraphService
   [Market Service\n(catalog, hashtags, creation\nrequests, moderation)] as MarketService
   [Trading Service\n(orders, pricing, charts)] as TradingService
   [Portfolio Service\n(positions, P&L)] as PortfolioService
-  [Notification Service] as NotificationService
+  [Notifications Service] as NotificationService
   [Search Service\n(users, posts, markets)] as SearchService
+  [Media Service\n(image upload, video embeds)] as MediaService
+  [Support Service\n(help requests)] as SupportService
 }
 
 package "Data Layer" as data {
@@ -57,7 +60,7 @@ package "Blockchain — MVP" as blockchain {
   }
 }
 
-interface "REST / GraphQL API" as API
+interface "REST API\n(via API Gateway)" as API
 interface "JSON-RPC" as JsonRpc
 
 ' --- Presentation layer internals ---
@@ -78,6 +81,7 @@ TradingPage ..> WalletConnector : connect to trade
 ' --- Presentation -> Application (via API) ---
 presentation -- API
 API -- AuthService
+API -- UserService
 API -- SocialService
 API -- SocialGraphService
 API -- MarketService
@@ -85,6 +89,8 @@ API -- TradingService
 API -- PortfolioService
 API -- NotificationService
 API -- SearchService
+API -- MediaService
+API -- SupportService
 
 ' --- Client integration -> External ---
 AuthClient ..> GoogleOAuth : OAuth 2.0 / OIDC
@@ -94,6 +100,7 @@ JsonRpc -- Ganache
 
 ' --- Application -> Data ---
 AuthService ..> AppDB
+UserService ..> AppDB
 SocialService ..> AppDB
 SocialGraphService ..> AppDB
 MarketService ..> AppDB
@@ -101,12 +108,16 @@ TradingService ..> AppDB
 PortfolioService ..> AppDB
 NotificationService ..> AppDB
 SearchService ..> AppDB
-SocialService ..> MediaStorage
-MarketService ..> MediaStorage
+SupportService ..> AppDB
+MediaService ..> MediaStorage
+SocialService ..> MediaService : attach images/video
+MarketService ..> MediaService : market photo upload
 
 ' --- Application -> External ---
 AuthService ..> GoogleOAuth : token verification
+AuthService ..> Ganache : wallet-auth chain check\n(eth_chainId, 1337)
 TradingService ..> Ganache : on-chain settlement\n(JSON-RPC)
+PortfolioService ..> Ganache : read positions\n(ERC-1155 balances)
 MarketService ..> OracleSources : resolution proof
 
 legend bottom
@@ -117,6 +128,14 @@ legend bottom
   MVP scope: on-chain settlement targets a local Ganache EVM node in
   Docker (chain ID 1337) instead of Base mainnet; migration to a public
   network (e.g., Base, chain ID 8453) is deferred to a later phase.
+  Application services map to the API components of
+  uml-components-api.puml: Social Service = Posts + Comments + Engagement
+  APIs; Market Service = Markets + Market Creation APIs; Trading Service =
+  Orders + Market Data APIs; Auth & Identity Service = Auth + Wallet Auth
+  APIs; User/Media/Support/Notifications/Portfolio/Search/Social Graph
+  Services map 1:1.
+  Avatars in Media Storage: no FR covers avatar upload (FR-PROF-3 has no
+  photo field) — open question for the architecture team.
 endlegend
 
 @enduml

@@ -1,4 +1,4 @@
-@startuml uml-api-components
+@startuml uml-components-api
 title PolyMarket Social ("Justify") — API Components (UML Component Diagram)
 
 skinparam componentStyle rectangle
@@ -21,7 +21,7 @@ package "Identity & Access APIs" as identityApis {
   [Wallet Auth API] as WalletAuthAPI
   interface "POST /auth/wallet/nonce\nPOST /auth/wallet/verify\nFR-AUTH-4 (Ganache 1337)" as IWalletAuth
   [Users API] as UsersAPI
-  interface "GET/PATCH /users/{handle}\nPUT /users/me/settings\nFR-PROF-1..6" as IUsers
+  interface "GET/PATCH /users/{handle}\nPUT /users/me/settings\nFR-PROF-1..6, FR-PORT-1" as IUsers
 }
 
 package "Social APIs" as socialApis {
@@ -45,7 +45,7 @@ package "Market & Trading APIs" as marketApis {
   [Market Data API] as MarketDataAPI
   interface "GET /markets/{id}/prices\nGET /markets/{id}/chart?tf=1H..ALL\nFR-CARD-1, FR-TRD-2" as IMarketData
   [Portfolio API] as PortfolioAPI
-  interface "GET /portfolio/positions\n(amount, price, value, P&L)\nFR-PORT-1..2" as IPortfolio
+  interface "GET /portfolio/positions\n(amount, price, value, P&L)\nFR-PORT-2" as IPortfolio
 }
 
 package "Supporting APIs" as supportApis {
@@ -110,6 +110,7 @@ ISupport - SupportAPI
 
 ' --- Inter-API dependencies ---
 PostsAPI ..> MarketsAPI : embed market cards\n(FR-CARD-1)
+MarketsAPI ..> MarketDataAPI : embed latest prices\nin market detail
 PostsAPI ..> MediaAPI : attach images/video
 PortfolioAPI ..> MarketDataAPI : current prices for P&L
 OrdersAPI ..> MarketDataAPI : execution price
@@ -120,9 +121,11 @@ CreationAPI ..> MarketsAPI : publish approved market
 
 ' --- External dependencies ---
 AuthAPI ..> GoogleOAuth : verify ID token
-WalletAuthAPI ..> Ganache : verify signature,\nchain check (1337)
+WalletAuthAPI ..> Ganache : chain check\n(eth_chainId = 1337);\nsignature verified off-chain\n(ecrecover)
 OrdersAPI ..> Ganache : on-chain settlement\n(JSON-RPC)
-MarketsAPI ..> OracleSources : resolution proof
+MarketDataAPI ..> Ganache : index Trade events,\nread AMM prices
+PortfolioAPI ..> Ganache : read OutcomeToken\nbalances (ERC-1155)
+MarketsAPI ..> OracleSources : resolution proof\n(manual resolver — admin\nAPI gap, Section 15)
 
 AuthAPI ..> AppDB
 UsersAPI ..> AppDB
@@ -145,6 +148,8 @@ legend bottom
   backend. Each interface lists representative endpoints and the FR items
   it serves. Admin/moderation APIs for the market-approval flow are a known
   gap (Section 15) and are intentionally out of scope here.
+  Engagement API owns post-level reactions; Comments API owns comment-level
+  like/reply. Market detail embeds prices served by Market Data API.
   MVP scope: all blockchain interaction targets a local Ganache EVM node
   in Docker (chain ID 1337, JSON-RPC :8545); migration to a public network
   (e.g., Base) is deferred to a later phase.

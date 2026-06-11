@@ -46,15 +46,21 @@ The `.puml` files are [PlantUML](https://plantuml.com/) sources. To render them:
   (chain ID **1337**, JSON-RPC `:8545`) with mock ERC-20 collateral and a trusted manual oracle
   resolver. Migration to a public network (e.g., **Base**, chain ID 8453) with real collateral
   (USDC) and a decentralized oracle is deferred to a later phase. All three UML diagrams reflect
-  this decision. Note: the prose documents (`overview.md`, `functional-requirements.md`) still
-  describe Base as the target chain, as analyzed from the prototype.
+  this decision. Note: where the prose documents describe Base as the target chain (as analyzed
+  from the prototype), they now carry inline MVP notes pointing back to this decision
+  (`overview.md` §1/§3/§5; `functional-requirements.md` §1.2, FR-AUTH-4, §16).
+- **Dev/test environment — `docker-compose.yaml` (repo root).** The canonical local environment:
+  Ganache + PostgreSQL today; test-only services are planned additions per
+  [testing-integration.md](testing-integration.md) §2.1.
 
 ## Suggested reading order
 
 1. [overview.md](overview.md) — what the product is and who it serves.
 2. [uml-components-layers.puml](uml-components-layers.puml) — how the system is structured.
 3. [functional-requirements.md](functional-requirements.md) — what each feature must do.
-4. [uml-components-api.puml](uml-components-api.puml) — the API that backs those features.
-5. [uml-components-smart-contracts.puml](uml-components-smart-contracts.puml) — the on-chain settlement layer.
-6. [architecture-polymarket-platform-reference.md](architecture-polymarket-platform-reference.md) — how the real
+4. [functional-requirements-ceo.md](functional-requirements-ceo.md) — which of those features must actually work
+   in the MVP (this directive wins on MVP scope).
+5. [uml-components-api.puml](uml-components-api.puml) — the API that backs those features.
+6. [uml-components-smart-contracts.puml](uml-components-smart-contracts.puml) — the on-chain settlement layer.
+7. [architecture-polymarket-platform-reference.md](architecture-polymarket-platform-reference.md) — how the real
    Polymarket implements the same mechanics, as a design reference.
