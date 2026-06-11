@@ -1,19 +1,18 @@
-import AppShell from "@/components/AppShell";
+import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/server/auth';
 
-export default function ProfilePage() {
-  return (
-    <AppShell>
-      <div className="p-6 text-white">
-        <h1
-          className="text-2xl font-bold mb-2"
-          style={{ fontFamily: "'ClashDisplay', sans-serif" }}
-        >
-          Profile
-        </h1>
-        <p className="text-gray-400 text-sm">
-          User profile — wired in CEO-2 (task #11).
-        </p>
-      </div>
-    </AppShell>
-  );
+/**
+ * /profile — redirects to the current user's profile page.
+ * If not signed in, redirects to the founder's profile (CEO-2 demo target).
+ */
+export default async function ProfileIndexPage() {
+  const session = await getServerSession(authOptions);
+
+  if (session?.user?.email) {
+    redirect(`/profile/${encodeURIComponent(session.user.email)}`);
+  }
+
+  // Fallback: show the founder's seeded profile
+  redirect('/profile/founder@justify.local');
 }
