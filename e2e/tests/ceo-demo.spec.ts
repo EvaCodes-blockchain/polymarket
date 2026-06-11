@@ -36,12 +36,23 @@ function uniqueEmail(): string {
 /**
  * Open the SignInModal via the custom event — more reliable than a button click
  * because the "Sign In" button location varies by viewport.
+ *
+ * The event must be dispatched AFTER React hydration has run so that AppShell's
+ * useEffect has registered the listener.  In CI the initial page.goto() resolves
+ * before hydration completes, so we poll: fire the event, wait briefly for the
+ * dialog; if it doesn't appear, fire again — until the 15 s outer timeout expires.
  */
 async function openSignInModal(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    window.dispatchEvent(new CustomEvent('justify:openSignIn'));
-  });
-  await expect(page.getByRole('dialog')).toBeVisible({ timeout: 5_000 });
+  // Wait for network activity to settle so Next.js hydration has run and
+  // AppShell's useEffect has had time to register the event listener.
+  await page.waitForLoadState('networkidle');
+
+  await expect(async () => {
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('justify:openSignIn'));
+    });
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 1_500 });
+  }).toPass({ timeout: 15_000, intervals: [500, 500, 500, 1_000, 1_000, 1_000] });
 }
 
 /**
@@ -67,12 +78,18 @@ async function registerAndSignIn(
 /**
  * Connect MetaMask stub wallet and wait for "Wallet connected!" confirmation.
  * The WalletConnectModal is opened via the custom event.
+ *
+ * Same hydration-poll pattern as openSignInModal: dispatch + wait in a retry loop.
  */
 async function connectWallet(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    window.dispatchEvent(new CustomEvent('justify:connectWallet'));
-  });
-  await expect(page.getByRole('heading', { name: 'Connect Wallet' })).toBeVisible({ timeout: 5_000 });
+  await page.waitForLoadState('networkidle');
+
+  await expect(async () => {
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('justify:connectWallet'));
+    });
+    await expect(page.getByRole('heading', { name: 'Connect Wallet' })).toBeVisible({ timeout: 1_500 });
+  }).toPass({ timeout: 15_000, intervals: [500, 500, 500, 1_000, 1_000, 1_000] });
   // Click the MetaMask option (aria-label / text contains "MetaMask")
   await page.getByRole('button', { name: /MetaMask/i }).first().click();
   await expect(page.getByText('Wallet connected!')).toBeVisible({ timeout: 30_000 });
