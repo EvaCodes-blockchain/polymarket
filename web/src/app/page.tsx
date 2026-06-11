@@ -1,4 +1,10 @@
-// Placeholder page — replaced by frontend-engineer's scaffold on rebase.
-export default function Home() {
-  return <main>Justify MVP — UI scaffold pending</main>;
+import AppShell from "@/components/AppShell";
+import FeedPage from "@/components/FeedPage";
+
+export default function HomePage() {
+  return (
+    <AppShell>
+      <FeedPage />
+    </AppShell>
+  );
 }

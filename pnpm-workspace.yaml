@@ -5,7 +5,9 @@ allowBuilds:
   '@prisma/client': true
   esbuild: true
   '@prisma/engines': true
+  bufferutil: true
+  keccak: true
   prisma: true
   unrs-resolver: true
-  keccak: true
   secp256k1: true
+  utf-8-validate: true

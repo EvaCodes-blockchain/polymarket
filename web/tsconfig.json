@@ -18,7 +18,6 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    // Override base tsconfig settings that don't apply to Next.js (noEmit mode)
     "rootDir": ".",
     "outDir": ".next",
     "declaration": false,
