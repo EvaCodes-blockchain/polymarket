@@ -23,14 +23,23 @@ COPY web/ ./web/
 
 WORKDIR /app/web
 
-# Dummy build-time env so `prisma generate` and `next build` don't fail.
-# Real secrets are injected at runtime via docker-compose environment / env_file.
+# Build-time env for Prisma generate + next build.
+# Non-public vars (DATABASE_URL, NEXTAUTH_*) are dummy placeholders —
+# real values are injected at runtime via docker-compose environment.
+# NEXT_PUBLIC_* vars are baked into the browser bundle at build time, so
+# they must be provided as build args when deploying against a remote host.
 ENV DATABASE_URL="postgresql://justify:justify@localhost:5432/justify"
 ENV NEXTAUTH_SECRET="build-time-placeholder"
-ENV NEXTAUTH_URL="http://localhost:3000"
-ENV NEXT_PUBLIC_RPC_URL="http://localhost:8545"
-ENV NEXT_PUBLIC_CHAIN_ID="1337"
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Accept overridable public vars via build args (defaults = local dev values).
+ARG NEXTAUTH_URL=http://localhost:3000
+ARG NEXT_PUBLIC_RPC_URL=http://localhost:8545
+ARG NEXT_PUBLIC_CHAIN_ID=1337
+
+ENV NEXTAUTH_URL=$NEXTAUTH_URL
+ENV NEXT_PUBLIC_RPC_URL=$NEXT_PUBLIC_RPC_URL
+ENV NEXT_PUBLIC_CHAIN_ID=$NEXT_PUBLIC_CHAIN_ID
 
 RUN pnpm build
 
