@@ -101,6 +101,6 @@ it just doesn't have to function.
    dependency of MarketFactory; OracleResolver and FeeTreasury may be deployed but are not exercised
    by CEO-4). Everything else is stretch.
 2. **Test priority follows Section 2**: the integration and E2E suites must cover CEO-1…CEO-4 first
-   (cf. journeys in [ui-testing.md](ui-testing.md)); coverage for hardcoded areas is deferred.
+   (cf. journeys in [ui-testing.md](testing-ui)); coverage for hardcoded areas is deferred.
 3. **No new scope**: nothing in this document adds behavior beyond the FR catalog; it only narrows
    what must be dynamic for the MVP.

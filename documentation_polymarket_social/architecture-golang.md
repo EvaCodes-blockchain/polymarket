@@ -14,7 +14,7 @@
 
 A pinned snapshot of the two upstream components' technical contracts (API methods, callback
 payload schemas, pipeline API and behavioral guarantees, license caveats) is kept in
-[reference-upstream-go-components.md](reference-upstream-go-components.md); it partially
+[reference-upstream-go-components.md](architecture-golang-components); it partially
 resolves open items 4–6 of Section 10.
 
 This document specifies the **Chain Event Indexer** (working name: `chain-indexer`) — a small,
@@ -414,7 +414,7 @@ test-strategy-architect's deliverable.
    mode anyway — Section 7).
 5. **ethbacknode callback contract.** The `blockEvent`/`transactionEvent` payload schemas are
    now pinned from `API.md` in
-   [reference-upstream-go-components.md](reference-upstream-go-components.md) §1.6 (key
+   [reference-upstream-go-components.md](architecture-golang-components) §1.6 (key
    consequence: `transactionEvent` carries value transfers, not contract logs, so `blockEvent`
    is the primary trigger). Still open: the service-registration flow that issues
    `serviceId`/`apiToken`, the API.md-vs-DOC.md divergences, and the upstream license on the

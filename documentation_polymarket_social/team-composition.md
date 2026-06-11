@@ -9,7 +9,7 @@
 [uml-components-api.puml](uml-components-api.puml),
 [uml-components-smart-contracts.puml](uml-components-smart-contracts.puml), the test-suite
 decomposition in [testing-integration.md](testing-integration.md) §3.1 /
-[ui-testing.md](ui-testing.md) §5–6 / [testing-market-generator.md](testing-market-generator.md),
+[ui-testing.md](testing-ui) §5–6 / [testing-market-generator.md](testing-market-generator.md),
 and the MVP priorities in [functional-requirements-ceo.md](functional-requirements-ceo.md).
 
 ---
@@ -176,7 +176,7 @@ visual reference (G6); `custom.js` behaviors are divided per G7.
 ### 6.4 Group E — QA & test automation (11 seats)
 
 Mirrors the suite layouts already fixed in [testing-integration.md](testing-integration.md)
-§3.1 and [ui-testing.md](ui-testing.md) §3/§5/§6, which were designed as disjoint
+§3.1 and [ui-testing.md](testing-ui) §3/§5/§6, which were designed as disjoint
 directories precisely so they can be owned independently.
 
 | Seat | Owns (exclusively) | Notes |

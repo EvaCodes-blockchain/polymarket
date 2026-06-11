@@ -185,7 +185,7 @@ access, not-found) are required for every endpoint and are not repeated in the t
   seeded at **Yes = 21¢ / No = 79¢** — complementary prices summing to 100¢, as a CPMM requires; the FR-CARD-3
   example pair 21¢/80¢ is hard-coded prototype display data, not a valid simultaneous AMM state (see
   [functional-requirements.md](functional-requirements.md) Section 15, item 13). Fixture prices are part of the
-  canonical seed contract shared with the UI suite ([ui-testing.md](ui-testing.md) Section 4).
+  canonical seed contract shared with the UI suite ([ui-testing.md](testing-ui) Section 4).
 - **Chain:** snapshot/revert per suite (Section 2.3). Tests must not depend on ordering; any test that needs a
   fresh market creates one through the Market Creation API rather than reusing a seeded one.
 - **Clock:** market close times in fixtures are far-future; tests that need a *closed* market use Ganache's
