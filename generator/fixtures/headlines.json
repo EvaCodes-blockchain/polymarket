@@ -1,0 +1,450 @@
+[
+  {
+    "title": "European Union unveils sweeping reform of cross-border energy grid rules",
+    "link": "https://news.example.com/world/eu-energy-grid-reform",
+    "pubDate": "Wed, 10 Jun 2026 08:15:00 GMT",
+    "source": "Reuters",
+    "topic": "WORLD"
+  },
+  {
+    "title": "Brazil hosts climate summit as Amazon reforestation pledge gains momentum",
+    "link": "https://news.example.com/world/brazil-climate-summit",
+    "pubDate": "Wed, 10 Jun 2026 11:40:00 GMT",
+    "source": "BBC News",
+    "topic": "WORLD"
+  },
+  {
+    "title": "Japan and Australia sign landmark hydrogen shipping agreement",
+    "link": "https://news.example.com/world/japan-australia-hydrogen",
+    "pubDate": "Tue, 09 Jun 2026 22:05:00 GMT",
+    "source": "Nikkei Asia",
+    "topic": "WORLD"
+  },
+  {
+    "title": "United Nations panel proposes new framework for deep-sea mining oversight",
+    "link": "https://news.example.com/world/un-deep-sea-mining",
+    "pubDate": "Tue, 09 Jun 2026 16:30:00 GMT",
+    "source": "The Guardian",
+    "topic": "WORLD"
+  },
+  {
+    "title": "Canada announces national high-speed rail corridor between Toronto and Montreal",
+    "link": "https://news.example.com/world/canada-high-speed-rail",
+    "pubDate": "Mon, 08 Jun 2026 14:00:00 GMT",
+    "source": "CBC",
+    "topic": "WORLD"
+  },
+  {
+    "title": "India launches nationwide digital land registry after decade-long pilot",
+    "link": "https://news.example.com/world/india-digital-land-registry",
+    "pubDate": "Mon, 08 Jun 2026 09:45:00 GMT",
+    "source": "The Hindu",
+    "topic": "WORLD"
+  },
+  {
+    "title": "Norway opens world's longest subsea road tunnel ahead of schedule",
+    "link": "https://news.example.com/world/norway-subsea-tunnel",
+    "pubDate": "Sun, 07 Jun 2026 12:20:00 GMT",
+    "source": "AFP",
+    "topic": "WORLD"
+  },
+  {
+    "title": "Kenya unveils plan to power half its grid with geothermal energy by 2030",
+    "link": "https://news.example.com/world/kenya-geothermal-plan",
+    "pubDate": "Sat, 06 Jun 2026 10:10:00 GMT",
+    "source": "Al Jazeera",
+    "topic": "WORLD"
+  },
+  {
+    "title": "France pledges record funding for Mediterranean coastal restoration",
+    "link": "https://news.example.com/world/france-coastal-restoration",
+    "pubDate": "Fri, 05 Jun 2026 17:55:00 GMT",
+    "source": "Le Monde",
+    "topic": "WORLD"
+  },
+  {
+    "title": "Microsoft raises annual dividend as cloud revenue beats forecasts",
+    "link": "https://news.example.com/business/microsoft-dividend-cloud",
+    "pubDate": "Wed, 10 Jun 2026 13:30:00 GMT",
+    "source": "CNBC",
+    "topic": "BUSINESS"
+  },
+  {
+    "title": "Tesla breaks ground on battery recycling plant in Nevada",
+    "link": "https://news.example.com/business/tesla-battery-recycling",
+    "pubDate": "Wed, 10 Jun 2026 09:00:00 GMT",
+    "source": "Bloomberg",
+    "topic": "BUSINESS"
+  },
+  {
+    "title": "Federal Reserve signals patience as inflation cools for fourth straight month",
+    "link": "https://news.example.com/business/fed-inflation-cools",
+    "pubDate": "Tue, 09 Jun 2026 18:45:00 GMT",
+    "source": "Wall Street Journal",
+    "topic": "BUSINESS"
+  },
+  {
+    "title": "Airbus secures record order for hydrogen-ready jets from Asian carriers",
+    "link": "https://news.example.com/business/airbus-hydrogen-jets-order",
+    "pubDate": "Tue, 09 Jun 2026 11:15:00 GMT",
+    "source": "Financial Times",
+    "topic": "BUSINESS"
+  },
+  {
+    "title": "Shopify acquires logistics startup to speed same-day delivery",
+    "link": "https://news.example.com/business/shopify-logistics-acquisition",
+    "pubDate": "Mon, 08 Jun 2026 15:50:00 GMT",
+    "source": "TechCrunch",
+    "topic": "BUSINESS"
+  },
+  {
+    "title": "Bitcoin tops six figures again as institutional inflows accelerate",
+    "link": "https://news.example.com/business/bitcoin-institutional-inflows",
+    "pubDate": "Mon, 08 Jun 2026 07:25:00 GMT",
+    "source": "CoinDesk",
+    "topic": "BUSINESS"
+  },
+  {
+    "title": "Unilever spins off ice cream division in long-awaited restructuring",
+    "link": "https://news.example.com/business/unilever-ice-cream-spinoff",
+    "pubDate": "Sun, 07 Jun 2026 19:05:00 GMT",
+    "source": "Reuters",
+    "topic": "BUSINESS"
+  },
+  {
+    "title": "Stripe expands instant payouts to 40 new markets",
+    "link": "https://news.example.com/business/stripe-instant-payouts",
+    "pubDate": "Sat, 06 Jun 2026 13:35:00 GMT",
+    "source": "Axios",
+    "topic": "BUSINESS"
+  },
+  {
+    "title": "OpenAI releases on-device assistant model for budget smartphones",
+    "link": "https://news.example.com/technology/openai-on-device-model",
+    "pubDate": "Wed, 10 Jun 2026 10:00:00 GMT",
+    "source": "The Verge",
+    "topic": "TECHNOLOGY"
+  },
+  {
+    "title": "Apple previews foldable display patent in developer hardware session",
+    "link": "https://news.example.com/technology/apple-foldable-patent",
+    "pubDate": "Wed, 10 Jun 2026 08:40:00 GMT",
+    "source": "9to5Mac",
+    "topic": "TECHNOLOGY"
+  },
+  {
+    "title": "Google rolls out passkey-only sign-in for all workspace accounts",
+    "link": "https://news.example.com/technology/google-passkey-only",
+    "pubDate": "Tue, 09 Jun 2026 17:20:00 GMT",
+    "source": "Ars Technica",
+    "topic": "TECHNOLOGY"
+  },
+  {
+    "title": "Ethereum core developers schedule next protocol upgrade for autumn",
+    "link": "https://news.example.com/technology/ethereum-upgrade-autumn",
+    "pubDate": "Tue, 09 Jun 2026 12:55:00 GMT",
+    "source": "CoinDesk",
+    "topic": "TECHNOLOGY"
+  },
+  {
+    "title": "Samsung unveils solid-state battery roadmap for wearables",
+    "link": "https://news.example.com/technology/samsung-solid-state-roadmap",
+    "pubDate": "Mon, 08 Jun 2026 06:30:00 GMT",
+    "source": "Engadget",
+    "topic": "TECHNOLOGY"
+  },
+  {
+    "title": "GitHub introduces AI-driven dependency risk scores for open source",
+    "link": "https://news.example.com/technology/github-dependency-risk",
+    "pubDate": "Sun, 07 Jun 2026 16:10:00 GMT",
+    "source": "InfoWorld",
+    "topic": "TECHNOLOGY"
+  },
+  {
+    "title": "Raspberry Pi launches credit-card-sized AI accelerator board",
+    "link": "https://news.example.com/technology/raspberry-pi-ai-board",
+    "pubDate": "Sat, 06 Jun 2026 11:45:00 GMT",
+    "source": "Tom's Hardware",
+    "topic": "TECHNOLOGY"
+  },
+  {
+    "title": "Mozilla ships privacy-preserving ad measurement in Firefox stable",
+    "link": "https://news.example.com/technology/mozilla-private-ads",
+    "pubDate": "Fri, 05 Jun 2026 14:25:00 GMT",
+    "source": "ZDNet",
+    "topic": "TECHNOLOGY"
+  },
+  {
+    "title": "Real Madrid edge Barcelona in extra time to reach Copa del Rey final",
+    "link": "https://news.example.com/sports/real-madrid-copa-final",
+    "pubDate": "Wed, 10 Jun 2026 22:50:00 GMT",
+    "source": "ESPN",
+    "topic": "SPORTS"
+  },
+  {
+    "title": "Manchester City confirm club-record signing of Brazilian midfielder",
+    "link": "https://news.example.com/sports/man-city-record-signing",
+    "pubDate": "Wed, 10 Jun 2026 12:05:00 GMT",
+    "source": "Sky Sports",
+    "topic": "SPORTS"
+  },
+  {
+    "title": "Serena Williams Foundation launches youth tennis academy in Atlanta",
+    "link": "https://news.example.com/sports/williams-foundation-academy",
+    "pubDate": "Tue, 09 Jun 2026 15:40:00 GMT",
+    "source": "Sports Illustrated",
+    "topic": "SPORTS"
+  },
+  {
+    "title": "Lakers clinch playoff berth with buzzer-beater against Suns",
+    "link": "https://news.example.com/sports/lakers-playoff-buzzer-beater",
+    "pubDate": "Tue, 09 Jun 2026 05:55:00 GMT",
+    "source": "The Athletic",
+    "topic": "SPORTS"
+  },
+  {
+    "title": "Kenya's marathon team announces lineup for world championships",
+    "link": "https://news.example.com/sports/kenya-marathon-lineup",
+    "pubDate": "Mon, 08 Jun 2026 10:35:00 GMT",
+    "source": "BBC Sport",
+    "topic": "SPORTS"
+  },
+  {
+    "title": "Formula 1 approves sustainable fuel mandate starting next season",
+    "link": "https://news.example.com/sports/f1-sustainable-fuel",
+    "pubDate": "Sun, 07 Jun 2026 18:15:00 GMT",
+    "source": "Motorsport.com",
+    "topic": "SPORTS"
+  },
+  {
+    "title": "India seal T20 series victory over England with record chase",
+    "link": "https://news.example.com/sports/india-t20-record-chase",
+    "pubDate": "Sat, 06 Jun 2026 20:30:00 GMT",
+    "source": "Cricinfo",
+    "topic": "SPORTS"
+  },
+  {
+    "title": "Simone Biles headlines star-studded gymnastics exhibition tour",
+    "link": "https://news.example.com/sports/biles-exhibition-tour",
+    "pubDate": "Fri, 05 Jun 2026 13:00:00 GMT",
+    "source": "NBC Sports",
+    "topic": "SPORTS"
+  },
+  {
+    "title": "NASA's Artemis crew completes final dress rehearsal for lunar landing",
+    "link": "https://news.example.com/science/artemis-dress-rehearsal",
+    "pubDate": "Wed, 10 Jun 2026 14:45:00 GMT",
+    "source": "Space.com",
+    "topic": "SCIENCE"
+  },
+  {
+    "title": "CERN physicists report strongest evidence yet of rare Higgs decay",
+    "link": "https://news.example.com/science/cern-higgs-decay",
+    "pubDate": "Wed, 10 Jun 2026 09:30:00 GMT",
+    "source": "Nature",
+    "topic": "SCIENCE"
+  },
+  {
+    "title": "Researchers map complete neural wiring of the fruit fly brain",
+    "link": "https://news.example.com/science/fruit-fly-connectome",
+    "pubDate": "Tue, 09 Jun 2026 13:20:00 GMT",
+    "source": "Science Daily",
+    "topic": "SCIENCE"
+  },
+  {
+    "title": "James Webb telescope spots water vapor on rocky exoplanet",
+    "link": "https://news.example.com/science/jwst-water-vapor-exoplanet",
+    "pubDate": "Mon, 08 Jun 2026 19:50:00 GMT",
+    "source": "Scientific American",
+    "topic": "SCIENCE"
+  },
+  {
+    "title": "Antarctic survey finds ancient river system beneath ice sheet",
+    "link": "https://news.example.com/science/antarctic-river-system",
+    "pubDate": "Mon, 08 Jun 2026 08:05:00 GMT",
+    "source": "New Scientist",
+    "topic": "SCIENCE"
+  },
+  {
+    "title": "Gene-edited wheat shows drought resilience in multi-year field trials",
+    "link": "https://news.example.com/science/gene-edited-wheat-trials",
+    "pubDate": "Sun, 07 Jun 2026 11:30:00 GMT",
+    "source": "Nature",
+    "topic": "SCIENCE"
+  },
+  {
+    "title": "Fusion startup sustains plasma for record twelve minutes",
+    "link": "https://news.example.com/science/fusion-plasma-record",
+    "pubDate": "Sat, 06 Jun 2026 15:55:00 GMT",
+    "source": "MIT Technology Review",
+    "topic": "SCIENCE"
+  },
+  {
+    "title": "Ocean drones reveal vast unmapped seamount chain in the Pacific",
+    "link": "https://news.example.com/science/ocean-drones-seamounts",
+    "pubDate": "Fri, 05 Jun 2026 10:40:00 GMT",
+    "source": "National Geographic",
+    "topic": "SCIENCE"
+  },
+  {
+    "title": "Taylor Swift announces surprise acoustic album recorded in one week",
+    "link": "https://news.example.com/entertainment/swift-acoustic-album",
+    "pubDate": "Wed, 10 Jun 2026 16:00:00 GMT",
+    "source": "Rolling Stone",
+    "topic": "ENTERTAINMENT"
+  },
+  {
+    "title": "Studio Ghibli reveals first feature film from new generation of directors",
+    "link": "https://news.example.com/entertainment/ghibli-new-directors",
+    "pubDate": "Wed, 10 Jun 2026 07:50:00 GMT",
+    "source": "Variety",
+    "topic": "ENTERTAINMENT"
+  },
+  {
+    "title": "Cannes jury awards Palme d'Or to debut documentary on deep-sea explorers",
+    "link": "https://news.example.com/entertainment/cannes-palme-dor-documentary",
+    "pubDate": "Tue, 09 Jun 2026 21:35:00 GMT",
+    "source": "The Hollywood Reporter",
+    "topic": "ENTERTAINMENT"
+  },
+  {
+    "title": "Netflix greenlights interactive sequel to hit heist series",
+    "link": "https://news.example.com/entertainment/netflix-interactive-sequel",
+    "pubDate": "Tue, 09 Jun 2026 14:10:00 GMT",
+    "source": "Deadline",
+    "topic": "ENTERTAINMENT"
+  },
+  {
+    "title": "Broadway revival of classic musical breaks single-week box office record",
+    "link": "https://news.example.com/entertainment/broadway-revival-record",
+    "pubDate": "Mon, 08 Jun 2026 17:25:00 GMT",
+    "source": "Playbill",
+    "topic": "ENTERTAINMENT"
+  },
+  {
+    "title": "Beyoncé teases world tour with stadium hologram reveal",
+    "link": "https://news.example.com/entertainment/beyonce-tour-hologram",
+    "pubDate": "Sun, 07 Jun 2026 20:45:00 GMT",
+    "source": "Billboard",
+    "topic": "ENTERTAINMENT"
+  },
+  {
+    "title": "Indie game studio's pixel-art RPG tops global sales charts",
+    "link": "https://news.example.com/entertainment/indie-rpg-tops-charts",
+    "pubDate": "Sat, 06 Jun 2026 09:15:00 GMT",
+    "source": "IGN",
+    "topic": "ENTERTAINMENT"
+  },
+  {
+    "title": "BBC commissions new nature series narrated entirely by field scientists",
+    "link": "https://news.example.com/entertainment/bbc-nature-series",
+    "pubDate": "Fri, 05 Jun 2026 12:30:00 GMT",
+    "source": "BBC News",
+    "topic": "ENTERTAINMENT"
+  },
+  {
+    "title": "WHO endorses first universal flu vaccine after global trials",
+    "link": "https://news.example.com/health/who-universal-flu-vaccine",
+    "pubDate": "Wed, 10 Jun 2026 11:00:00 GMT",
+    "source": "Reuters Health",
+    "topic": "HEALTH"
+  },
+  {
+    "title": "New wearable sensor detects dehydration hours before symptoms",
+    "link": "https://news.example.com/health/wearable-dehydration-sensor",
+    "pubDate": "Wed, 10 Jun 2026 06:20:00 GMT",
+    "source": "STAT News",
+    "topic": "HEALTH"
+  },
+  {
+    "title": "Mediterranean diet study links olive oil intake to slower brain aging",
+    "link": "https://news.example.com/health/mediterranean-diet-brain",
+    "pubDate": "Tue, 09 Jun 2026 16:45:00 GMT",
+    "source": "Harvard Health",
+    "topic": "HEALTH"
+  },
+  {
+    "title": "FDA fast-tracks gene therapy for rare childhood vision disorder",
+    "link": "https://news.example.com/health/fda-gene-therapy-vision",
+    "pubDate": "Tue, 09 Jun 2026 10:05:00 GMT",
+    "source": "NBC News",
+    "topic": "HEALTH"
+  },
+  {
+    "title": "Hospitals roll out AI scheduling that cuts ER wait times by a third",
+    "link": "https://news.example.com/health/ai-er-scheduling",
+    "pubDate": "Mon, 08 Jun 2026 13:15:00 GMT",
+    "source": "Modern Healthcare",
+    "topic": "HEALTH"
+  },
+  {
+    "title": "Global initiative aims to eliminate cervical cancer within a generation",
+    "link": "https://news.example.com/health/cervical-cancer-initiative",
+    "pubDate": "Sun, 07 Jun 2026 09:50:00 GMT",
+    "source": "The Lancet",
+    "topic": "HEALTH"
+  },
+  {
+    "title": "Sleep researchers find afternoon light exposure boosts deep sleep",
+    "link": "https://news.example.com/health/afternoon-light-deep-sleep",
+    "pubDate": "Sat, 06 Jun 2026 14:40:00 GMT",
+    "source": "Sleep Foundation",
+    "topic": "HEALTH"
+  },
+  {
+    "title": "Mediterranean nations launch joint heatwave early-warning network",
+    "link": "https://news.example.com/health/heatwave-warning-network",
+    "pubDate": "Fri, 05 Jun 2026 08:55:00 GMT",
+    "source": "WHO Bulletin",
+    "topic": "HEALTH"
+  },
+  {
+    "title": "Smartwatch heart-rhythm screening study enrolls one million participants",
+    "link": "https://news.example.com/health/smartwatch-heart-study",
+    "pubDate": "Thu, 04 Jun 2026 15:30:00 GMT",
+    "source": "JAMA",
+    "topic": "HEALTH"
+  },
+  {
+    "title": "Switzerland to host neutral talks on Arctic shipping lanes",
+    "link": "https://news.example.com/world/switzerland-arctic-talks",
+    "pubDate": "Thu, 04 Jun 2026 12:00:00 GMT",
+    "source": "Swissinfo",
+    "topic": "WORLD"
+  },
+  {
+    "title": "Visa pilots offline digital payments for rural communities",
+    "link": "https://news.example.com/business/visa-offline-payments",
+    "pubDate": "Thu, 04 Jun 2026 10:25:00 GMT",
+    "source": "Reuters",
+    "topic": "BUSINESS"
+  },
+  {
+    "title": "Linux Foundation launches open standard for AI model provenance",
+    "link": "https://news.example.com/technology/lf-ai-provenance",
+    "pubDate": "Thu, 04 Jun 2026 09:10:00 GMT",
+    "source": "The Register",
+    "topic": "TECHNOLOGY"
+  },
+  {
+    "title": "Arsenal women's side completes unbeaten league season",
+    "link": "https://news.example.com/sports/arsenal-women-unbeaten",
+    "pubDate": "Thu, 04 Jun 2026 19:40:00 GMT",
+    "source": "Guardian Sport",
+    "topic": "SPORTS"
+  },
+  {
+    "title": "Astronomers confirm interstellar comet on rare hyperbolic path",
+    "link": "https://news.example.com/science/interstellar-comet-confirmed",
+    "pubDate": "Thu, 04 Jun 2026 07:35:00 GMT",
+    "source": "Sky & Telescope",
+    "topic": "SCIENCE"
+  },
+  {
+    "title": "A24 announces anthology film shot entirely on vintage cameras",
+    "link": "https://news.example.com/entertainment/a24-vintage-anthology",
+    "pubDate": "Thu, 04 Jun 2026 18:05:00 GMT",
+    "source": "IndieWire",
+    "topic": "ENTERTAINMENT"
+  }
+]
