@@ -3,4 +3,7 @@ artifacts/
 cache/
 typechain-types/
 dist/
-deployments/*.json
+# deployments/ganache.json is committed — it is the frozen integration artifact
+# Exclude only local/test overrides:
+deployments/localhost.json
+deployments/test.json
