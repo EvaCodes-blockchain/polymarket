@@ -12,6 +12,11 @@
 [go_pysyun_pipeline](https://github.com/pysyun/go_pysyun_pipeline),
 [ethbacknode](https://github.com/ITProLabDev/ethbacknode)
 
+A pinned snapshot of the two upstream components' technical contracts (API methods, callback
+payload schemas, pipeline API and behavioral guarantees, license caveats) is kept in
+[reference-upstream-go-components.md](reference-upstream-go-components.md); it partially
+resolves open items 4–6 of Section 10.
+
 This document specifies the **Chain Event Indexer** (working name: `chain-indexer`) — a small,
 standalone backend service written in **Go** that is the single bridge between the on-chain world
 and the off-chain read path. It subscribes to the contract events emitted on the Ganache EVM node
@@ -407,10 +412,13 @@ test-strategy-architect's deliverable.
    the fallback is running ethbacknode as a host process beside Compose, or dropping the sidecar
    for MVP and letting the reconcile tick drive the pipeline alone (the design degrades to that
    mode anyway — Section 7).
-5. **ethbacknode callback contract.** The exact `blockEvent`/`transactionEvent` payload schema
-   and the subscription granularity (`addressSubscribe` per contract address) must be pinned from
-   its `API.md` before the `ebn` package freezes; verify the upstream license on the pinned
-   release (the repo metadata and README badge currently disagree: MIT vs GPLv3).
+5. **ethbacknode callback contract.** The `blockEvent`/`transactionEvent` payload schemas are
+   now pinned from `API.md` in
+   [reference-upstream-go-components.md](reference-upstream-go-components.md) §1.6 (key
+   consequence: `transactionEvent` carries value transfers, not contract logs, so `blockEvent`
+   is the primary trigger). Still open: the service-registration flow that issues
+   `serviceId`/`apiToken`, the API.md-vs-DOC.md divergences, and the upstream license on the
+   pinned release (the repo metadata and README badge currently disagree: MIT vs GPLv3).
 6. **go_pysyun_pipeline error/envelope convention.** The `Result` envelope of §4.1 is our
    convention on top of the library's `any → any` contract; it must be specified in the repo's
    CONTRIBUTING notes so all stages implement short-circuiting uniformly. The library is
