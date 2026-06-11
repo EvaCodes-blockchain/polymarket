@@ -1,0 +1,103 @@
+name: Deploy Dev
+
+# Triggered on every push to mvp (= merged PR).
+# Connects to the dev VPS via SSH and runs:
+#   git reset --hard origin/mvp  →  docker compose up --build  →  contracts-deploy
+#
+# Required GitHub Actions Secrets (set in repo Settings → Secrets → Actions):
+#   DEV_HOST   — e.g.  ubuntu@13.219.132.201
+#   DEV_SSH_KEY — PEM / OpenSSH private key that can SSH to DEV_HOST
+#
+# If the secrets are absent the job fails immediately with a clear message
+# rather than silently hanging.
+
+on:
+  push:
+    branches:
+      - mvp
+
+concurrency:
+  # One deploy at a time; do NOT cancel in-progress — let the running deploy
+  # finish so the VPS is never left mid-update.
+  group: deploy-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy → dev VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check required secrets are present
+        run: |
+          if [ -z "${{ secrets.DEV_HOST }}" ]; then
+            echo "::error::Secret DEV_HOST is not set. Add it in Settings → Secrets → Actions."
+            exit 1
+          fi
+          if [ -z "${{ secrets.DEV_SSH_KEY }}" ]; then
+            echo "::error::Secret DEV_SSH_KEY is not set. Add it in Settings → Secrets → Actions."
+            exit 1
+          fi
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEV_SSH_KEY }}
+
+      - name: Add VPS host key to known_hosts
+        run: |
+          HOST=$(echo "${{ secrets.DEV_HOST }}" | cut -d@ -f2)
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy on VPS
+        env:
+          DEV_HOST: ${{ secrets.DEV_HOST }}
+        run: |
+          ssh "$DEV_HOST" 'bash -s' << 'ENDSSH'
+            set -euo pipefail
+            cd ~/polymarket
+
+            echo "==> Fetching latest mvp..."
+            git fetch origin
+            git checkout mvp 2>/dev/null || true
+            git reset --hard origin/mvp
+
+            echo "==> Building and starting compose stack..."
+            # Pass the public VPS IP so NEXT_PUBLIC_RPC_URL is baked correctly
+            # into the Next.js browser bundle.  The .env on the host provides
+            # NEXTAUTH_SECRET, and these vars override the defaults.
+            export NEXT_PUBLIC_RPC_URL="http://$(curl -sf http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || hostname -I | awk '{print $1}'):8545"
+            export NEXTAUTH_URL="http://$(curl -sf http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || hostname -I | awk '{print $1}'):3000"
+
+            # Load host-local secrets (.env must exist, chmod 600, NOT in repo)
+            if [ -f .env ]; then
+              set -a; source .env; set +a
+            fi
+
+            docker compose up -d --build --remove-orphans
+
+            echo "==> Running one-shot contracts deploy..."
+            docker compose --profile deploy run --rm contracts-deploy || true
+
+            echo "==> Waiting for web healthcheck..."
+            for i in $(seq 1 24); do
+              if docker compose ps web | grep -q "(healthy)"; then
+                echo "Web is healthy."
+                break
+              fi
+              echo "  ...waiting ($i/24)"
+              sleep 5
+            done
+
+            docker compose ps
+          ENDSSH
+
+      - name: Smoke-check web from runner
+        env:
+          DEV_HOST: ${{ secrets.DEV_HOST }}
+        run: |
+          HOST=$(echo "$DEV_HOST" | cut -d@ -f2)
+          echo "Checking http://$HOST:3000/ ..."
+          curl --fail --silent --max-time 15 "http://$HOST:3000/" | grep -q "Justify\|Next\|html" \
+            && echo "✓ Web responded OK" \
+            || (echo "✗ Web did not respond"; exit 1)

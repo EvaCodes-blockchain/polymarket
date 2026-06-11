@@ -89,14 +89,22 @@ services:
     build:
       context: .
       dockerfile: web/Dockerfile
+      args:
+        # NEXT_PUBLIC_* vars are baked into the browser bundle at build time.
+        # Override these when deploying to a remote host, e.g.:
+        #   NEXT_PUBLIC_RPC_URL=http://1.2.3.4:8545 docker compose up --build
+        # Defaults keep the local dev workflow working without any .env file.
+        NEXTAUTH_URL: "${NEXTAUTH_URL:-http://localhost:3000}"
+        NEXT_PUBLIC_RPC_URL: "${NEXT_PUBLIC_RPC_URL:-http://localhost:8545}"
+        NEXT_PUBLIC_CHAIN_ID: "${NEXT_PUBLIC_CHAIN_ID:-1337}"
     ports:
       - "3000:3000"
     environment:
       DATABASE_URL: "postgresql://justify:justify@postgres:5432/justify"
       NEXTAUTH_SECRET: "${NEXTAUTH_SECRET:-change-me-in-production}"
       NEXTAUTH_URL: "${NEXTAUTH_URL:-http://localhost:3000}"
-      NEXT_PUBLIC_RPC_URL: "http://localhost:8545"
-      NEXT_PUBLIC_CHAIN_ID: "1337"
+      NEXT_PUBLIC_RPC_URL: "${NEXT_PUBLIC_RPC_URL:-http://localhost:8545}"
+      NEXT_PUBLIC_CHAIN_ID: "${NEXT_PUBLIC_CHAIN_ID:-1337}"
     depends_on:
       postgres:
         condition: service_healthy
