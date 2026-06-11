@@ -16,8 +16,19 @@
  */
 
 import { ethers } from "hardhat";
+import type { Signer } from "ethers";
 import * as fs from "fs";
 import * as path from "path";
+
+// hardhat-ethers augments `ethers` at runtime with getSigners(), getContractAt(),
+// and provider, but tsc cannot see those augmentations through the pnpm symlink.
+// We cast once here and use the typed alias throughout.
+type HardhatEthers = typeof ethers & {
+  getSigners(): Promise<(Signer & { address: string })[]>;
+  getContractAt(name: string, address: string): Promise<ReturnType<typeof ethers.getContractAt>>;
+  provider: { getNetwork(): Promise<{ chainId: bigint }> };
+};
+const hethers = ethers as unknown as HardhatEthers;
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -45,7 +56,7 @@ function usdc(n: bigint): string {
 // ── Main ───────────────────────────────────────────────────────────────────────
 
 async function main() {
-  const signers = await ethers.getSigners();
+  const signers = await hethers.getSigners();
 
   const deployer = signers[0]!;
   const oracle   = signers[1]!;
@@ -164,7 +175,7 @@ async function main() {
   const totalSeed = SEED_YES + SEED_NO;
   await usdc_.mint(deployer.address, totalSeed);
   await usdc_.approve(ammAddress, totalSeed);
-  const amm = await ethers.getContractAt("MarketAMM", ammAddress);
+  const amm = await hethers.getContractAt("MarketAMM", ammAddress);
   await amm.seed(SEED_YES, SEED_NO);
   console.log(`  ✓ Seeded: YES=${usdc(SEED_YES)}, NO=${usdc(SEED_NO)}`);
   console.log(`    Implied YES probability: ~${Math.round(Number(SEED_NO) / Number(SEED_YES + SEED_NO) * 100)}%`);
@@ -183,17 +194,15 @@ async function main() {
   const buyAmount = 10n * 10n ** 6n; // $10 USDC
 
   await usdc_.connect(smokeTrader).approve(ammAddress, buyAmount);
-  const yesTokenId = await (await ethers.getContractAt("OutcomeToken", outcomeTokenAddress))
-    .encodeId(seededMarketId, 0);
+  const outcomeTokenContract = await hethers.getContractAt("OutcomeToken", outcomeTokenAddress);
+  const yesTokenId = await outcomeTokenContract.encodeId(seededMarketId, 0);
 
-  const balBefore = await (await ethers.getContractAt("OutcomeToken", outcomeTokenAddress))
-    .balanceOf(smokeTrader.address, yesTokenId);
+  const balBefore = await outcomeTokenContract.balanceOf(smokeTrader.address, yesTokenId);
 
   const buyTx = await amm.connect(smokeTrader).buy(0, buyAmount, 0n);
   await buyTx.wait();
 
-  const balAfter = await (await ethers.getContractAt("OutcomeToken", outcomeTokenAddress))
-    .balanceOf(smokeTrader.address, yesTokenId);
+  const balAfter = await outcomeTokenContract.balanceOf(smokeTrader.address, yesTokenId);
 
   const sharesReceived = balAfter - balBefore;
   if (sharesReceived <= 0n) throw new Error("Smoke test failed: no YES shares minted");
@@ -221,7 +230,7 @@ async function main() {
   }
 
   // ── 12. Write ganache.json ─────────────────────────────────────────────────
-  const network = await ethers.provider.getNetwork();
+  const network = await hethers.provider.getNetwork();
   const artifact = {
     chainId: Number(network.chainId),
     deployedAt: new Date().toISOString(),
