@@ -87,7 +87,7 @@ export default function FeedPage() {
                   <p className="text-gray-400 text-xs text-center mb-2">
                     {creator.descriptor}
                   </p>
-                  <FollowButton userId={creator.handle} />
+                  <FollowButton userId={creator.handle} initialFollowing={false} />
                 </div>
               ))}
             </div>
@@ -134,7 +134,7 @@ export default function FeedPage() {
                   </p>
                   <p className="text-gray-400 text-xs">{creator.descriptor}</p>
                 </div>
-                <FollowButton userId={creator.handle} />
+                <FollowButton userId={creator.handle} initialFollowing={false} />
               </div>
             ))}
           </div>

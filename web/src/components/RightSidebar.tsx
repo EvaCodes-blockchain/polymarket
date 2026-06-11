@@ -151,7 +151,7 @@ export default function RightSidebar() {
                 <p className="text-gray-500 text-xs mb-0">{person.handle}</p>
                 <span className="text-gray-500 text-xs">{person.descriptor}</span>
               </div>
-              <FollowButton userId={person.handle} />
+              <FollowButton userId={person.handle} initialFollowing={false} />
             </div>
           ))}
         </div>
