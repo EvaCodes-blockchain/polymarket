@@ -1,0 +1,21 @@
+# Next.js build output
+.next/
+out/
+
+# Dependencies (managed by pnpm workspaces at root)
+node_modules/
+
+# Env files (only .env.example is committed)
+.env
+.env.local
+.env.*.local
+
+# Prisma client (generated at build time)
+# prisma/migrations/ is committed — that's intentional
+
+# TypeScript incremental build
+*.tsbuildinfo
+
+# Debug logs
+npm-debug.log*
+pnpm-debug.log*
