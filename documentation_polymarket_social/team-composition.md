@@ -1,8 +1,17 @@
 # PolyMarket Social ("Justify") — Team Composition (Maximum Parallel Team)
 
-**Document version:** 1.0
+**Document version:** 1.1
 
 **Date:** 2026-06-11
+
+> **Status note (2026-06-11):** the working Claude Code agent team in `.claude/agents/` is now
+> the **developer** instantiation of this composition — Groups B–F below (43 seats: `sc-*`,
+> `be-*`, `fe-*`, `qa-*`, `devops-*`), plus a `dev-lead` orchestrator and a
+> `documentation-engineer`. The previous five-agent **architects** team (Group A) was retired;
+> its agent definitions are preserved verbatim in
+> [team-architects-backup.md](team-architects-backup.md), which also maps each architect
+> charter to its inheritor. Section 5 describes Group A as designed; coordination duties now
+> sit with `dev-lead`.
 
 **Source:** Derived from the component boundaries in
 [uml-components-layers.puml](uml-components-layers.puml),
@@ -94,9 +103,12 @@ and draft their own contracts for review.
 
 ## 5. Group A — Architecture & coordination (5 seats)
 
-These roles already exist as Claude Code agent definitions in `.claude/agents/` and carry the
-same charters. They own **documents**, not production code, so they never contend with
-implementation seats.
+These roles existed as Claude Code agent definitions in `.claude/agents/` until 2026-06-11,
+when the agent team was switched to the developer seats of Groups B–F; the architect agent
+definitions are archived in [team-architects-backup.md](team-architects-backup.md). The
+charters below remain the design: they own **documents**, not production code, so they never
+contend with implementation seats. In the current agent team, ARCH-1's coordination/change-control
+duties are carried by the `dev-lead` agent.
 
 | Seat | Role | Owns (exclusively) | Key responsibility |
 |------|------|--------------------|--------------------|
