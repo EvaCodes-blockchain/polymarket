@@ -189,3 +189,74 @@ jobs:
         if: hashFiles('contracts/package.json') != ''
         working-directory: contracts
         run: pnpm build
+
+  # ── 5. E2E — CEO demo path smoke test ────────────────────────────────────────
+  # Not a required check; gated on the four checks above passing first.
+  # Spins up the full compose stack (Ganache + Postgres + web) and runs the
+  # Playwright CEO demo path.  Videos and traces are uploaded as artifacts.
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test, build]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Cache pnpm store
+        if: hashFiles('pnpm-lock.yaml') != ''
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            pnpm install
+          fi
+
+      - name: Install Playwright Chromium
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      # Build the Next.js image + deploy contracts to Ganache in one compose up
+      - name: Start compose stack (Ganache + Postgres + web + contracts-deploy)
+        env:
+          NEXTAUTH_SECRET: ci-e2e-secret-not-for-production
+          NEXTAUTH_URL: http://localhost:3000
+        run: |
+          docker compose --profile deploy up -d --build --wait
+          # Wait for the contracts-deploy one-shot to finish (exits 0)
+          docker compose --profile deploy wait contracts-deploy || true
+
+      - name: Migrate database
+        run: |
+          docker compose exec -T web npx prisma migrate deploy || true
+
+      - name: Run CEO demo path e2e
+        working-directory: e2e
+        env:
+          GANACHE_RPC_URL: http://localhost:8545
+          E2E_BASE_URL: http://localhost:3000
+          DATABASE_URL: postgresql://justify:justify@localhost:5432/justify
+        run: npx playwright test --project=chromium --reporter=list,html
+
+      - name: Upload Playwright report + artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            e2e/playwright-report/
+            e2e/test-results/
+          retention-days: 14
