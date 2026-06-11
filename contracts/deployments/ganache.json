@@ -1,6 +1,6 @@
 {
   "chainId": 1337,
-  "deployedAt": "2026-06-11T10:55:54.129Z",
+  "deployedAt": "2026-06-11T21:40:17.570Z",
   "contracts": {
     "JustifyAccessControl": {
       "address": "0x623291b82Db614268020037eeac0B2ce392bAc02",

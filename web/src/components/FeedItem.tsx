@@ -1,15 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import MarketCard, { type MarketCardData } from "./MarketCard";
+import MarketCard from "./MarketCard";
+import { formatCount, type PostDTO } from "@/lib/client/api";
 
-export interface Comment {
-  id: string;
-  authorName: string;
-  authorImg: string;
-  text: string;
-  time: string;
-}
-
+/**
+ * @deprecated Legacy prototype shape — kept exported only so the retired
+ * `@/lib/client/feedData` module (unused, owned elsewhere) still typechecks.
+ * New code renders `PostDTO` from `@/lib/client/api`.
+ */
 export interface FeedPost {
   id: string;
   authorName: string;
@@ -21,15 +19,49 @@ export interface FeedPost {
   likes: string;
   comments: string;
   reposts: string;
-  market?: MarketCardData;
-  commentList?: Comment[];
+  market?: {
+    id: string;
+    title: string;
+    description: string;
+    volume: string;
+    closeTime: string;
+    chancePct: number;
+    thumbSrc: string;
+    outcomeYes: string;
+    outcomeNo: string;
+    priceYes: number;
+    priceNo: number;
+    tradeHref?: string;
+  };
+  commentList?: {
+    id: string;
+    authorName: string;
+    authorImg: string;
+    text: string;
+    time: string;
+  }[];
+}
+
+const FALLBACK_AVATAR = "/img/download.jpeg";
+
+/** "19 Feb"-style short date from an ISO timestamp. */
+function formatPostDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", { day: "numeric", month: "short" });
 }
 
 interface FeedItemProps {
-  post: FeedPost;
+  post: PostDTO;
 }
 
 export default function FeedItem({ post }: FeedItemProps) {
+  const authorName = post.author.name ?? post.author.handle ?? "Unknown";
+  const avatarSrc = post.author.image ?? FALLBACK_AVATAR;
+  const profileHref = post.author.handle
+    ? `/profile/${post.author.handle}`
+    : "/profile";
+
   return (
     <div className="border-b border-white/10 py-3 px-4 xl:px-6">
       <div className="bg-glass rounded-2xl p-4 shadow-sm">
@@ -37,8 +69,8 @@ export default function FeedItem({ post }: FeedItemProps) {
           {/* Avatar */}
           <div className="flex-shrink-0">
             <Image
-              src={post.authorImg}
-              alt={post.authorName}
+              src={avatarSrc}
+              alt={authorName}
               width={40}
               height={40}
               className="rounded-full object-cover"
@@ -49,23 +81,23 @@ export default function FeedItem({ post }: FeedItemProps) {
             {/* Header */}
             <div className="flex items-center justify-between mb-2">
               <Link
-                href="/profile"
+                href={profileHref}
                 className="flex items-center gap-1 no-underline"
               >
                 <span className="font-bold text-white text-sm">
-                  {post.authorName}
+                  {authorName}
                 </span>
-                {post.verified && (
-                  <span className="material-icons bg-indigo-600 md-16 text-white rounded-full leading-none">
-                    done
+                <span className="material-icons bg-indigo-600 md-16 text-white rounded-full leading-none">
+                  done
+                </span>
+                {post.author.handle && (
+                  <span className="text-gray-400 text-xs ml-1">
+                    @{post.author.handle}
                   </span>
                 )}
-                <span className="text-gray-400 text-xs ml-1">
-                  {post.authorHandle}
-                </span>
               </Link>
               <div className="flex items-center gap-2 text-xs text-gray-400">
-                <span>{post.date}</span>
+                <span>{formatPostDate(post.createdAt)}</span>
                 {/* Options dropdown — static in this task */}
                 <button className="material-icons md-20 text-gray-400 hover:text-white rounded-full bg-glass p-1 transition-colors">
                   more_vert
@@ -87,15 +119,15 @@ export default function FeedItem({ post }: FeedItemProps) {
             <div className="flex items-center justify-between text-gray-400 text-xs mb-3">
               <button className="flex items-center gap-1 hover:text-white transition-colors">
                 <span className="material-icons md-18">thumb_up_off_alt</span>
-                <span>{post.likes}</span>
+                <span>{formatCount(post.likeCount)}</span>
               </button>
               <button className="flex items-center gap-1 hover:text-white transition-colors">
                 <span className="material-icons md-18">chat_bubble_outline</span>
-                <span>{post.comments}</span>
+                <span>{formatCount(post.commentCount)}</span>
               </button>
               <button className="flex items-center gap-1 hover:text-white transition-colors">
                 <span className="material-icons md-18">repeat</span>
-                <span>{post.reposts}</span>
+                <span>{formatCount(post.repostCount)}</span>
               </button>
               <button className="flex items-center gap-1 hover:text-white transition-colors">
                 <span className="material-icons md-18">share</span>
@@ -104,7 +136,7 @@ export default function FeedItem({ post }: FeedItemProps) {
             </div>
 
             {/* Comment input */}
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2">
               <span className="material-icons text-indigo-400 md-32">
                 account_circle
               </span>
@@ -115,42 +147,6 @@ export default function FeedItem({ post }: FeedItemProps) {
                            text-white placeholder-gray-500 outline-none focus:border-indigo-500"
               />
             </div>
-
-            {/* Comments */}
-            {post.commentList && post.commentList.length > 0 && (
-              <div className="space-y-2">
-                {post.commentList.map((c) => (
-                  <div key={c.id} className="flex gap-2">
-                    <Image
-                      src={c.authorImg}
-                      alt={c.authorName}
-                      width={28}
-                      height={28}
-                      className="rounded-full object-cover flex-shrink-0"
-                    />
-                    <div>
-                      <div className="bg-glass rounded-2xl px-3 py-2 mb-1">
-                        <p className="font-medium text-white text-xs mb-0">
-                          {c.authorName}
-                        </p>
-                        <span className="text-gray-400 text-xs">{c.text}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 ml-2">
-                        <button className="hover:text-white transition-colors">Like</button>
-                        <span className="material-icons" style={{ fontSize: 4 }}>
-                          circle
-                        </span>
-                        <button className="hover:text-white transition-colors">Reply</button>
-                        <span className="material-icons" style={{ fontSize: 4 }}>
-                          circle
-                        </span>
-                        <span>{c.time}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </div>

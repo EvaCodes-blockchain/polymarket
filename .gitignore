@@ -29,3 +29,4 @@ typechain-types/
 *.log
 npm-debug.log*
 pnpm-debug.log*
+docker-compose.override.yaml

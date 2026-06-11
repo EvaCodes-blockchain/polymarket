@@ -27,6 +27,9 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  handle        String?   @unique // url-safe, e.g. "founder", "bot-news"
+  bio           String?
+  isBot         Boolean   @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -38,6 +41,8 @@ model User {
   wallets     Wallet[]
   following   Follow[] @relation("follower")
   followers   Follow[] @relation("followee")
+  markets     Market[]
+  posts       Post[]
 
   @@map("users")
 }
@@ -115,4 +120,57 @@ model Follow {
 
   @@unique([followerId, followeeId])
   @@map("follows")
+}
+
+// ---------------------------------------------------------------------------
+// Market — agentic sprint: a tradeable prediction market mirrored from chain.
+// marketId is the on-chain id from MarketFactory; addresses are the deployed
+// PredictionMarket / MarketAMM contracts for this market.
+// ---------------------------------------------------------------------------
+
+model Market {
+  id             String   @id @default(cuid())
+  marketId       Int      @unique // on-chain id from MarketFactory
+  question       String
+  description    String
+  category       String // generic|world|business|technology|sports|science|entertainment|health|politics|crypto
+  imageUrl       String?
+  oracleProofUrl String
+  marketType     String   @default("FUN") // FUN | CLASSIC | CHALLENGE
+  outcomeYes     String // label, e.g. "Yes"
+  outcomeNo      String
+  closeTime      DateTime
+  status         String   @default("LIVE") // LIVE | CLOSED | RESOLVED
+  marketAddress  String // PredictionMarket address
+  ammAddress     String // MarketAMM address
+  txHash         String?
+  creatorId      String
+  creator        User     @relation(fields: [creatorId], references: [id])
+  posts          Post[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("markets")
+}
+
+// ---------------------------------------------------------------------------
+// Post — agentic sprint: feed post, optionally embedding a Market.
+// Counters are display-only (engagement API out of scope).
+// ---------------------------------------------------------------------------
+
+model Post {
+  id           String   @id @default(cuid())
+  authorId     String
+  author       User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  text         String   @db.VarChar(500)
+  imageUrl     String?
+  marketId     String? // FK to Market.id (nullable — plain posts)
+  market       Market?  @relation(fields: [marketId], references: [id], onDelete: SetNull)
+  likeCount    Int      @default(0) // display-only counters (engagement API out of scope)
+  repostCount  Int      @default(0)
+  commentCount Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("posts")
 }

@@ -1,183 +1,58 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useSwitchChain } from 'wagmi';
-import { parseUnits, formatUnits } from 'viem';
-import {
-  CONTRACT_ADDRESSES,
-  MOCK_USDC_ABI,
-  MARKET_AMM_ABI,
-  SEEDED_MARKET,
-} from '@/lib/client/contracts';
-import { ganache } from '@/lib/client/wagmi';
+import { useState } from 'react';
+import type { MarketDTO } from '@/lib/client/api';
+import { parseUsdcAmount, useBuyMarket } from '@/lib/client/useBuyMarket';
 
 interface BuyPanelProps {
+  market: MarketDTO;
   /** Called after a successful buy so parent can refresh position */
-  onBuySuccess?: (sharesOut: bigint, outcomeIndex: number) => void;
+  onBuySuccess?: (outcomeIndex: 0 | 1, txHash: `0x${string}`) => void;
 }
 
-type Step = 'idle' | 'minting' | 'approving' | 'buying' | 'success' | 'error';
-
-const USDC_DECIMALS = 6;
-
 /**
- * BuyPanel — CEO-4 trade entry UI.
+ * BuyPanel — CEO-4 trade entry UI, parametric over any market from the API.
  *
- * Flow:
- *   1. User picks outcome (Barcelona / Real Madrid)
+ * Flow (via useBuyMarket):
+ *   1. User picks outcome (market.outcomeYes / market.outcomeNo)
  *   2. User enters USDC amount
- *   3. Click "Get Test USDC" → MockUSDC.mint(user, amount)  [Ganache only]
- *   4. Click "Approve" → MockUSDC.approve(ammAddress, amount)
- *   5. Click "Buy" → MarketAMM.buy(outcomeIndex, amount, minSharesOut=0)
- *   6. Show txHash + shares received
+ *   3. "Get Test USDC" → POST /api/faucet (server deployer mints — direct
+ *      MockUSDC.mint is onlyOwner and reverts for users)
+ *   4. "Buy" → approve market.addresses.amm, then AMM.buy(outcome, amount, 0)
+ *   5. Show txHash
  */
-export default function BuyPanel({ onBuySuccess }: BuyPanelProps) {
-  const { address, chainId, isConnected } = useAccount();
-  const { switchChain } = useSwitchChain();
-  const { writeContractAsync } = useWriteContract();
-
+export default function BuyPanel({ market, onBuySuccess }: BuyPanelProps) {
   const [selectedOutcome, setSelectedOutcome] = useState<0 | 1>(0);
   const [amountStr, setAmountStr] = useState('10');
-  const [step, setStep] = useState<Step>('idle');
-  const [errorMsg, setErrorMsg] = useState('');
-  const [successTxHash, setSuccessTxHash] = useState('');
-  const [sharesReceived, setSharesReceived] = useState<bigint | null>(null);
 
-  // ── Read USDC balance ──────────────────────────────────────────────────────
-  const { data: usdcBalance, refetch: refetchBalance } = useReadContract({
-    address: CONTRACT_ADDRESSES.MockUSDC,
-    abi: MOCK_USDC_ABI,
-    functionName: 'balanceOf',
-    args: address ? [address] : undefined,
-    query: { enabled: !!address },
-  });
+  const {
+    step,
+    error,
+    txHash,
+    usdcBalanceFormatted,
+    priceYes,
+    priceNo,
+    isConnected,
+    address,
+    isOnGanache,
+    isBusy,
+    buy,
+    getTestUsdc,
+    reset,
+    switchToGanache,
+  } = useBuyMarket(market);
 
-  // ── Read implied probability for selected outcome ──────────────────────────
-  const { data: probBps0 } = useReadContract({
-    address: CONTRACT_ADDRESSES.MarketAMM,
-    abi: MARKET_AMM_ABI,
-    functionName: 'impliedProbabilityBps',
-    args: [0],
-  });
-  const { data: probBps1 } = useReadContract({
-    address: CONTRACT_ADDRESSES.MarketAMM,
-    abi: MARKET_AMM_ABI,
-    functionName: 'impliedProbabilityBps',
-    args: [1],
-  });
+  const outcomeLabels: [string, string] = [market.outcomeYes, market.outcomeNo];
+  const parsedAmount = parseUsdcAmount(amountStr);
 
-  // ── Wait for last tx (buy) ─────────────────────────────────────────────────
-  const { data: txReceipt } = useWaitForTransactionReceipt({
-    hash: successTxHash ? (successTxHash as `0x${string}`) : undefined,
-    query: { enabled: !!successTxHash },
-  });
-
-  useEffect(() => {
-    if (txReceipt) {
-      void refetchBalance();
-    }
-  }, [txReceipt, refetchBalance]);
-
-  const parsedAmount = (() => {
-    try {
-      const n = parseFloat(amountStr);
-      if (isNaN(n) || n <= 0) return null;
-      return parseUnits(amountStr, USDC_DECIMALS);
-    } catch {
-      return null;
-    }
-  })();
-
-  const balanceFormatted = usdcBalance !== undefined
-    ? parseFloat(formatUnits(usdcBalance, USDC_DECIMALS)).toFixed(2)
-    : '—';
-
-  const prob0 = probBps0 !== undefined ? Number(probBps0) / 100 : null;
-  const prob1 = probBps1 !== undefined ? Number(probBps1) / 100 : null;
-
-  const handleWrongChain = useCallback(async (): Promise<boolean> => {
-    if (chainId !== ganache.id) {
-      try {
-        switchChain({ chainId: ganache.id });
-        return false; // user needs to confirm switch first
-      } catch {
-        setErrorMsg('Please switch MetaMask to Ganache (chain 1337)');
-        setStep('error');
-        return false;
-      }
-    }
-    return true;
-  }, [chainId, switchChain]);
-
-  // ── Step 1: Mint test USDC ─────────────────────────────────────────────────
-  const handleMint = async () => {
-    if (!address || !parsedAmount) return;
-    if (!(await handleWrongChain())) return;
-    setStep('minting');
-    setErrorMsg('');
-    try {
-      await writeContractAsync({
-        address: CONTRACT_ADDRESSES.MockUSDC,
-        abi: MOCK_USDC_ABI,
-        functionName: 'mint',
-        args: [address, parsedAmount],
-      });
-      await refetchBalance();
-      setStep('idle');
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Mint failed');
-      setStep('error');
-    }
-  };
-
-  // ── Step 2: Approve + Buy ──────────────────────────────────────────────────
   const handleBuy = async () => {
-    if (!address || !parsedAmount) return;
-    if (!(await handleWrongChain())) return;
-
-    setErrorMsg('');
-    try {
-      // Approve
-      setStep('approving');
-      await writeContractAsync({
-        address: CONTRACT_ADDRESSES.MockUSDC,
-        abi: MOCK_USDC_ABI,
-        functionName: 'approve',
-        args: [CONTRACT_ADDRESSES.MarketAMM, parsedAmount],
-      });
-
-      // Buy
-      setStep('buying');
-      const txHash = await writeContractAsync({
-        address: CONTRACT_ADDRESSES.MarketAMM,
-        abi: MARKET_AMM_ABI,
-        functionName: 'buy',
-        args: [selectedOutcome, parsedAmount, BigInt(0)],
-      });
-
-      setSuccessTxHash(txHash);
-      // sharesOut comes from the tx receipt log — for demo we estimate
-      // The Buy event has sharesOut; we show a success state and let parent refresh
-      setSharesReceived(parsedAmount); // placeholder until event parsing
-      setStep('success');
-      onBuySuccess?.(parsedAmount, selectedOutcome);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      // User rejection is not an error worth showing red
-      if (msg.includes('User rejected') || msg.includes('user rejected')) {
-        setStep('idle');
-      } else {
-        setErrorMsg(msg.slice(0, 120));
-        setStep('error');
-      }
-    }
+    const hash = await buy(selectedOutcome, amountStr);
+    if (hash) onBuySuccess?.(selectedOutcome, hash);
   };
-
-  const isLoading = step === 'minting' || step === 'approving' || step === 'buying';
 
   if (!isConnected || !address) {
     return (
-      <div className="bg-glass rounded-2xl p-6 text-center">
+      <div className="bg-glass rounded-2xl p-6 text-center" data-testid="buy-panel-connect">
         <span className="material-icons text-indigo-400 text-4xl mb-3 block">account_balance_wallet</span>
         <p className="text-gray-300 text-sm mb-3">Connect MetaMask to place a bet</p>
         <button
@@ -190,13 +65,13 @@ export default function BuyPanel({ onBuySuccess }: BuyPanelProps) {
     );
   }
 
-  if (chainId !== ganache.id) {
+  if (!isOnGanache) {
     return (
-      <div className="bg-glass rounded-2xl p-6 text-center">
+      <div className="bg-glass rounded-2xl p-6 text-center" data-testid="buy-panel-wrong-chain">
         <span className="material-icons text-yellow-400 text-4xl mb-3 block">warning</span>
         <p className="text-gray-300 text-sm mb-3">Wrong network — switch to Ganache (1337)</p>
         <button
-          onClick={() => switchChain({ chainId: ganache.id })}
+          onClick={switchToGanache}
           className="bg-yellow-500 hover:bg-yellow-600 text-black text-sm font-semibold px-4 py-2 rounded-full transition-colors"
         >
           Switch to Ganache
@@ -206,36 +81,35 @@ export default function BuyPanel({ onBuySuccess }: BuyPanelProps) {
   }
 
   return (
-    <div className="bg-glass rounded-2xl p-5 shadow-sm">
+    <div className="bg-glass rounded-2xl p-5 shadow-sm" data-testid="buy-panel">
       <h3 className="text-white font-bold text-sm mb-4">Place a Bet</h3>
 
       {/* Outcome selector */}
       <div className="mb-4">
         <p className="text-gray-400 text-xs mb-2">Pick your outcome</p>
         <div className="grid grid-cols-2 gap-2">
-          {SEEDED_MARKET.outcomeLabels.map((label, i) => {
-            const prob = i === 0 ? prob0 : prob1;
+          {outcomeLabels.map((label, i) => {
+            const price = i === 0 ? priceYes : priceNo;
             const isSelected = selectedOutcome === i;
             return (
               <button
-                key={label}
+                key={`${label}-${i}`}
                 onClick={() => setSelectedOutcome(i as 0 | 1)}
-                disabled={isLoading}
+                disabled={isBusy}
+                data-testid={`buy-panel-outcome-${i}`}
                 className={`rounded-xl p-3 border text-left transition-colors
                   ${isSelected
                     ? 'border-indigo-500 bg-indigo-600/20'
                     : 'border-white/10 hover:border-white/30'
                   }
-                  ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  ${isBusy ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               >
                 <p className={`font-semibold text-sm ${isSelected ? 'text-indigo-300' : 'text-white'}`}>
                   {label}
                 </p>
-                {prob !== null && (
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {prob.toFixed(1)}% chance
-                  </p>
-                )}
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {(price * 100).toFixed(1)}% chance
+                </p>
               </button>
             );
           })}
@@ -247,7 +121,7 @@ export default function BuyPanel({ onBuySuccess }: BuyPanelProps) {
         <div className="flex items-center justify-between mb-1">
           <p className="text-gray-400 text-xs">Amount (USDC)</p>
           <p className="text-gray-400 text-xs">
-            Balance: <span className="text-white">{balanceFormatted} USDC</span>
+            Balance: <span className="text-white">{usdcBalanceFormatted} USDC</span>
           </p>
         </div>
         <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
@@ -257,7 +131,8 @@ export default function BuyPanel({ onBuySuccess }: BuyPanelProps) {
             step="1"
             value={amountStr}
             onChange={(e) => setAmountStr(e.target.value)}
-            disabled={isLoading}
+            disabled={isBusy}
+            data-testid="buy-panel-amount"
             className="flex-1 bg-transparent text-white text-sm outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             placeholder="10"
           />
@@ -265,14 +140,15 @@ export default function BuyPanel({ onBuySuccess }: BuyPanelProps) {
         </div>
       </div>
 
-      {/* Get test USDC button */}
+      {/* Get test USDC button — server faucet (deployer mints) */}
       <button
-        onClick={handleMint}
-        disabled={isLoading || !parsedAmount}
+        onClick={() => void getTestUsdc(amountStr)}
+        disabled={isBusy || !parsedAmount}
+        data-testid="buy-panel-faucet"
         className="w-full mb-3 py-2 rounded-xl border border-indigo-500/50 text-indigo-400 text-sm font-medium
           hover:bg-indigo-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
-        {step === 'minting' && (
+        {step === 'faucet' && (
           <span className="w-3 h-3 border border-indigo-400 border-t-transparent rounded-full animate-spin" />
         )}
         Get Test USDC
@@ -280,34 +156,35 @@ export default function BuyPanel({ onBuySuccess }: BuyPanelProps) {
 
       {/* Buy button */}
       <button
-        onClick={handleBuy}
-        disabled={isLoading || !parsedAmount}
+        onClick={() => void handleBuy()}
+        disabled={isBusy || !parsedAmount}
+        data-testid="buy-panel-buy"
         className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold
           transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {(step === 'approving' || step === 'buying') && (
           <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
         )}
-        {step === 'approving' ? 'Approving…' : step === 'buying' ? 'Buying…' : `Buy ${SEEDED_MARKET.outcomeLabels[selectedOutcome]}`}
+        {step === 'approving' ? 'Approving…' : step === 'buying' ? 'Buying…' : `Buy ${outcomeLabels[selectedOutcome]}`}
       </button>
 
       {/* Status messages */}
       {step === 'success' && (
-        <div className="mt-4 rounded-xl bg-green-500/10 border border-green-500/30 p-3">
+        <div className="mt-4 rounded-xl bg-green-500/10 border border-green-500/30 p-3" data-testid="buy-panel-success">
           <div className="flex items-center gap-2 mb-1">
             <span className="material-icons text-green-400 text-base">check_circle</span>
             <p className="text-green-400 text-sm font-semibold">Buy confirmed!</p>
           </div>
           <p className="text-gray-400 text-xs">
-            Outcome: <span className="text-white">{SEEDED_MARKET.outcomeLabels[selectedOutcome]}</span>
+            Outcome: <span className="text-white">{outcomeLabels[selectedOutcome]}</span>
           </p>
-          {successTxHash && (
+          {txHash && (
             <p className="text-gray-500 text-xs mt-1 truncate">
-              tx: {successTxHash.slice(0, 20)}…
+              tx: {txHash.slice(0, 20)}…
             </p>
           )}
           <button
-            onClick={() => { setStep('idle'); setSuccessTxHash(''); setSharesReceived(null); }}
+            onClick={() => reset()}
             className="mt-2 text-indigo-400 text-xs hover:underline"
           >
             Place another bet
@@ -315,15 +192,15 @@ export default function BuyPanel({ onBuySuccess }: BuyPanelProps) {
         </div>
       )}
 
-      {step === 'error' && errorMsg && (
-        <div className="mt-4 rounded-xl bg-red-500/10 border border-red-500/30 p-3">
+      {step === 'error' && error && (
+        <div className="mt-4 rounded-xl bg-red-500/10 border border-red-500/30 p-3" data-testid="buy-panel-error">
           <div className="flex items-center gap-2 mb-1">
             <span className="material-icons text-red-400 text-base">error</span>
             <p className="text-red-400 text-sm font-semibold">Transaction failed</p>
           </div>
-          <p className="text-gray-400 text-xs">{errorMsg}</p>
+          <p className="text-gray-400 text-xs">{error}</p>
           <button
-            onClick={() => setStep('idle')}
+            onClick={() => reset()}
             className="mt-2 text-indigo-400 text-xs hover:underline"
           >
             Try again

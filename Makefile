@@ -6,7 +6,8 @@
 
 COMPOSE := docker compose
 
-.PHONY: up down down-volumes logs logs-ganache logs-postgres dev install lint build test typecheck help
+.PHONY: up down down-volumes logs logs-ganache logs-postgres dev install lint build test typecheck \
+        generate trade-bots generator-up generator-logs seed-users help
 
 ## up: Start Ganache + Postgres + prototype in the background
 up:
@@ -60,6 +61,26 @@ test:
 ## typecheck: Typecheck all workspaces
 typecheck:
 	pnpm -r run typecheck
+
+## generate: Run one market-generator cycle on the host (fixture mode by default)
+generate:
+	corepack pnpm -F generator generate
+
+## trade-bots: Run one bot-trading cycle on the host (Ganache accounts 7-9)
+trade-bots:
+	corepack pnpm -F generator trade
+
+## generator-up: Build + start the containerized market generator (compose profile "generator")
+generator-up:
+	$(COMPOSE) --profile generator up -d --build market-generator
+
+## generator-logs: Tail market-generator logs
+generator-logs:
+	$(COMPOSE) --profile generator logs -f market-generator
+
+## seed-users: Seed demo users into the web database
+seed-users:
+	corepack pnpm -F web exec tsx prisma/seed-users.ts
 
 ## help: Show this help
 help:

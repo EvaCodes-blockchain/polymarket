@@ -1,0 +1,14 @@
+# Build-context excludes for all root-context Dockerfiles
+# (web/Dockerfile, contracts/Dockerfile, generator/Dockerfile).
+# Every image runs `pnpm install` itself — never ship host node_modules,
+# build outputs, or local state into the build context.
+**/node_modules
+**/.next
+**/.state
+**/dist
+**/coverage
+.git
+.env
+**/.env
+**/.env.local
+docker-compose.override.yaml

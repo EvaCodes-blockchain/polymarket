@@ -105,6 +105,14 @@ services:
       NEXTAUTH_URL: "${NEXTAUTH_URL:-http://localhost:3000}"
       NEXT_PUBLIC_RPC_URL: "${NEXT_PUBLIC_RPC_URL:-http://localhost:8545}"
       NEXT_PUBLIC_CHAIN_ID: "${NEXT_PUBLIC_CHAIN_ID:-1337}"
+      # Server-side chain access (web/src/lib/server/chain.ts): signs market
+      # creation + faucet txs against the compose Ganache node.
+      RPC_URL: "http://ganache:8545"
+      GANACHE_MNEMONIC: "justify social prediction market mvp test test test test test test junk"
+      # Shared secret for the market generator's x-generator-key header
+      # (web/src/lib/server/generatorAuth.ts). Dev default only — set a real
+      # value in any shared environment.
+      GENERATOR_API_KEY: "${GENERATOR_API_KEY:-dev-generator-key}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -116,6 +124,53 @@ services:
       timeout: 10s
       retries: 12
       start_period: 30s
+    restart: unless-stopped
+
+  # ── Market generator (test/demo component) ──────────────────────────────────
+  # News-driven market creation bots — see
+  # documentation_polymarket_social/testing-market-generator.md. OFF by default
+  # per spec (Section 2): opt in with the `generator` profile:
+  #   docker compose --profile generator up -d
+  # or build/start just this service:
+  #   docker compose --profile generator up -d --build market-generator
+  # Opting into the profile IS the master switch, hence GENERATOR_ENABLED=true
+  # inside the service. All knobs per spec Section 7; ${VAR:-default} ones are
+  # host-overridable, catalog in web/.env.example.
+  market-generator:
+    profiles:
+      - generator
+    build:
+      context: .
+      dockerfile: generator/Dockerfile
+    environment:
+      GENERATOR_ENABLED: "true"
+      NEWS_SOURCE: "${NEWS_SOURCE:-fixture}"
+      NEWS_TOPICS: "${NEWS_TOPICS:-WORLD,BUSINESS,TECHNOLOGY,SPORTS,SCIENCE,ENTERTAINMENT,HEALTH}"
+      POLL_INTERVAL: "${POLL_INTERVAL:-15m}"
+      MARKETS_PER_HOUR: "${MARKETS_PER_HOUR:-12}"
+      MAX_LIVE_MARKETS: "${MAX_LIVE_MARKETS:-100}"
+      CLOSE_WINDOW: "${CLOSE_WINDOW:-1d-30d}"
+      GENERATOR_TRADING: "${GENERATOR_TRADING:-off}"
+      GENERATOR_SEED: "${GENERATOR_SEED:-}"
+      # Targets are compose-internal hostnames. The generator's environment
+      # lock allowlists localhost/127.0.0.1/*.test/*.staging only, so `web`
+      # must be admitted explicitly via EXTRA_ALLOWED_HOSTS.
+      API_BASE_URL: "http://web:3000"
+      EXTRA_ALLOWED_HOSTS: "web"
+      RPC_URL: "http://ganache:8545"
+      GENERATOR_API_KEY: "${GENERATOR_API_KEY:-dev-generator-key}"
+      # Same mnemonic as the ganache service — bot traders are accounts 7-9.
+      GANACHE_MNEMONIC: "justify social prediction market mvp test test test test test test junk"
+      # Deployment artifact mounted from the host (see volumes below) so a
+      # contract redeploy never requires an image rebuild.
+      DEPLOYMENTS_FILE: "/deployments/ganache.json"
+    volumes:
+      - ./contracts/deployments:/deployments:ro
+    depends_on:
+      web:
+        condition: service_healthy
+      ganache:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:

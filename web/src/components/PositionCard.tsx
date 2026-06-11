@@ -1,29 +1,32 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useAccount, useReadContracts } from 'wagmi';
 import { formatUnits } from 'viem';
-import {
-  CONTRACT_ADDRESSES,
-  OUTCOME_TOKEN_ABI,
-  SEEDED_MARKET,
-} from '@/lib/client/contracts';
+import type { MarketDTO } from '@/lib/client/api';
+import { CONTRACT_ADDRESSES, OUTCOME_TOKEN_ABI } from '@/lib/client/contracts';
 
 const USDC_DECIMALS = 6;
 
+interface PositionCardProps {
+  market: MarketDTO;
+  /** Bumped by the parent after each successful buy to trigger a refetch. */
+  refreshKey?: number;
+}
+
 /**
- * PositionCard — shows the user's current outcome token holdings for the seeded market.
+ * PositionCard — shows the user's outcome token holdings for one market.
  * Uses OutcomeToken.balanceOf(account, encodeId(marketId, outcomeIndex)).
  *
- * For simplicity with the static ABI (no encodeId call needed client-side),
- * we pre-compute the token IDs using the known encoding:
+ * OutcomeToken is a single global ERC-1155 (CONTRACT_ADDRESSES.OutcomeToken);
+ * token IDs are pre-computed client-side with the known Solidity encoding:
  *   tokenId = (marketId << 8) | outcomeIndex
- * This matches the Solidity `encodeId` implementation.
  */
-export default function PositionCard({ refreshKey }: { refreshKey?: number }) {
+export default function PositionCard({ market, refreshKey }: PositionCardProps) {
   const { address, isConnected } = useAccount();
 
   // Encode token IDs: tokenId = (marketId << 8) | outcomeIndex
-  const marketId = BigInt(SEEDED_MARKET.marketId);
+  const marketId = BigInt(market.marketId);
   const yesTokenId = (marketId << BigInt(8)) | BigInt(0);
   const noTokenId = (marketId << BigInt(8)) | BigInt(1);
 
@@ -45,11 +48,12 @@ export default function PositionCard({ refreshKey }: { refreshKey?: number }) {
     query: { enabled: !!address },
   });
 
-  // Refetch when parent signals a new buy
-  // (refreshKey changes on each successful buy)
-  if (refreshKey !== undefined) {
-    void refetch();
-  }
+  // Refetch when parent signals a new buy (refreshKey bumps on each success)
+  useEffect(() => {
+    if (refreshKey !== undefined && refreshKey > 0) {
+      void refetch();
+    }
+  }, [refreshKey, refetch]);
 
   if (!isConnected || !address) return null;
 
@@ -60,21 +64,25 @@ export default function PositionCard({ refreshKey }: { refreshKey?: number }) {
 
   if (!hasPosition) {
     return (
-      <div className="bg-glass rounded-2xl p-4 text-center">
+      <div className="bg-glass rounded-2xl p-4 text-center" data-testid="position-card-empty">
         <p className="text-gray-500 text-xs">No positions yet — place a bet above</p>
       </div>
     );
   }
 
+  const outcomes: Array<{ label: string; balance: bigint }> = [
+    { label: market.outcomeYes, balance: yesBalance },
+    { label: market.outcomeNo, balance: noBalance },
+  ];
+
   return (
-    <div className="bg-glass rounded-2xl p-4">
+    <div className="bg-glass rounded-2xl p-4" data-testid="position-card">
       <h4 className="text-white font-semibold text-sm mb-3">Your Position</h4>
       <div className="space-y-2">
-        {SEEDED_MARKET.outcomeLabels.map((label, i) => {
-          const balance = i === 0 ? yesBalance : noBalance;
+        {outcomes.map(({ label, balance }, i) => {
           if (balance === BigInt(0)) return null;
           return (
-            <div key={label} className="flex items-center justify-between">
+            <div key={`${label}-${i}`} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-green-400' : 'bg-red-400'}`} />
                 <span className="text-gray-300 text-sm">{label}</span>
