@@ -1,0 +1,252 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Fonts ── */
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/satoshi/Satoshi-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/satoshi/Satoshi-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/satoshi/Satoshi-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/satoshi/Satoshi-Light.otf") format("opentype");
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "ClashDisplay";
+  src: url("/fonts/clash/ClashDisplay-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "ClashDisplay";
+  src: url("/fonts/clash/ClashDisplay-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "ClashDisplay";
+  src: url("/fonts/clash/ClashDisplay-Semibold.otf") format("opentype");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "ClashDisplay";
+  src: url("/fonts/clash/ClashDisplay-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* ── Base ── */
+:root {
+  --bg-primary: #0e1117;
+  --bg-secondary: #13171f;
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-dark: rgba(0, 0, 0, 0.25);
+  --color-primary: #6c5ce7;
+  --color-yes: #355e3b;
+  --color-no: #b1332f;
+  --text-muted: #6c757d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100vh;
+  font-family: "Satoshi", sans-serif;
+  font-size: 13px;
+  background: linear-gradient(135deg, #0e1117 0%, #1a1a2e 50%, #16213e 100%);
+  color: #ececec;
+}
+
+/* ── Glass utilities ── */
+@layer components {
+  .bg-glass {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .bg-dark-glass {
+    background: var(--glass-dark);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .bg-brown-gradient {
+    background: linear-gradient(135deg, #0e1117 0%, #1a1a2e 50%, #16213e 100%);
+  }
+
+  /* ── Sidebar nav ── */
+  .sidebar-nav .nav-link {
+    @apply flex items-center px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors;
+    font-size: 15px;
+    gap: 12px;
+  }
+  .sidebar-nav .nav-link.active {
+    @apply text-white bg-white/10;
+  }
+
+  /* ── Follow button ── */
+  .btn-follow {
+    @apply text-xs font-semibold px-3 py-1 rounded-full border border-indigo-500 text-indigo-400
+           hover:bg-indigo-500 hover:text-white transition-colors;
+  }
+  .btn-follow[data-following="true"] {
+    @apply bg-indigo-500 text-white border-indigo-500;
+  }
+
+  /* ── Primary button ── */
+  .btn-primary {
+    @apply bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl px-4 py-2 transition-colors;
+  }
+
+  /* ── Feed card ── */
+  .feed-item {
+    @apply bg-glass rounded-2xl p-4 shadow-sm;
+  }
+
+  /* ── Market card ── */
+  .market-card-wrapper {
+    perspective: 800px;
+  }
+  .market-card-inner {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+  }
+  .market-card-inner.flipped {
+    transform: rotateY(180deg);
+  }
+  .market-card-front,
+  .market-card-back {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .market-card-back {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+  }
+
+  /* ── Chance SVG arc ── */
+  .chance-svg .arc-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 3;
+  }
+  .chance-svg .arc-progress {
+    fill: none;
+    stroke: #6c5ce7;
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke-dasharray 0.4s ease;
+  }
+
+  /* ── Sign-in modal ── */
+  .login-modal {
+    @apply flex flex-col gap-4 items-stretch;
+  }
+  .login-title {
+    @apply text-2xl font-bold text-white text-center;
+    font-family: "ClashDisplay", sans-serif;
+  }
+  .btn-google {
+    @apply flex items-center justify-center gap-3 w-full rounded-xl py-3 font-semibold
+           bg-white text-gray-800 hover:bg-gray-100 transition-colors no-underline;
+  }
+  .btn-google img {
+    @apply w-5 h-5;
+  }
+  .login-divider {
+    @apply flex items-center gap-3 text-gray-500 text-sm;
+  }
+  .login-divider::before,
+  .login-divider::after {
+    content: "";
+    @apply flex-1 border-t border-white/10;
+  }
+  .login-form input {
+    @apply w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white
+           placeholder-gray-500 focus:outline-none focus:border-indigo-500;
+  }
+  .login-form button {
+    @apply w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 transition-colors;
+  }
+  .login-wallets {
+    @apply flex items-center justify-center gap-4;
+  }
+  .login-wallets svg,
+  .login-wallets img {
+    @apply cursor-pointer hover:opacity-80 transition-opacity rounded-full;
+  }
+  .login-terms {
+    @apply text-center text-xs text-gray-500;
+  }
+  .login-terms a {
+    @apply text-indigo-400 hover:underline;
+  }
+
+  /* ── Trending / Who-to-follow item hover ── */
+  .trending-item:hover,
+  .account-item:hover {
+    @apply bg-white/5;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+  }
+}
+
+/* ── Material Icons ── */
+.material-icons {
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  vertical-align: middle;
+}
+.md-16 { font-size: 16px !important; }
+.md-18 { font-size: 18px !important; }
+.md-20 { font-size: 20px !important; }
+.md-32 { font-size: 32px !important; }
+.md-36 { font-size: 36px !important; }
