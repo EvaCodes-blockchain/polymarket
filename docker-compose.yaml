@@ -5,9 +5,6 @@ services:
   # "Architectural decisions"). Deterministic mnemonic so the account/role
   # mapping documented in testing-integration.md (Section 2.2) is stable:
   #   0 deployer/admin, 1 oracle resolver, 2-5 traders, 6 market creator.
-  # NOTE: MockUSDC pre-funding for accounts 2-5 requires the 'contracts'
-  # one-shot deployment service (testing-integration.md Section 2.2), not yet
-  # added here.
   ganache:
     image: trufflesuite/ganache:v7.9.2
     command:
@@ -64,5 +61,55 @@ services:
       retries: 10
     restart: unless-stopped
 
+  # ── One-shot: deploy contracts to Ganache + write deployments/ganache.json ──
+  # Runs `pnpm -F contracts deploy:ganache` against the compose Ganache node.
+  # Exits 0 on success; the resulting ganache.json is written to a shared
+  # volume so the web service can read canonical addresses at runtime.
+  # Start manually with: docker compose run --rm contracts-deploy
+  # Or bring the whole stack including this service:
+  #   docker compose --profile deploy up
+  contracts-deploy:
+    profiles:
+      - deploy
+    build:
+      context: .
+      dockerfile: contracts/Dockerfile
+    environment:
+      RPC_URL: http://ganache:8545
+      GANACHE_MNEMONIC: "justify social prediction market mvp test test test test test test junk"
+    volumes:
+      - contracts-deployments:/app/contracts/deployments
+    depends_on:
+      ganache:
+        condition: service_healthy
+    restart: "no"
+
+  # ── Next.js web app ──────────────────────────────────────────────────────────
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://justify:justify@postgres:5432/justify"
+      NEXTAUTH_SECRET: "${NEXTAUTH_SECRET:-change-me-in-production}"
+      NEXTAUTH_URL: "${NEXTAUTH_URL:-http://localhost:3000}"
+      NEXT_PUBLIC_RPC_URL: "http://localhost:8545"
+      NEXT_PUBLIC_CHAIN_ID: "1337"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ganache:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO /dev/null http://0.0.0.0:3000/ || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
 volumes:
   postgres-data:
+  contracts-deployments:
