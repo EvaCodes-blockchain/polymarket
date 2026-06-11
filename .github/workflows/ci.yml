@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Prisma / DB — point at a test DB that doesn't exist so prisma generate still works
+  # Prisma / DB — dummy values; Prisma generate doesn't need a live DB
   DATABASE_URL: postgresql://justify:justify@localhost:5432/justify_test
   # NextAuth — dummy values for build/lint; real secrets are in .env.local
   NEXTAUTH_SECRET: ci-dummy-secret-not-for-production
@@ -35,10 +35,25 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: pnpm
+          # Note: cache: pnpm omitted — handled below to tolerate absent lockfile
+
+      # Cache only when pnpm-lock.yaml exists; auto-activates once web/ or
+      # contracts/ land and generate the lockfile.
+      - name: Cache pnpm store
+        if: hashFiles('pnpm-lock.yaml') != ''
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            pnpm install
+          fi
 
       - name: Lint (web)
         if: hashFiles('web/package.json') != ''
@@ -64,10 +79,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: pnpm
+
+      - name: Cache pnpm store
+        if: hashFiles('pnpm-lock.yaml') != ''
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            pnpm install
+          fi
 
       - name: Typecheck (web)
         if: hashFiles('web/package.json') != ''
@@ -93,10 +120,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: pnpm
+
+      - name: Cache pnpm store
+        if: hashFiles('pnpm-lock.yaml') != ''
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            pnpm install
+          fi
 
       - name: Test (web)
         if: hashFiles('web/package.json') != ''
@@ -122,10 +161,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: pnpm
+
+      - name: Cache pnpm store
+        if: hashFiles('pnpm-lock.yaml') != ''
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            pnpm install
+          fi
 
       - name: Build (web)
         if: hashFiles('web/package.json') != ''
