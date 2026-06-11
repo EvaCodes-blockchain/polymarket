@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
 import MobileHeader from './MobileHeader';
 import SignInModal from './SignInModal';
+import WalletConnectModal from './WalletConnectModal';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -16,10 +17,30 @@ interface AppShellProps {
  *   - Left sidebar (xl: fixed col, mobile: hidden / off-canvas TBD)
  *   - Center column (main content)
  *   - Right sidebar (xl: visible, smaller screens: hidden)
+ *
+ * Hosts both SignInModal (CEO-1) and WalletConnectModal (CEO-3).
+ * WalletConnectModal is triggered by:
+ *   - SignInModal's MetaMask button (fires `justify:connectWallet` event)
+ *   - Direct `justify:connectWallet` dispatches from any component
  */
 export default function AppShell({ children }: AppShellProps) {
   const [signInOpen, setSignInOpen] = useState(false);
+  const [walletOpen, setWalletOpen] = useState(false);
   const { data: session } = useSession();
+
+  // Listen for the custom event fired by SignInModal's MetaMask button
+  // and by FollowButton's unauthenticated click.
+  useEffect(() => {
+    const handleConnectWallet = () => setWalletOpen(true);
+    const handleOpenSignIn = () => setSignInOpen(true);
+
+    window.addEventListener('justify:connectWallet', handleConnectWallet);
+    window.addEventListener('justify:openSignIn', handleOpenSignIn);
+    return () => {
+      window.removeEventListener('justify:connectWallet', handleConnectWallet);
+      window.removeEventListener('justify:openSignIn', handleOpenSignIn);
+    };
+  }, []);
 
   return (
     <>
@@ -32,18 +53,18 @@ export default function AppShell({ children }: AppShellProps) {
       <div className="py-4">
         <div className="container mx-auto px-0">
           <div className="grid grid-cols-12 relative gap-0">
-            {/* Left sidebar — col-span-3 on xl */}
+            {/* Left sidebar */}
             <LeftSidebar
               onSignInClick={session ? () => undefined : () => setSignInOpen(true)}
               session={session}
             />
 
-            {/* Center — 6 cols on xl, full on smaller */}
+            {/* Center */}
             <main className="col-span-12 xl:col-span-6 border-l border-r border-white/10 min-h-screen">
               {children}
             </main>
 
-            {/* Right sidebar — col-span-3 on xl */}
+            {/* Right sidebar */}
             <RightSidebar />
           </div>
         </div>
@@ -69,10 +90,16 @@ export default function AppShell({ children }: AppShellProps) {
         </div>
       </footer>
 
-      {/* Sign-in modal */}
+      {/* Sign-in modal (CEO-1) */}
       {!session && (
         <SignInModal open={signInOpen} onClose={() => setSignInOpen(false)} />
       )}
+
+      {/* Wallet connect modal (CEO-3) */}
+      <WalletConnectModal
+        open={walletOpen}
+        onClose={() => setWalletOpen(false)}
+      />
     </>
   );
 }
