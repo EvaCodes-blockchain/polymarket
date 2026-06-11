@@ -31,6 +31,7 @@ are the planned baseline for the production system.
 | [uml-components-layers.puml](uml-components-layers.puml)                   | Component diagram of the system layers: presentation (prototype pages and widgets), client integration (auth and wallet), application services, data, external services, and the blockchain.           |
 | [uml-components-api.puml](uml-components-api.puml)                         | Component diagram of the planned API surface behind an API gateway; each interface lists representative endpoints and the FR items it serves.                                                          |
 | [uml-components-smart-contracts.puml](uml-components-smart-contracts.puml) | Component diagram of the on-chain layer: market lifecycle (factory, prediction market, oracle resolver), trading & settlement (AMM, ERC-1155 outcome tokens, mock collateral), and platform contracts. |
+| [uml-team-composition-flow.puml](uml-team-composition-flow.puml)           | Activity diagram of [team-composition.md](team-composition.md) as a parallel flow: Phase-0 contract freeze, then all 48 seats forked across the six groups, joining at integration checkpoints and the CEO MVP gate.            |
 
 ### Rendering the diagrams
 

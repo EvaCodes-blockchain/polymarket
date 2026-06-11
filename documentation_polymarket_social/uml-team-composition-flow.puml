@@ -1,0 +1,187 @@
+@startuml uml-team-composition-flow
+title PolyMarket Social ("Justify") — Team Composition as a Parallel Flow\n48 seats per team-composition.md; fork = work proceeding in parallel without blocking
+
+skinparam shadowing false
+skinparam defaultFontSize 12
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #888888
+}
+skinparam partition {
+  BackgroundColor #FAFAFA
+  BorderColor #888888
+}
+
+start
+
+partition "Phase 0 — bootstrap (the only serialized work, team-composition.md §4)" {
+  fork
+    #D6E8FF:OpenAPI specs ×16\n(BE seats draft,\nARCH-1 arbitrates);
+  fork again
+    #D6E8FF:Solidity interfaces,\nevent catalog,\ncent/decimals conventions\n(ARCH-2 + SC-1..3);
+  fork again
+    #D6E8FF:Address artifact format,\nseed-market fixtures\n(SC-3 + QA-1);
+  fork again
+    #D6E8FF:DB schema namespace\nallocation\n(ARCH-1 + BP-1);
+  fork again
+    #D6E8FF:Gateway skeleton,\nservice scaffold,\nroute registry\n(BP-1);
+  fork again
+    #D6E8FF:Design tokens, layout\nshell, data-testid scheme\n(FE-1 + QA-7);
+  fork again
+    #D6E8FF:docker-compose: api,\nstorage, oauth-mock,\noracle-mock\n(DO-1);
+  end fork
+  :Contract freeze (rule G2) — ARCH-1 signs off;\nlater changes only via change control (§11);
+}
+
+note right
+  During Phase 0 the remaining seats are
+  not idle: they work against the read-only
+  prototype (G6) — page objects, component
+  specs, visual styling — and draft their
+  own contracts for review.
+end note
+
+fork
+  partition "Group A — Architecture & coordination (5)" {
+    fork
+      #FFE6CC:ARCH-1\nChief Architect\nchange control,\narbitration;
+    fork again
+      #FFE6CC:ARCH-2\nBlockchain\nArchitect;
+    fork again
+      :ARCH-3\nTest Strategy\nArchitect;
+    fork again
+      :ARCH-4\nRepo Architect\nownership matrix;
+    fork again
+      :ARCH-5\nArchitecture\nReviewer (audits);
+    end fork
+  }
+fork again
+  partition "Group B — Smart contracts (3)" {
+    fork
+      #FFE6CC:SC-1\nMarketFactory,\nPredictionMarket,\nOracleResolver;
+    fork again
+      #FFE6CC:SC-2\nMarketAMM,\nOutcomeToken,\nMockUSDC;
+    fork again
+      #FFE6CC:SC-3\nFeeTreasury,\nAccessControl,\nmigrations + seeding;
+    end fork
+  }
+fork again
+  partition "Group C — Backend (17)" {
+    fork
+      #FFE6CC:BP-1\nGateway &\nplatform;
+    fork again
+      #FFE6CC:BE-1\nAuth API;
+    fork again
+      #FFE6CC:BE-2\nWallet\nAuth API;
+    fork again
+      :BE-3\nUsers API;
+    fork again
+      :BE-4\nPosts API;
+    fork again
+      :BE-5\nComments\nAPI;
+    fork again
+      :BE-6\nEngagement\nAPI;
+    fork again
+      #FFE6CC:BE-7\nSocial\nGraph API;
+    fork again
+      :BE-8\nMarkets API;
+    fork again
+      :BE-9\nMarket\nCreation API;
+    fork again
+      #FFE6CC:BE-10\nOrders API;
+    fork again
+      #FFE6CC:BE-11\nMarket\nData API;
+    fork again
+      #FFE6CC:BE-12\nPortfolio\nAPI;
+    fork again
+      :BE-13\nNotifications\nAPI;
+    fork again
+      :BE-14\nSearch API;
+    fork again
+      :BE-15\nMedia API;
+    fork again
+      :BE-16\nSupport API;
+    end fork
+  }
+fork again
+  partition "Group D — Web client (10)" {
+    fork
+      #FFE6CC:FE-1\nLayout shell,\ndesign tokens;
+    fork again
+      #FFE6CC:FE-2\nMarket-card\nwidget;
+    fork again
+      #FFE6CC:FE-3\nAuth client;
+    fork again
+      #FFE6CC:FE-4\nWallet\nconnector;
+    fork again
+      :FE-5\nFeed page;
+    fork again
+      :FE-6\nMarkets\npage;
+    fork again
+      :FE-7\nTrading\npage;
+    fork again
+      :FE-8\nPortfolio\npage;
+    fork again
+      #FFE6CC:FE-9\nProfile &\nsettings;
+    fork again
+      :FE-10\nSecondary\npages;
+    end fork
+  }
+fork again
+  partition "Group E — QA & test automation (11)" {
+    fork
+      #FFE6CC:QA-1\nTest infra,\nfixtures;
+    fork again
+      #FFE6CC:QA-2\nIT: auth,\nusers;
+    fork again
+      :QA-3\nIT: social;
+    fork again
+      #FFE6CC:QA-4\nIT: markets,\ntrading;
+    fork again
+      :QA-5\nIT: portfolio,\nsupport;
+    fork again
+      :QA-6\nIT: cross-API\nflows;
+    fork again
+      #FFE6CC:QA-7\nE2E framework,\npage objects;
+    fork again
+      #FFE6CC:QA-8\nE2E journeys\nJ1–J8;
+    fork again
+      :QA-9\nE2E component\nspecs;
+    fork again
+      :QA-10\nGenerator:\nnews, templating;
+    fork again
+      :QA-11\nGenerator:\nlifecycle, safety;
+    end fork
+  }
+fork again
+  partition "Group F — DevOps & CI (2)" {
+    fork
+      #FFE6CC:DO-1\nCompose\nenvironment;
+    fork again
+      #FFE6CC:DO-2\nCI pipelines,\nrelease gates;
+    end fork
+  }
+end fork
+
+:Integration checkpoints (§11) — QA-6 cross-API flows and QA-8 journeys:\nthe first place contract drift between unblocked seats becomes visible;
+
+:MVP gate — CEO-1..4 green via Tier-1 journeys J1, J5, J2/J3\n(functional-requirements-ceo.md §2; ui-testing.md §5);\nhardcode-fallback areas ship as the prototype renders them (CEO §3);
+
+stop
+
+legend bottom
+  Flow view of team-composition.md. Forks denote work that proceeds in
+  parallel; the only serialized stretch is Phase 0, which freezes the
+  contracts (OpenAPI, Solidity interfaces, schema namespaces, fixtures)
+  that decouple every cross-seat dependency (§7). After the freeze all
+  48 seats run concurrently under the single-writer rule (G1).
+  Colors — blue: Phase-0 deliverables; orange: seats on the CEO MVP
+  critical path (§8, about 22 of 48; BE-1/BE-2 and FE-3/FE-4 are
+  "at least one of" alternatives); white: seats whose areas may ship
+  hardcoded per functional-requirements-ceo.md §3.
+  The joins are checkpoints, not hard barriers: integration probes run
+  continuously as seats land work; the MVP gate blocks release only on
+  the Tier-1 journeys.
+endlegend
+
+@enduml

@@ -27,7 +27,9 @@ blocking each other**. "Without blocking" has a precise meaning here:
 - anything that cannot be split without violating those two rules stays with one owner.
 
 The result is **48 seats** in six groups (Section 9). The maximality argument — why splitting
-further *would* introduce blocking — is in Section 10.
+further *would* introduce blocking — is in Section 10. The composition is also rendered as a
+parallel-flow activity diagram in
+[uml-team-composition-flow.puml](uml-team-composition-flow.puml).
 
 A team this size is the ceiling, not a recommendation for day one. Section 8 marks the subset
 that sits on the CEO's MVP critical path; every other seat works on areas that may ship
