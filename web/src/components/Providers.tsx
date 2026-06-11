@@ -1,16 +1,22 @@
 'use client';
 
 import { SessionProvider } from 'next-auth/react';
-
-interface ProvidersProps {
-  children: React.ReactNode;
-}
+import WagmiProviders from './WagmiProviders';
 
 /**
- * Client-side providers wrapper.
- * Lives outside the server layout so SessionProvider (client) can be used
- * without making the whole layout a client component.
+ * Combined providers wrapper:
+ * - SessionProvider (NextAuth v4) for session/auth state
+ * - WagmiProviders (wagmi v2 + react-query) for wallet state
+ *
+ * WagmiProviders is nested inside SessionProvider so wagmi hooks
+ * can access session if needed.
  */
-export default function Providers({ children }: ProvidersProps) {
-  return <SessionProvider>{children}</SessionProvider>;
+export default function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <SessionProvider>
+      <WagmiProviders>
+        {children}
+      </WagmiProviders>
+    </SessionProvider>
+  );
 }
