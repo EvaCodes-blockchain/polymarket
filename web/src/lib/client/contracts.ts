@@ -8,13 +8,14 @@
  */
 
 // ── Addresses ────────────────────────────────────────────────────────────────
+// Canonical addresses from compose-Ganache deployment (contracts/deployments/ganache.json)
 export const CONTRACT_ADDRESSES = {
-  MockUSDC: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
-  OutcomeToken: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
-  MarketFactory: '0x0165878A594ca255338adfa4d48449f69242Eb8F',
+  MockUSDC: '0xAF7244998ee2969df3D436935E455934121da5C0',
+  OutcomeToken: '0xF6208811B8f309C8184f7391c61748e094bEc10A',
+  MarketFactory: '0x6440c872934c4A33459e85ce7592230826ae7770',
   // Seeded market #0
-  PredictionMarket: '0x3B02fF1e626Ed7a8fd6eC5299e2C54e1421B626B',
-  MarketAMM: '0xBA12646CC07ADBe43F8bD25D83FB628D29C8A762',
+  PredictionMarket: '0x791408F6b8F6dF60887bFa3301A82144017f0CaF',
+  MarketAMM: '0xd470E6668777090b791d4De49B71Ea7fe5DE7ca8',
 } as const;
 
 // ── Seeded market metadata ────────────────────────────────────────────────────

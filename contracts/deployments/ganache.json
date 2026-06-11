@@ -1,9 +1,9 @@
 {
   "chainId": 1337,
-  "deployedAt": "2026-06-11T09:24:07.782Z",
+  "deployedAt": "2026-06-11T10:55:54.129Z",
   "contracts": {
     "JustifyAccessControl": {
-      "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "address": "0x623291b82Db614268020037eeac0B2ce392bAc02",
       "abi": [
         {
           "inputs": [
@@ -283,7 +283,7 @@
       ]
     },
     "MockUSDC": {
-      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "address": "0xAF7244998ee2969df3D436935E455934121da5C0",
       "abi": [
         {
           "inputs": [
@@ -699,7 +699,7 @@
       ]
     },
     "OutcomeToken": {
-      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "address": "0xF6208811B8f309C8184f7391c61748e094bEc10A",
       "abi": [
         {
           "inputs": [
@@ -1492,7 +1492,7 @@
       ]
     },
     "FeeTreasury": {
-      "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      "address": "0xfE2E845A168d77E4F53A24B6c3C6a9a0b3a170d8",
       "abi": [
         {
           "inputs": [
@@ -1647,7 +1647,7 @@
       ]
     },
     "OracleResolver": {
-      "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      "address": "0x083108CBfE8ba281282e4B4cB0a2EB5534d8Aaf1",
       "abi": [
         {
           "inputs": [
@@ -1782,7 +1782,7 @@
       ]
     },
     "MarketFactory": {
-      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      "address": "0x6440c872934c4A33459e85ce7592230826ae7770",
       "abi": [
         {
           "inputs": [
@@ -2029,7 +2029,7 @@
     ],
     "contracts": {
       "PredictionMarket": {
-        "address": "0x3B02fF1e626Ed7a8fd6eC5299e2C54e1421B626B",
+        "address": "0x791408F6b8F6dF60887bFa3301A82144017f0CaF",
         "abi": [
           {
             "inputs": [
@@ -2228,7 +2228,7 @@
         ]
       },
       "MarketAMM": {
-        "address": "0xBA12646CC07ADBe43F8bD25D83FB628D29C8A762",
+        "address": "0xd470E6668777090b791d4De49B71Ea7fe5DE7ca8",
         "abi": [
           {
             "inputs": [
@@ -2521,14 +2521,14 @@
     }
   },
   "accounts": {
-    "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "oracleResolver": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "deployer": "0x6B4eCA7B7C93518082e5B651420C3336aCD398c2",
+    "oracleResolver": "0x31a0ec618a48623E09F48f74267D47546C6E8075",
     "traders": [
-      "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
-      "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
-      "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
-      "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc"
+      "0xDaf0fD0ee53a180B0Aa2843e8158692CDa56b389",
+      "0xD2121E4fec2da9913F6368e328f27384f51CE987",
+      "0xA12A06d768A751f6692f62fb07DC9826B7A2437F",
+      "0xD270F5478CE2DF4630Eb416824d5AD33851A08cF"
     ],
-    "creator": "0x976EA74026E726554dB657fA54763abd0C3a0aa9"
+    "creator": "0x5F0fAC96d16c6Def73C0e5AdBcF432338C6cf27b"
   }
 }
