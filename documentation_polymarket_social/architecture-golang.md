@@ -1,6 +1,6 @@
 # Chain Event Indexer — Go Component Architecture
 
-**Document version:** 1.0
+**Document version:** 1.1
 
 **Date:** 2026-06-11
 
@@ -8,7 +8,9 @@
 [uml-components-api.puml](uml-components-api.puml),
 [testing-integration.md](testing-integration.md) §6 ("Event-indexing latency"),
 [team-composition.md](team-composition.md) (seat BE-11),
-[architecture-polymarket-platform-reference.md](architecture-polymarket-platform-reference.md)
+[architecture-polymarket-platform-reference.md](architecture-polymarket-platform-reference.md),
+[go_pysyun_pipeline](https://github.com/pysyun/go_pysyun_pipeline),
+[ethbacknode](https://github.com/ITProLabDev/ethbacknode)
 
 This document specifies the **Chain Event Indexer** (working name: `chain-indexer`) — a small,
 standalone backend service written in **Go** that is the single bridge between the on-chain world
@@ -17,6 +19,17 @@ and the off-chain read path. It subscribes to the contract events emitted on the
 [uml-components-smart-contracts.puml](uml-components-smart-contracts.puml)), decodes them, and
 persists them into an indexer-owned database schema that the Market Data, Portfolio, Markets, and
 Notifications APIs read from.
+
+The service is built on two existing Go components rather than from scratch:
+
+- **[ethbacknode](https://github.com/ITProLabDev/ethbacknode)** — a backend microservice for
+  interacting with Ethereum nodes (block/transaction monitoring, address subscriptions,
+  confirmations). It runs as a sidecar between the indexer and the EVM node and pushes
+  `blockEvent` / `transactionEvent` HTTP callbacks, replacing a hand-rolled head-polling loop.
+- **[go_pysyun_pipeline](https://github.com/pysyun/go_pysyun_pipeline)** — a minimalist pipeline
+  library (`Processor` / `Chainable` / `ChainableGroup` / `PipelineNode` with `Delta` profiling).
+  The indexer's ingest → decode → persist flow is composed from its stages, replacing hand-rolled
+  goroutine/channel plumbing.
 
 ---
 
@@ -37,19 +50,24 @@ Every number a user sees that originates on-chain flows through this service:
 
 If the indexer lags, the feed shows stale prices; if it drops an event, a user's portfolio is
 simply wrong — and a wrong P&L on a trading product is a trust-destroying defect, not a cosmetic
-one. At the same time the service is deliberately **small**: it has one input (JSON-RPC), one
-output (its own DB schema plus a sync endpoint), and no business logic beyond decode-and-store.
+one. At the same time the service is deliberately **small**: its inputs are the chain (via the
+ethbacknode sidecar's callbacks plus `eth_getLogs`), its output is its own DB schema plus a sync
+endpoint, and it has no business logic beyond decode-and-store.
 That combination — tiny surface, total criticality — is what makes it worth isolating and
 hardening as its own component.
 
 ### Why Go
 
-- **Concurrency model fits the workload exactly:** one goroutine per subscription/poll loop, one
-  per consumer notification fan-out, communicating over channels — no async framework needed.
+- **Concurrency model fits the workload exactly:** goroutines for callback handling, reconcile
+  ticks, and pipeline stages, communicating over channels — no async framework needed.
 - **First-class EVM tooling:** `go-ethereum` is the reference Ethereum implementation;
   `abigen` generates type-safe Go bindings directly from the frozen contract ABIs (Phase-0
   artifact, [team-composition.md](team-composition.md) Section 4), so decoding bugs become
   compile-time errors.
+- **Reusable Go building blocks:** both selected foundations are Go —
+  [ethbacknode](https://github.com/ITProLabDev/ethbacknode) for node interaction and
+  [go_pysyun_pipeline](https://github.com/pysyun/go_pysyun_pipeline) for stage composition — so
+  the indexer mostly wires existing components instead of writing infrastructure.
 - **Operational profile:** a single static binary with a tiny memory footprint that runs for
   weeks; trivially packaged into the `docker-compose.yaml` test environment that integration
   tests already depend on.
@@ -65,16 +83,24 @@ and an HTTP sync endpoint, not Go interfaces.
 
 ```
 Ganache EVM node (chain 1337, :8545)
-        │  JSON-RPC: eth_getLogs / eth_blockNumber
+        │  Ethereum JSON-RPC
         ▼
 ┌────────────────────────────┐
-│   chain-indexer (Go)       │
-│  fetch → decode → persist  │
+│   ethbacknode (sidecar)    │   block/transaction monitoring,
+│   JSON-RPC 2.0 service     │   confirmations, watchdog
 └────────────────────────────┘
+        │  HTTP callbacks: blockEvent / transactionEvent
+        │  (at-least-once; indexer deduplicates)
+        ▼
+┌──────────────────────────────────────────────┐
+│   chain-indexer (Go)                         │
+│   go_pysyun_pipeline stages:                 │
+│   ingest → backfill → decode → persist       │
+└──────────────────────────────────────────────┘
         │                       │
         ▼                       ▼
  PostgreSQL                HTTP :8090
- schema `indexer`          /healthz, /status, /synced
+ schema `indexer`          /healthz, /status, /synced, /callbacks/*
         │
         ▼
  Market Data API · Portfolio API · Markets API · Notifications API
@@ -84,15 +110,21 @@ Ganache EVM node (chain 1337, :8545)
 Boundary rules (inherits the global guardrails of
 [team-composition.md](team-composition.md) Section 3):
 
-- The indexer **only reads** from the chain (`eth_getLogs`, `eth_blockNumber`,
-  `eth_call` for enrichment). It never sends transactions, never signs anything, and holds no
-  keys. Trade submission stays in the Orders API; market resolution stays with the trusted
-  resolver account.
+- The indexer–chain path **only reads**. ethbacknode is deployed in **monitoring-only**
+  configuration: its transfer/signing surface (`transferAssets`, `addressGetNew`,
+  `addressRecover`) is unused and must be unreachable from outside the indexer host (the
+  ethbacknode README itself warns against exposing signing endpoints). The indexer calls only
+  read/query methods (`infoGetBlockNum`, `addressSubscribe`, `transferInfo*`) plus direct
+  `eth_getLogs`/`eth_call` against the node for log backfill and enrichment. Trade submission
+  stays in the Orders API; market resolution stays with the trusted resolver account.
 - The indexer **owns** the `indexer` PostgreSQL schema and its migrations (guardrail G4: one
   schema namespace per service). Consumers get read-only grants on it; they never write to it.
 - Consumers needing derived aggregates (candlesticks, leaderboards) compute them on their side
   from the raw tables — the indexer stores facts, not projections, so consumer-specific logic
   cannot creep into the critical path.
+- ethbacknode is the only component that talks to the node continuously; the indexer's direct
+  RPC use is limited to range queries (`eth_getLogs`) that ethbacknode's
+  event-oriented API does not cover (it is a monitor, not a historical log indexer).
 
 ### Note on seat ownership
 
@@ -109,8 +141,11 @@ schema DDL plus the sync endpoint, both frozen in Phase 0 alongside the Solidity
 
 **Does:**
 
-1. Track the chain head and ingest every log emitted by the deployed contracts from the
-   deployment block onward — no gaps, no duplicates (effective exactly-once via idempotent writes).
+1. Receive `blockEvent` / `transactionEvent` callbacks from the ethbacknode sidecar as the
+   "new work available" signal, and ingest every log emitted by the deployed contracts from the
+   deployment block onward via `eth_getLogs` backfill — no gaps, no duplicates (effective
+   exactly-once via idempotent writes; ethbacknode delivery is at-least-once by design, so the
+   indexer deduplicates).
 2. Decode logs with `abigen`-generated bindings for the four cataloged events:
    `MarketCreated`, `Trade`, `MarketResolved`, `Redeemed`.
 3. Persist decoded events plus a per-block checkpoint in one transaction.
@@ -118,7 +153,8 @@ schema DDL plus the sync endpoint, both frozen in Phase 0 alongside the Solidity
    events, updated in the same transaction.
 5. Expose sync status over HTTP for health checks and for the integration-test
    "indexer caught up" helper ([testing-integration.md](testing-integration.md) §6).
-6. Survive restarts and Ganache restarts: resume from the checkpoint, or detect a chain reset
+6. Survive restarts of itself, ethbacknode, and Ganache: resume from the checkpoint (the
+   `eth_getLogs` backfill path covers callbacks missed while down), or detect a chain reset
    (new genesis) and reindex from scratch — Ganache in Docker loses state on recreate.
 
 **Does not:**
@@ -138,37 +174,74 @@ schema DDL plus the sync endpoint, both frozen in Phase 0 alongside the Solidity
 
 ### 4.1 Pipeline
 
-Three stages connected by bounded channels, each a goroutine group:
+The processing flow is composed from
+[go_pysyun_pipeline](https://github.com/pysyun/go_pysyun_pipeline) stages instead of hand-rolled
+goroutine/channel plumbing. Each stage is a `Processor` (`Process(data any) any`); the linear
+flow is built with `Chainable.Pipe` (or the variadic `pysyun.Pipe(...)`):
 
-```
-[fetcher] --blocks--> [decoder] --batch--> [writer]
+```go
+import pysyun "github.com/pysyun/go_pysyun_pipeline"
+
+// per block range: trigger → fetch logs → decode → persist
+ingest := pysyun.Pipe(
+    pysyun.NewChainable(&RangePlanner{}),   // callback/backfill → []BlockRange
+    pysyun.NewChainable(&LogFetcher{}),     // BlockRange → []types.Log (eth_getLogs)
+    pysyun.NewChainable(&LogDecoder{}),     // []types.Log → []DecodedEvent (abigen)
+    pysyun.NewChainable(&BatchWriter{}),    // []DecodedEvent → checkpoint (one DB tx)
+)
 ```
 
-- **Fetcher** — polls `eth_blockNumber` (default every 500 ms; Ganache mines instantly on
-  transaction, so WebSocket subscriptions add complexity without benefit at MVP) and requests
-  `eth_getLogs` for the address set over `[checkpoint+1, head]`, chunked to at most
-  `MAX_BLOCK_RANGE` (default 2 000) blocks per call.
-- **Decoder** — matches each log's `topics[0]` against the generated bindings and produces typed
-  event records. An unrecognized log from a watched address is a **fatal error**, not a skip:
-  it means the deployed ABI and the frozen event catalog have diverged, and continuing would
-  silently corrupt downstream data.
-- **Writer** — batches decoded events per block range and commits **one database transaction**
-  per batch: insert events, upsert state tables, advance the checkpoint. The checkpoint moving
-  only inside the same transaction as the data is the core correctness mechanism.
+- **RangePlanner** — turns the trigger (an ethbacknode `blockEvent` callback, or the startup
+  backfill) into block ranges `[checkpoint+1, head]`, chunked to at most `MAX_BLOCK_RANGE`
+  (default 2 000) blocks per `eth_getLogs` call. The chain head comes from the callback payload
+  or from ethbacknode's `infoGetBlockNum`; there is no head-polling loop of our own.
+- **LogFetcher** — requests `eth_getLogs` for the watched address set over each range. Disjoint
+  ranges during a large backfill can be fanned out with `ChainableGroup` (which preserves input
+  order), bounded by `FETCH_CONCURRENCY`; the MVP default is 1, since Ganache RPC is local and
+  fast.
+- **LogDecoder** — matches each log's `topics[0]` against the `abigen`-generated bindings and
+  produces typed event records. An unrecognized log from a watched address is a **fatal error**,
+  not a skip: it means the deployed ABI and the frozen event catalog have diverged, and
+  continuing would silently corrupt downstream data.
+- **BatchWriter** — batches decoded events per block range and commits **one database
+  transaction** per batch: insert events, upsert state tables, advance the checkpoint. The
+  checkpoint moving only inside the same transaction as the data is the core correctness
+  mechanism. The writer stage is always single-instance — never inside a `ChainableGroup` — so
+  ordering is trivial.
+
+Two pipeline-library conventions for this codebase:
+
+- **Errors.** `Processor.Process` has an `any → any` signature with no error return; stages pass
+  a `Result{Value any; Err error}` envelope, and every stage short-circuits (passes the envelope
+  through untouched) when `Err != nil`. The pipeline runner inspects the final envelope and
+  applies the retry policy (Section 7).
+- **Profiling.** The graph form (`PipelineNode` + `Delta`) is used in the integration-test
+  harness, where per-stage `Delta.Duration` / `Delta.ItemDelta` identify which stage lags when
+  the `/synced` helper times out. The production binary uses the plain `Chainable` form plus
+  Prometheus metrics.
 
 ### 4.2 Delivery guarantees
 
-- **At-least-once fetch, exactly-once effect.** Every event row has a natural primary key
-  `(tx_hash, log_index)`; replays after a crash become `ON CONFLICT DO NOTHING` no-ops, and
-  state-table updates are derived inside the same transaction, so they apply at most once.
-- **Ordering.** Events apply in `(block_number, log_index)` order within a single writer
-  goroutine. There is no parallel writing — at our scale (one Ganache node, AMM trades) the
+- **At-least-once fetch, exactly-once effect.** ethbacknode's callback delivery is explicitly
+  at-least-once, and crash-replays of the backfill path re-fetch ranges; both are absorbed by the
+  same mechanism. Every event row has a natural primary key `(tx_hash, log_index)`; replays
+  become `ON CONFLICT DO NOTHING` no-ops, and state-table updates are derived inside the same
+  transaction, so they apply at most once. Duplicate or out-of-order callbacks at worst trigger a
+  redundant `RangePlanner` run that plans an empty range.
+- **Callbacks are triggers, not data.** A `blockEvent`/`transactionEvent` callback only tells the
+  pipeline "the head moved"; the events themselves always come from `eth_getLogs` over
+  checkpoint-anchored ranges. A lost callback therefore delays indexing until the next callback
+  (or the periodic reconcile tick, `RECONCILE_INTERVAL`, default 5 s) but can never cause a gap.
+- **Ordering.** Events apply in `(block_number, log_index)` order within the single `BatchWriter`
+  stage. There is no parallel writing — at our scale (one Ganache node, AMM trades) the
   bottleneck is RPC latency, not the database, and a single writer makes ordering trivial.
 - **Reorg stance.** Ganache (chain 1337) does not reorg, so MVP confirmation depth is 0. The
-  fetcher nevertheless records each block's hash and verifies the parent-hash chain; a mismatch
-  triggers rollback-to-last-matching-block logic. On Ganache the only "reorg" is a full chain
-  reset (Docker recreate), detected by a genesis-hash change → truncate schema, reindex. This
-  same code path, with `CONFIRMATION_DEPTH=N`, is the Base migration story (Section 8).
+  pipeline nevertheless records each block's hash and verifies the parent-hash chain; a mismatch
+  triggers rollback-to-last-matching-block logic. ethbacknode's own confirmation tracking
+  (mempool → confirmed states) becomes useful on a real network, where `CONFIRMATION_DEPTH=N`
+  delays indexing until depth N. On Ganache the only "reorg" is a full chain reset (Docker
+  recreate), detected by a genesis-hash change → truncate schema, reindex. This same code path
+  is the Base migration story (Section 8).
 
 ### 4.3 Data model (schema `indexer`)
 
@@ -208,9 +281,10 @@ assumption and must be reconciled when that catalog freezes.
 
 | Endpoint | Purpose |
 |----------|---------|
-| `GET /healthz` | Liveness: process up, DB reachable, RPC reachable. |
+| `GET /healthz` | Liveness: process up, DB reachable, ethbacknode reachable (`ping`). |
 | `GET /status` | `{ "chain_head": N, "indexed": M, "lag_blocks": N-M, "genesis": "0x…" }`. |
 | `GET /synced?block=N&timeout=30s` | **Long-polls** until `indexed ≥ N`, then returns 200; 504 on timeout. |
+| `POST /callbacks/ethbacknode` | Receiver for ethbacknode `blockEvent` / `transactionEvent` callbacks; enqueues a `RangePlanner` trigger and returns 200 immediately. Bound to the internal network only. |
 
 `/synced` is the "indexer caught up" synchronization helper that
 [testing-integration.md](testing-integration.md) §6 requires instead of sleeps: an integration
@@ -225,39 +299,53 @@ Standard Go service layout; one module, no shared internal packages with other r
 
 ```
 chain-indexer/
-├── cmd/indexer/main.go        # wiring: config, pipeline, HTTP server, graceful shutdown
+├── cmd/indexer/main.go        # wiring: config, pipeline assembly (pysyun.Pipe),
+│                              # HTTP server, graceful shutdown
 ├── internal/
-│   ├── fetcher/               # head tracking, eth_getLogs chunking, parent-hash check
-│   ├── decoder/               # topic dispatch over generated bindings
-│   ├── writer/                # batching, transactions, checkpoint
+│   ├── stages/                # go_pysyun_pipeline Processors:
+│   │   ├── planner.go         #   RangePlanner — triggers → block ranges
+│   │   ├── fetcher.go         #   LogFetcher — eth_getLogs, parent-hash check
+│   │   ├── decoder.go         #   LogDecoder — topic dispatch over generated bindings
+│   │   └── writer.go          #   BatchWriter — batching, transactions, checkpoint
+│   ├── ebn/                   # ethbacknode JSON-RPC 2.0 client (ping, infoGetBlockNum,
+│   │                          # addressSubscribe) + callback payload types
 │   ├── store/                 # pgx repositories, migrations (embedded, golang-migrate)
-│   └── httpapi/               # /healthz /status /synced
+│   └── httpapi/               # /healthz /status /synced /callbacks/ethbacknode
 ├── bindings/                  # abigen output — GENERATED, regenerated from frozen ABIs
 ├── migrations/                # SQL migrations for schema `indexer`
 ├── Dockerfile                 # multi-stage, distroless final image
 └── Makefile                   # make bindings | test | integration-test | lint
 ```
 
+ethbacknode itself is deployed from its own repository
+(<https://github.com/ITProLabDev/ethbacknode>) as a separate process, configured via its
+`config.json`; it is a deployment dependency, not a code dependency (the indexer talks to it
+over JSON-RPC 2.0 and receives its HTTP callbacks).
+
 ## 6. Technology stack
 
 | Concern | Choice | Notes |
 |---------|--------|-------|
 | Language | **Go ≥ 1.22** | single static binary |
-| Chain access | `github.com/ethereum/go-ethereum` (`ethclient`, `abigen`) | bindings regenerated from the Phase-0 ABI artifact; generated code is committed |
+| Node interaction | **[ethbacknode](https://github.com/ITProLabDev/ethbacknode)** sidecar (JSON-RPC 2.0 + HTTP callbacks) | block/transaction monitoring, confirmations, watchdog; deployed monitoring-only — transfer/key methods unused and not network-reachable |
+| Pipeline composition | **[go_pysyun_pipeline](https://github.com/pysyun/go_pysyun_pipeline)** (`Chainable`, `ChainableGroup`, `PipelineNode`) | `go get github.com/pysyun/go_pysyun_pipeline`; LGPL-2.1 — used as an unmodified imported library |
+| Log decoding | `github.com/ethereum/go-ethereum` (`ethclient`, `abigen`) | bindings regenerated from the Phase-0 ABI artifact; generated code is committed; also used for direct `eth_getLogs` backfill |
 | Database | PostgreSQL via `jackc/pgx/v5` | same PostgreSQL instance as the rest of the platform (`docker-compose.yaml`), dedicated schema |
 | Migrations | `golang-migrate`, embedded via `embed.FS` | indexer migrates its own schema on start |
-| HTTP | `net/http` (stdlib) | three endpoints do not justify a framework |
-| Config | environment variables only | `RPC_URL`, `DATABASE_URL`, `CONTRACT_ADDRESSES_FILE` (the Phase-0 deployed-address artifact), `POLL_INTERVAL`, `MAX_BLOCK_RANGE`, `CONFIRMATION_DEPTH` |
-| Observability | `log/slog` JSON logs; Prometheus metrics (`indexer_lag_blocks`, `indexer_events_total{type}`, `indexer_rpc_errors_total`) | `indexer_lag_blocks` is the alerting signal |
+| HTTP | `net/http` (stdlib) | four endpoints do not justify a framework |
+| Config | environment variables only | `RPC_URL`, `ETHBACKNODE_URL`, `CALLBACK_LISTEN_ADDR`, `DATABASE_URL`, `CONTRACT_ADDRESSES_FILE` (the Phase-0 deployed-address artifact), `RECONCILE_INTERVAL`, `MAX_BLOCK_RANGE`, `FETCH_CONCURRENCY`, `CONFIRMATION_DEPTH` |
+| Observability | `log/slog` JSON logs; Prometheus metrics (`indexer_lag_blocks`, `indexer_events_total{type}`, `indexer_rpc_errors_total`, `indexer_callbacks_total`); per-stage `Delta` profiling in the test harness | `indexer_lag_blocks` is the alerting signal |
 
 ## 7. Failure modes
 
 | Failure | Behavior |
 |---------|----------|
 | RPC down / flaky | Exponential backoff with jitter, retry forever; `/healthz` degrades, lag metric grows. Never skip a range. |
-| DB down | Same backoff; fetcher blocks on the full channel (natural backpressure). |
+| ethbacknode down / restarting | Callbacks stop; the periodic reconcile tick keeps planning ranges directly from `eth_getLogs`, so indexing degrades to polling instead of stopping. `/healthz` reports the sidecar as degraded (`ping` fails). On recovery, missed callbacks are irrelevant (§4.2 — callbacks are triggers, not data). |
+| Lost / duplicate / reordered callbacks | By design (at-least-once): duplicates plan empty ranges; losses are covered by the reconcile tick; ordering is irrelevant since ranges are checkpoint-anchored. |
+| DB down | Same backoff; the pipeline run fails at `BatchWriter` and the range is re-planned (natural backpressure — no checkpoint advance, no loss). |
 | Process crash / redeploy | Resume from `checkpoint`; replays are idempotent (§4.2). |
-| Ganache recreated (fresh chain) | Genesis-hash mismatch → truncate `indexer` schema, reindex from block 0, log loudly. |
+| Ganache recreated (fresh chain) | Genesis-hash mismatch → truncate `indexer` schema, reindex from block 0, log loudly. ethbacknode must be restarted alongside the node (its subscriptions reference the old chain). |
 | Unknown event from watched contract | Fatal: exit non-zero. ABI/catalog divergence must fail loudly in CI, not skip silently in prod (no-silent-drop rule). |
 | Consumer reads while behind | Consumers' responsibility: `/status.lag_blocks` is exposed; the UI requirement for freshness is an open product gap ([functional-requirements.md](functional-requirements.md) Section 15, item 12 — live-update channel). |
 
@@ -267,14 +355,20 @@ Per the platform decision ([README.md](README.md), Architectural decisions), the
 Ganache; this service is the component most affected by the move to Base (chain 8453):
 
 1. **Finality:** set `CONFIRMATION_DEPTH` > 0 and rely on the parent-hash/rollback path already
-   built (§4.2) — reorgs become real.
-2. **Transport:** switch the fetcher from polling to WebSocket `eth_subscribe` for heads, keeping
-   `eth_getLogs` backfill as the catch-up path (subscriptions miss events across disconnects;
-   the log-range scan is always the source of truth).
+   built (§4.2) — reorgs become real. ethbacknode's confirmation tracking (mempool → confirmed
+   transaction states) carries most of this for free.
+2. **Transport:** ethbacknode is designed to run **on the same host as the node over IPC**
+   (`geth.ipc`) — its recommended production topology. On Base this means co-locating ethbacknode
+   with the node (or pointing it at a provider's RPC), while the indexer keeps receiving the same
+   callbacks; the indexer's own `eth_getLogs` backfill remains the source of truth across any
+   disconnects. Note ethbacknode's Docker support is deferred because of the IPC dependency —
+   the production topology must account for that (host process or shared network namespace).
 3. **Provider limits:** public RPC providers cap `eth_getLogs` ranges and rates;
    `MAX_BLOCK_RANGE` and backoff are already configurable.
-4. **Throughput:** if event volume outgrows the single writer, partition by `market_addr`
-   (per-market ordering is the only ordering consumers actually need).
+4. **Throughput:** if event volume outgrows the single writer, raise `FETCH_CONCURRENCY`
+   (fan out `LogFetcher` over disjoint ranges via `ChainableGroup`) and, if writing itself
+   becomes the bottleneck, partition `BatchWriter` by `market_addr` (per-market ordering is the
+   only ordering consumers actually need).
 
 Nothing in the consumer contract (schema + sync endpoint) changes.
 
@@ -283,12 +377,18 @@ Nothing in the consumer contract (schema + sync endpoint) changes.
 Aligned with [testing-integration.md](testing-integration.md); a full test plan is the
 test-strategy-architect's deliverable.
 
-- **Unit:** decoder against fixture logs generated from the bindings; writer idempotency
-  (double-apply a batch, assert identical state); checkpoint/rollback logic with simulated
-  parent-hash mismatches. Use `go-ethereum`'s `simulated` backend where a live chain is overkill.
-- **Integration (Docker Compose):** deploy contracts to Ganache, emit each cataloged event,
-  assert rows and state tables; kill -9 the indexer mid-range and assert gapless resume;
-  recreate Ganache and assert clean reindex.
+- **Unit:** each pipeline stage is a plain `Processor` — unit-testable in isolation by calling
+  `Process` with fixture inputs, no harness needed (a key payoff of the pipeline library).
+  Decoder against fixture logs generated from the bindings; writer idempotency (double-apply a
+  batch, assert identical state); checkpoint/rollback logic with simulated parent-hash
+  mismatches; `RangePlanner` against duplicate/out-of-order callback fixtures. Use
+  `go-ethereum`'s `simulated` backend where a live chain is overkill.
+- **Integration (Docker Compose):** run the real ethbacknode sidecar against Ganache, deploy
+  contracts, emit each cataloged event, assert rows and state tables; kill -9 the indexer
+  mid-range and assert gapless resume; stop ethbacknode and assert the reconcile tick keeps
+  indexing; recreate Ganache and assert clean reindex. The harness assembles the same stages in
+  `PipelineNode` graph form to expose per-stage `Delta` timings when diagnosing `/synced`
+  timeouts.
 - **CI gate:** the indexer's integration suite runs in the same pipeline stage as the API
   integration tests, since those tests depend on `/synced`.
 
@@ -301,3 +401,17 @@ test-strategy-architect's deliverable.
 3. Decimals/rounding conventions ([functional-requirements.md](functional-requirements.md)
    Section 15, item 13) — the indexer stores raw base units regardless, but consumer-facing
    semantics need the convention frozen.
+4. **ethbacknode containerization.** The MVP environment is `docker-compose.yaml`, but
+   ethbacknode defers Docker support due to its IPC-first design. Against Ganache (HTTP RPC,
+   `:8545`) it must be validated over HTTP transport in a container; if that proves unsupported,
+   the fallback is running ethbacknode as a host process beside Compose, or dropping the sidecar
+   for MVP and letting the reconcile tick drive the pipeline alone (the design degrades to that
+   mode anyway — Section 7).
+5. **ethbacknode callback contract.** The exact `blockEvent`/`transactionEvent` payload schema
+   and the subscription granularity (`addressSubscribe` per contract address) must be pinned from
+   its `API.md` before the `ebn` package freezes; verify the upstream license on the pinned
+   release (the repo metadata and README badge currently disagree: MIT vs GPLv3).
+6. **go_pysyun_pipeline error/envelope convention.** The `Result` envelope of §4.1 is our
+   convention on top of the library's `any → any` contract; it must be specified in the repo's
+   CONTRIBUTING notes so all stages implement short-circuiting uniformly. The library is
+   LGPL-2.1 — fine as an unmodified import; modifications would have to be published.
