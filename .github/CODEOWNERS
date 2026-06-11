@@ -1,0 +1,51 @@
+# CODEOWNERS — PolyMarket Social ("Justify")
+#
+# Maps repository paths to owning agents / GitHub accounts.
+# PLACEHOLDER usernames are listed below — map them to real GitHub accounts before
+# making this repo public or enabling required-review enforcement.
+#
+# Placeholder → real account mapping (update when team GitHub accounts are known):
+#   @evacodes-frontend   → frontend-engineer
+#   @evacodes-backend    → backend-engineer
+#   @evacodes-contracts  → contracts-engineer
+#   @evacodes-devops     → devops-engineer
+#   @evacodes-docs       → documentation-engineer
+#
+# GitHub docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default fallback — require devops review for anything not matched below
+*                           @evacodes-devops
+
+# ── Frontend (web UI: pages, components, client libs) ───────────────────────
+web/                        @evacodes-frontend
+
+# ── Backend (API routes, Prisma, server libs) — more specific, wins over web/ ─
+web/prisma/                 @evacodes-backend
+web/src/app/api/            @evacodes-backend
+web/src/lib/server/         @evacodes-backend
+
+# ── Smart contracts ──────────────────────────────────────────────────────────
+contracts/                  @evacodes-contracts
+
+# ── Infrastructure, tooling, CI ──────────────────────────────────────────────
+docker-compose.yaml         @evacodes-devops
+.github/workflows/          @evacodes-devops
+web/Dockerfile              @evacodes-devops
+
+# ── Delivery process (templates, CODEOWNERS, docs) ───────────────────────────
+.github/                    @evacodes-devops
+CONTRIBUTING.md             @evacodes-devops
+docs/delivery/              @evacodes-devops
+commitlint.config.js        @evacodes-devops
+.gitmessage                 @evacodes-devops
+
+# ── Root config files ─────────────────────────────────────────────────────────
+package.json                @evacodes-devops
+pnpm-workspace.yaml         @evacodes-devops
+tsconfig.json               @evacodes-devops
+tsconfig.base.json          @evacodes-devops
+
+# ── Documentation ─────────────────────────────────────────────────────────────
+documentation_polymarket_social/  @evacodes-docs
+web/README.md               @evacodes-docs
+contracts/README.md         @evacodes-docs

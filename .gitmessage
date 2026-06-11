@@ -1,0 +1,22 @@
+# Conventional Commit — PolyMarket Social
+# Format: type(scope): short description   [max 100 chars total]
+#
+# type  : feat | fix | chore | docs | refactor | test | ci | perf | revert
+# scope : web | api | contracts | infra | e2e | docs | delivery | deps
+#
+# Examples:
+#   feat(web): add sign-in modal wired to NextAuth
+#   fix(api): return 404 when profile not found
+#   chore(infra): add web service to docker-compose
+#   feat(contracts)!: rename MarketAMM.buy → buyOutcome  ← BREAKING
+#
+# ─── subject line (required) ─────────────────────────────────────────────────
+type(scope):
+
+# ─── body (optional — explain WHY, not WHAT) ─────────────────────────────────
+
+
+# ─── footer (optional) ───────────────────────────────────────────────────────
+# BREAKING CHANGE: <describe breaking change if type or scope uses !>
+# Closes #<issue>
+# Depends on #<pr>

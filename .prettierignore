@@ -1,0 +1,8 @@
+node_modules
+dist
+.next
+coverage
+artifacts
+cache
+html-polymarket-social-prototype
+pnpm-lock.yaml

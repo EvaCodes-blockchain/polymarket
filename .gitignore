@@ -1,3 +1,31 @@
 .DS_Store
 .idea/
 .claude/
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+.next/
+
+# Environment files — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# Test coverage
+coverage/
+
+# Blockchain / Hardhat artifacts
+artifacts/
+cache/
+typechain-types/
+
+# pnpm
+.pnpm-store/
+
+# Misc
+*.log
+npm-debug.log*
+pnpm-debug.log*
