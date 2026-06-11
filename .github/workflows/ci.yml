@@ -1,0 +1,189 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - mvp
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Prisma / DB — dummy values; Prisma generate doesn't need a live DB
+  DATABASE_URL: postgresql://justify:justify@localhost:5432/justify_test
+  # NextAuth — dummy values for build/lint; real secrets are in .env.local
+  NEXTAUTH_SECRET: ci-dummy-secret-not-for-production
+  NEXTAUTH_URL: http://localhost:3000
+  # Chain config
+  NEXT_PUBLIC_RPC_URL: http://localhost:8545
+  NEXT_PUBLIC_CHAIN_ID: "1337"
+
+jobs:
+  # ── 1. Lint ──────────────────────────────────────────────────────────────────
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          # Note: cache: pnpm omitted — handled below to tolerate absent lockfile
+
+      # Cache only when pnpm-lock.yaml exists; auto-activates once web/ or
+      # contracts/ land and generate the lockfile.
+      - name: Cache pnpm store
+        if: hashFiles('pnpm-lock.yaml') != ''
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            pnpm install
+          fi
+
+      - name: Lint (web)
+        if: hashFiles('web/package.json') != ''
+        working-directory: web
+        run: pnpm lint
+
+      - name: Lint (contracts)
+        if: hashFiles('contracts/package.json') != ''
+        working-directory: contracts
+        run: pnpm lint
+
+  # ── 2. Typecheck ─────────────────────────────────────────────────────────────
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Cache pnpm store
+        if: hashFiles('pnpm-lock.yaml') != ''
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            pnpm install
+          fi
+
+      - name: Typecheck (web)
+        if: hashFiles('web/package.json') != ''
+        working-directory: web
+        run: pnpm typecheck
+
+      - name: Typecheck (contracts)
+        if: hashFiles('contracts/package.json') != ''
+        working-directory: contracts
+        run: pnpm typecheck
+
+  # ── 3. Test ──────────────────────────────────────────────────────────────────
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Cache pnpm store
+        if: hashFiles('pnpm-lock.yaml') != ''
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            pnpm install
+          fi
+
+      - name: Test (web)
+        if: hashFiles('web/package.json') != ''
+        working-directory: web
+        run: pnpm test
+
+      - name: Test (contracts)
+        if: hashFiles('contracts/package.json') != ''
+        working-directory: contracts
+        run: pnpm test
+
+  # ── 4. Build ─────────────────────────────────────────────────────────────────
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Cache pnpm store
+        if: hashFiles('pnpm-lock.yaml') != ''
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            pnpm install
+          fi
+
+      - name: Build (web)
+        if: hashFiles('web/package.json') != ''
+        working-directory: web
+        run: pnpm build
+
+      - name: Build (contracts)
+        if: hashFiles('contracts/package.json') != ''
+        working-directory: contracts
+        run: pnpm build
