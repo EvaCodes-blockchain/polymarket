@@ -22,6 +22,7 @@ are the planned baseline for the production system.
 | [ui-testing.md](ui-testing.md)                                                                 | End-to-end UI testing strategy: Playwright setup, injected test wallet, page objects, critical user journeys (J1–J8), component-behavior specs, browser/viewport matrix.                                                      |
 | [testing-market-generator.md](testing-market-generator.md)                                     | Test/demo component that turns Google News headlines into randomly generated markets via the public APIs: news acquisition, templating, lifecycle automation (approve/trade/resolve), safety rails, configuration.            |
 | [architecture-polymarket-platform-reference.md](architecture-polymarket-platform-reference.md) | How the **real Polymarket platform** works (from the official docs): APIs, CLOB order lifecycle, CTF outcome tokens, UMA resolution, auth, fees, WebSockets, contracts — and where our design differs (Section 10).           |
+| [team-composition.md](team-composition.md)                                                     | The largest team (48 seats) that can work in parallel without blocking: ownership boundaries per component, frozen-contract rules, Phase-0 bootstrap, dependency map, MVP critical-path subset, and the maximality argument.  |
 
 ## UML diagrams (PlantUML)
 
