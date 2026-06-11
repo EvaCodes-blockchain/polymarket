@@ -1,5 +1,9 @@
 # PolyMarket Social ("Justify") — CEO MVP Scope Directive
 
+**Document version:** 1.0
+
+**Date:** 2026-06-11
+
 This document records the CEO's scope directive for the MVP in English. It does not replace
 [functional-requirements.md](functional-requirements.md); it prioritizes it. Where this document and the
 full FR catalog disagree on *what must actually work* in the MVP, this document wins.
@@ -62,7 +66,7 @@ A user with a connected wallet must be able to place a real bet (buy an outcome 
 - Traceability: FR-CARD-2 (flip-to-trade form) **or** FR-TRD-3 (trading-page order ticket) — one of
   the two entry points is sufficient; FR-CARD-3 (payout calculation) for the chosen entry point.
 - Minimum bar: one market exists (it may be created/seeded by the team rather than via FR-CRT-1);
-  Buy flow only (the Sell flow is already a known gap — Section 15.4 of the FR catalog); the
+  Buy flow only (the Sell flow is already a known gap — Section 15, item 4 of the FR catalog); the
   position is visible after the trade (a minimal FR-PORT-2 rendering or equivalent confirmation).
 
 ---
@@ -71,7 +75,7 @@ A user with a connected wallet must be able to place a real bet (buy an outcome 
 
 All other functional areas are **time-permitting**. In priority order, if time runs out, they ship
 exactly as the prototype renders them today (static data, hard-coded counts and prices, inert
-controls), consistent with the prototype's existing behavior (FR catalog Section 15.7, "Static data"):
+controls), consistent with the prototype's existing behavior (FR catalog Section 15, item 7, "Static data"):
 
 - Social feed, posting, comments, engagement (FR-FEED-*, except where CEO-2 needs profile rendering)
 - Market discovery / explore, hashtags, domains (FR-MKT-*)
@@ -92,8 +96,10 @@ it just doesn't have to function.
 ## 4. Implications for the architecture team
 
 1. **Build order follows Section 2**: Auth & Identity → Social Graph (follow only) → wallet binding →
-   one market + trade settlement path (MarketFactory/PredictionMarket/MarketAMM/OutcomeToken/
-   MockUSDC on Ganache 1337). Everything else is stretch.
+   one market + trade settlement path (MarketFactory / PredictionMarket / MarketAMM / OutcomeToken /
+   CollateralToken (MockUSDC) + AccessControl on Ganache 1337 — AccessControl is a deploy-time
+   dependency of MarketFactory; OracleResolver and FeeTreasury may be deployed but are not exercised
+   by CEO-4). Everything else is stretch.
 2. **Test priority follows Section 2**: the integration and E2E suites must cover CEO-1…CEO-4 first
    (cf. journeys in [ui-testing.md](ui-testing.md)); coverage for hardcoded areas is deferred.
 3. **No new scope**: nothing in this document adds behavior beyond the FR catalog; it only narrows

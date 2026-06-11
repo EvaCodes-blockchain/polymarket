@@ -46,11 +46,12 @@ required by FR-CRT-1.
 
 ## 2. Position in the system
 
-The generator is an **external API client**, not a platform service. It talks to the platform
-exclusively through the same public surface as a real user
-([uml-components-api.puml](uml-components-api.puml)) — it has no database access and no
-private endpoints. This makes it a permanent smoke test of the market-creation path: if the
-generator can't create markets, neither can users.
+The generator is an **external API client**, not a platform service. For market creation and
+trading it uses only the same public surface as a real user
+([uml-components-api.puml](uml-components-api.puml)) — no database access. Two lifecycle steps
+are exceptions by necessity: approval uses an admin-role account (Section 5.1) and resolution
+uses the trusted oracle-resolver chain account (Section 5.4). This makes it a permanent smoke
+test of the market-creation path: if the generator can't create markets, neither can users.
 
 ```
 Google News (RSS)                Platform (test env)
@@ -67,8 +68,9 @@ Google News (RSS)                Platform (test env)
                           Market Creation API → MarketFactory (Ganache)
 ```
 
-Deployment: one additional service (`market-generator`) in `docker-compose.test.yml`
-alongside the services listed in [testing-integration.md](testing-integration.md) Section 2.1.
+Deployment: one planned additional service (`market-generator`) in the repository's
+`docker-compose.yaml`, alongside the services listed in
+[testing-integration.md](testing-integration.md) Section 2.1.
 It is **disabled by default** and switched on per environment (Section 7).
 
 ---
@@ -152,8 +154,10 @@ and long-running markets.
 ### 4.3 Creator identity
 
 Markets are submitted under one or more dedicated **bot accounts** (`news-bot`, `sports-bot`, …)
-created through the normal auth flow with Ganache test keys (accounts 7+ — extending the role
-table in [testing-integration.md](testing-integration.md) Section 2.2). Bot handles are
+created through the normal auth flow with Ganache test keys (accounts 7–9 with the default
+`--wallet.totalAccounts=10` in `docker-compose.yaml`; raise `totalAccounts` if more bot
+identities are needed — extending the role table in
+[testing-integration.md](testing-integration.md) Section 2.2). Bot handles are
 prefixed `bot-` so UI tests and cleanup jobs can recognize generated content unambiguously.
 
 ---
@@ -173,7 +177,8 @@ stub performs the same step.
 
 ### 5.2 Background trading (optional, `GENERATOR_TRADING=on`)
 
-Bot trader accounts (Ganache accounts 2–5) place small random buys on random open generated
+Dedicated bot trader accounts (Ganache accounts 7+, per Section 4.3 — never the integration
+suite's test-trader accounts 2–5) place small random buys on random open generated
 markets at a configurable rate. This keeps prices moving so charts (FR-TRD-2), Market Movers
 (FR-NAV-4), and portfolio P&L (FR-PORT-2) have live-looking data in demos.
 

@@ -13,7 +13,7 @@
 PolyMarket Social — branded in the prototype as **"Justify — Trade Smarter, Together"** — is a **social prediction-market platform**. It merges two product categories into one experience:
 
 - a **social network** in the style of Twitter/X: a timeline of posts, comments, likes, reposts, follows, profiles, notifications, and trending topics;
-- a **prediction market** in the style of Polymarket: binary-outcome markets on real-world events, priced in cents that reflect implied probability, with on-chain settlement on the **Base** blockchain.
+- a **prediction market** in the style of Polymarket: binary-outcome markets on real-world events, priced in cents that reflect implied probability, with on-chain settlement on an EVM chain (prototype: **Base**; MVP per [README.md](README.md): local Ganache, chain ID 1337).
 
 The key product idea is that **the prediction market itself is a social object**. A market is not buried on a separate exchange page — it is embedded as an interactive card inside posts in the feed. Users scroll their timeline, see a creator's market ("El Clásico — who will win?"), and can buy an outcome in two clicks without leaving the feed, then discuss it in the comments below the same post.
 
@@ -39,7 +39,7 @@ The prototype illustrates this with recognizable archetypes: FC Barcelona postin
 
 A typical session demonstrated by the prototype:
 
-1. **Sign in** with Google, email, or a crypto wallet (MetaMask, Trust Wallet, Coinbase Wallet, WalletConnect). Wallet login switches the user to the Base network automatically.
+1. **Sign in** with Google, email, or a crypto wallet (MetaMask, Trust Wallet, Coinbase Wallet, WalletConnect). Wallet login switches the user to the Base network automatically (prototype behavior; the MVP chain is Ganache 1337 — see README.md).
 2. **Scroll the feed** — posts from followed creators, with three tabs: *Feed*, *People* (account discovery by category), and *Trending*.
 3. **Trade from the feed** — an embedded market card shows the question, volume, closing time, and a circular "chance" gauge; pressing *Buy Yes / Buy No* flips the card into a mini order form (amount, +1/+10 buttons, slider, projected payout "To win: $X").
 4. **Go deeper** — open the market's full trading page: price chart with timeframes (1H–ALL), Buy/Sell tabs, outcome prices in cents, quick-amount buttons, and the market's own comment thread.
@@ -71,7 +71,7 @@ The prototype covers eight functional areas (detailed requirements in [functiona
 The prototype is a **static front-end** (no backend); all data is hard-coded for demonstration.
 
 - **UI stack:** Bootstrap 5, jQuery 3.6, Slick carousel, Chart.js, Material Icons, Icofont. Dark glass-morphism design, fully responsive (three-column desktop layout collapsing to a mobile single column with off-canvas navigation).
-- **Web3 stack:** Web3.js, Coinbase Wallet SDK, WalletConnect v1; target chain **Base mainnet (chain ID 8453)** via Infura RPC.
+- **Web3 stack:** Web3.js, Coinbase Wallet SDK, WalletConnect v1; target chain **Base mainnet (chain ID 8453)** via Infura RPC (prototype behavior; the MVP chain is Ganache 1337 — see README.md).
 - **Auth:** Google Identity Services (OAuth 2.0 / OIDC) plus the four wallet providers; email flow stubbed.
 - **Custom behavior** (`js/custom.js`): market-card flip animation and payout calculator, amount/slider sync, follow toggles, persistent dark-mode switch, creator carousel, wallet-connection handlers with chain switching.
 
@@ -82,5 +82,4 @@ Several referenced pages are not implemented (`explore.html`, `tags.html`, `logi
 
 ## 6. Document map
 
-- [functional-requirements.md](functional-requirements.md) — detailed, numbered functional requirements (FR-…) for every feature visible in the prototype, plus the gap list.
-- `overview.md` (this document) — project vision, audience, and high-level capability map.
+See [README.md](README.md) for the full document index and suggested reading order.

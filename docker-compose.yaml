@@ -5,6 +5,9 @@ services:
   # "Architectural decisions"). Deterministic mnemonic so the account/role
   # mapping documented in testing-integration.md (Section 2.2) is stable:
   #   0 deployer/admin, 1 oracle resolver, 2-5 traders, 6 market creator.
+  # NOTE: MockUSDC pre-funding for accounts 2-5 requires the 'contracts'
+  # one-shot deployment service (testing-integration.md Section 2.2), not yet
+  # added here.
   ganache:
     image: trufflesuite/ganache:v7.9.2
     command:

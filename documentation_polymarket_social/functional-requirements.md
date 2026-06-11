@@ -22,7 +22,8 @@ HTML/CSS/JS prototype. It is intended as the functional baseline for implementin
 PolyMarket Social ("Justify") is a **social prediction-market platform**: a Twitter-like social network where the core
 shareable object is a **prediction market**. Users post ideas, discuss them, follow creators — and trade directly on
 markets embedded inside the social feed. The platform targets on-chain settlement on the **Base** network (chain ID
-8453) with wallet-based authentication.
+8453) with wallet-based authentication. (Prototype-derived target. Per [README.md](README.md), "Architectural
+decisions", the MVP settles on a local Ganache node, chain ID 1337; Base migration is a later phase.)
 
 ### 1.3 Scope of the prototype
 
@@ -96,7 +97,10 @@ Users can authenticate by connecting a crypto wallet. Supported providers:
 On connection the application must:
 
 1. Request account access from the wallet.
-2. Verify the connected chain and **switch the wallet to Base (chain ID 8453)** if needed.
+2. Verify the connected chain and **switch the wallet to the platform's target chain** if needed. Per the standing
+   decision in [README.md](README.md) ("Architectural decisions"), the MVP target is the **local Ganache node
+   (chain ID 1337, JSON-RPC :8545)**; the prototype's static code targets Base (chain ID 8453), the deferred
+   public-network phase.
 3. On success, continue the login flow (prototype redirects to `/login.html`).
 4. On failure, show an error message to the user.
 
@@ -233,6 +237,9 @@ The feed shows a loading spinner at the bottom, indicating progressive/infinite 
 ---
 
 ## 6. Social graph
+
+The FR-SOC identifiers intentionally continue the numbering sequence from the feed block (FR-FEED-9 → FR-SOC-10);
+this is not a gap.
 
 ### FR-SOC-10 — Follow / unfollow
 
@@ -450,7 +457,8 @@ to the relevant content. Types demonstrated in the prototype:
 - **Like** — "@leo liked your market"
 - **Repost** — "@satoshi reposted your post"
 
-Production should extend this set with comment, mention, market-resolution, and order-fill notifications (see Gaps).
+Production should extend this set with comment, mention, market-resolution, and order-fill notifications (see
+Section 15, item 11).
 
 ---
 
@@ -486,6 +494,14 @@ of the production system:
    `type="email"`, duplicate element IDs exist, and the oracle-proof placeholder is misspelled (`htpps://`).
 9. **Notification management:** no mark-as-read, filtering, or settings granularity.
 10. **Moderation/admin:** no admin or moderation interfaces exist for the market-approval flow implied by FR-CRT-1.
+11. **Notification types:** comment, mention, market-resolution, and order-fill notifications are required by
+    FR-NOT-1's production extensions but not demonstrated in the prototype.
+12. **Real-time updates:** no mechanism is specified for live price/odds refresh on market cards, charts, and the
+    portfolio.
+13. **Pricing precision:** MockUSDC decimals, cent-rounding rules, and the YES/NO price-complement convention are
+    unspecified. The prototype's example price pairs (21¢/80¢ on the card, 38¢/63¢ on the trade page) sum to more
+    than 100¢; they are hard-coded display data, not valid simultaneous AMM states — the canonical test seed uses
+    complementary prices (see testing-integration.md, Fixtures).
 
 ---
 
@@ -493,7 +509,8 @@ of the production system:
 
 - **Front-end stack of the prototype:** Bootstrap 5, jQuery 3.6, Slick carousel, Chart.js, Material Icons, Icofont;
   glass-morphism dark UI.
-- **Web3:** Web3.js, Coinbase Wallet SDK, WalletConnect v1; target chain **Base mainnet (8453)** via Infura RPC.
+- **Web3:** Web3.js, Coinbase Wallet SDK, WalletConnect v1; target chain **Base mainnet (8453)** via Infura RPC
+  (prototype behavior; the MVP chain is Ganache 1337 — see README.md).
 - **Auth:** Google Identity Services (OAuth 2.0 / OIDC popup flow).
 - **Responsive design:** desktop three-column layout collapses to a single column with off-canvas navigation on mobile;
   carousels adapt slide counts per breakpoint.

@@ -51,10 +51,10 @@ UI tests are the most expensive to run and maintain.
 
 ### 2.2 Environment
 
-UI tests reuse the same Docker Compose environment as the integration suite (`docker-compose.test.yml` —
-see [testing-integration.md](testing-integration.md), Section 2), plus the front-end container. The same
-deterministic Ganache accounts and database fixtures apply, so a UI test and an API test describing the same
-scenario see the same data.
+UI tests reuse the same Docker Compose environment as the integration suite (the repository's
+`docker-compose.yaml` — see [testing-integration.md](testing-integration.md), Section 2), plus the front-end
+container, which is a planned addition to it. The same deterministic Ganache accounts and database fixtures
+apply, so a UI test and an API test describing the same scenario see the same data.
 
 **Wallet:** real browser extensions (MetaMask) are not used in CI — they are flaky and unscriptable at scale.
 Instead, tests inject a lightweight `window.ethereum` test provider backed by a deterministic Ganache private
@@ -140,7 +140,7 @@ The release-gating set. Each journey is one spec, kept short and assertive; fail
 | #  | Journey                            | Steps and key assertions                                                                                                                                                                                                                                |
 |----|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | J1 | **Sign in with wallet**            | Open feed → Sign In → choose MetaMask → injected provider connects, chain switches to 1337 → UI shows authenticated state (FR-AUTH-1, FR-AUTH-4).                                                                                                        |
-| J2 | **Trade from the feed card**       | Authenticated user scrolls feed → finds post with market card → presses *Buy Yes* → card flips → sets amount via +10 and slider → "To win" equals `amount/price` → confirms → success state; position visible in portfolio (FR-CARD-1..3, FR-PORT-2).      |
+| J2 | **Trade from the feed card**       | Authenticated user scrolls feed → finds post with market card → presses *Buy Yes* → card flips → sets amount via +10 and slider → "To win" equals the *projected* payout `amount / displayed price` (a UI projection at spot price — executed-trade pricing is asserted by the API suite) → confirms → success state; position visible in portfolio (FR-CARD-1..3, FR-PORT-2). |
 | J3 | **Trade from the trading page**    | Open market from Market Movers → chart renders, timeframe switch works → Buy tab → select outcome at displayed cent price → quick-amount +$20 → Trade → confirmation; price updates (FR-NAV-4, FR-TRD-1..3).                                              |
 | J4 | **Post and engage**                | Compose a post (counter shows `n/500`; over-limit blocked) → publish → post appears at top of feed → second user likes and comments → counters update; comment thread shows the reply (FR-FEED-2..3, FR-FEED-5..7).                                       |
 | J5 | **Follow and social graph**        | From Who to Follow, follow a creator → button toggles to *Following* → creator's posts appear in feed → creator's follower count incremented on their profile (FR-SOC-10..11, FR-NAV-5).                                                                  |
@@ -148,13 +148,26 @@ The release-gating set. Each journey is one spec, kept short and assertive; fail
 | J7 | **Portfolio reflects positions**   | User with seeded trades opens Portfolio → each position shows outcome, amount, price, value, and color-coded P&L (green gain / red loss) matching fixture math (FR-PORT-1..2).                                                                            |
 | J8 | **Notifications**                  | Second user follows/likes/reposts → first user's Notifications page lists all three events with correct actor handles and links (FR-NOT-1).                                                                                                              |
 
+The journeys map onto the CEO's must-work MVP flows
+([functional-requirements-ceo.md](functional-requirements-ceo.md)):
+
+| CEO flow                | Journey(s)                       |
+|-------------------------|----------------------------------|
+| CEO-1 Register/sign in  | J1                               |
+| CEO-2 Follow a profile  | J5                               |
+| CEO-3 Connect a wallet  | J1 (see open item in Section 8)  |
+| CEO-4 Place a bet       | J2, J3                           |
+
+Per [functional-requirements-ceo.md](functional-requirements-ceo.md) Section 4, J1, J5, and J2/J3 are the
+Tier-1 (MVP-blocking) journeys; J4, J6, J7, J8 gate only once their areas are implemented dynamically.
+
 ## 6. Component-behavior specs
 
 Focused specs for UI mechanics that journeys pass through but don't exhaustively exercise:
 
 - **Market card** (`market-card.ts`): flip animation completes and form is interactive; close (×) flips back and
-  resets; amount input, +1/+10 buttons, and slider stay in two-way sync; payout recalculates on every change;
-  minimum amount enforced (FR-CARD-2..3).
+  resets; amount input, +1/+10 buttons, and slider stay in two-way sync; the *projected* payout shown by the UI
+  (`amount / displayed price`) recalculates on every change; minimum amount enforced (FR-CARD-2..3).
 - **Feed tabs**: Feed / People / Trending switch content without reload; People sections render with Follow
   buttons (FR-FEED-1).
 - **Composer modal**: live character counter; attachment buttons present; Post disabled when empty (FR-FEED-3).
@@ -172,8 +185,10 @@ Focused specs for UI mechanics that journeys pass through but don't exhaustively
 
 ### 7.1 Locally
 
+From the repo root:
+
 ```bash
-docker compose -f docker-compose.test.yml up -d --wait
+docker compose up -d --wait
 npx playwright test                      # all projects
 npx playwright test --project=desktop    # fast loop while developing
 npx playwright show-report
@@ -185,7 +200,9 @@ npx playwright show-report
 - **Nightly / release candidate:** full matrix (all four projects) + all component specs.
 - Artifacts on failure: Playwright trace, video, and screenshot, retained with the CI run.
 - Retries: **one** automatic retry in CI to absorb infrastructure hiccups; a test that needs the retry to pass
-  is flagged for investigation — same flakiness policy as the API suite.
+  is flagged for investigation — the API suite allows zero retries ([testing-integration.md](testing-integration.md)
+  Section 7.3); the UI suite allows exactly one to absorb browser/infrastructure hiccups, with the same
+  treat-flakes-as-defects principle.
 
 ### 7.3 Manual smoke (per release)
 
@@ -201,3 +218,7 @@ genuine extension UX is verified.
 - **Visual regression** — screenshot-comparison (Playwright `toHaveScreenshot`) is a candidate for the glass-
   morphism UI once the design stabilizes; not part of the MVP gate.
 - **Accessibility checks** — an automated a11y pass (axe-core) per page is recommended; to be scoped after MVP.
+- **CEO-3 ambiguity** — [functional-requirements-ceo.md](functional-requirements-ceo.md) CEO-3 describes binding
+  a wallet to an already-signed-in account; FR-AUTH-4 and J1 cover wallet sign-in only, and no binding endpoint
+  exists in [uml-components-api.puml](uml-components-api.puml). Open question for the architecture team: is
+  CEO-3 satisfied by wallet sign-in (J1), or is a separate bind-wallet flow (and endpoint) required?
