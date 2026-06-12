@@ -13,10 +13,11 @@
 // pair is a no-op.
 //
 // Safety: aborts (non-zero exit, no deletes) unless the RPC node is reachable
-// AND reports chain id 1337 — never prunes on doubt.
+// AND reports the expected chain id — never prunes on doubt.
 //
 // Run with (from web/): npx tsx prisma/reconcile-markets.ts
-// Env: DATABASE_URL, RPC_URL (defaults to http://localhost:8545)
+// Env: DATABASE_URL, RPC_URL (defaults to http://localhost:8545),
+//      NEXT_PUBLIC_CHAIN_ID / CHAIN_ID (expected chain id; defaults to 1337).
 
 import { PrismaClient } from '@prisma/client';
 import { createPublicClient, http } from 'viem';
@@ -24,7 +25,10 @@ import { createPublicClient, http } from 'viem';
 const db = new PrismaClient();
 
 const RPC_URL = process.env.RPC_URL ?? 'http://localhost:8545';
-const EXPECTED_CHAIN_ID = 1337;
+// Env-driven so reconcile works on Ganache (1337) or Arc (5042002) alike.
+const EXPECTED_CHAIN_ID = Number(
+  process.env.NEXT_PUBLIC_CHAIN_ID ?? process.env.CHAIN_ID ?? '1337',
+);
 
 async function main(): Promise<void> {
   const client = createPublicClient({ transport: http(RPC_URL) });
