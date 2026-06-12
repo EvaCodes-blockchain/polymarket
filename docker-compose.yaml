@@ -16,6 +16,15 @@ services:
       - --miner.blockTime=0
       - --server.host=0.0.0.0
       - --server.port=8545
+      # Persist chain state. Without this the chain lives in memory and any
+      # container restart wipes it while postgres-data survives — leaving DB
+      # market rows pointing at contracts that no longer exist. With it,
+      # deployed contracts + generated markets accumulate across deploys and
+      # the idempotent contracts-deploy (see below) never re-deploys onto a
+      # chain that already has them.
+      - --database.dbPath=/ganache-data
+    volumes:
+      - ganache-data:/ganache-data
     ports:
       - "8545:8545"
     healthcheck:
@@ -113,6 +122,13 @@ services:
       # (web/src/lib/server/generatorAuth.ts). Dev default only — set a real
       # value in any shared environment.
       GENERATOR_API_KEY: "${GENERATOR_API_KEY:-dev-generator-key}"
+      # Canonical deployment artifact, written by the one-shot contracts-deploy
+      # service into the shared volume below. Read by web/src/lib/server/chain.ts
+      # and prisma/seed.ts — the image itself ships no contracts/ directory, so
+      # without this mount server-side chain access cannot resolve addresses.
+      DEPLOYMENTS_FILE: "/deployments/ganache.json"
+    volumes:
+      - contracts-deployments:/deployments:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -161,11 +177,19 @@ services:
       GENERATOR_API_KEY: "${GENERATOR_API_KEY:-dev-generator-key}"
       # Same mnemonic as the ganache service — bot traders are accounts 7-9.
       GANACHE_MNEMONIC: "justify social prediction market mvp test test test test test test junk"
-      # Deployment artifact mounted from the host (see volumes below) so a
+      # Deployment artifact from the shared volume (see volumes below) so a
       # contract redeploy never requires an image rebuild.
       DEPLOYMENTS_FILE: "/deployments/ganache.json"
     volumes:
-      - ./contracts/deployments:/deployments:ro
+      # Canonical artifact written by the contracts-deploy one-shot — the same
+      # volume the web service reads, so generator and web always agree on
+      # contract addresses (the committed repo artifact can drift, see
+      # DeployRunbook.md §2.5).
+      - contracts-deployments:/deployments:ro
+      # Dedup store (generator/.state/dedup.json). Persisted so re-running the
+      # generator on each deploy only creates markets for headlines it has not
+      # used yet — "create if not created" across builds.
+      - generator-state:/app/generator/.state
     depends_on:
       web:
         condition: service_healthy
@@ -176,3 +200,5 @@ services:
 volumes:
   postgres-data:
   contracts-deployments:
+  generator-state:
+  ganache-data:

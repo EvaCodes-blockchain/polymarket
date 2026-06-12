@@ -3,6 +3,9 @@ name: Deploy Dev
 # Triggered on every push to mvp (= merged PR).
 # Connects to the dev VPS via SSH and runs:
 #   git reset --hard origin/mvp  →  docker compose up --build  →  contracts-deploy
+#   →  reconcile + seed test users (founder, demo users, bots — idempotent)
+#   →  one market-generator cycle (test markets; dedup state persists across
+#      deploys, so only headlines not used by a previous deploy create markets)
 #
 # Required GitHub Actions Secrets (set in repo Settings → Secrets → Actions):
 #   DEV_HOST   — e.g.  ubuntu@13.219.132.201
@@ -77,17 +80,66 @@ jobs:
             docker compose up -d --build --remove-orphans
 
             echo "==> Running one-shot contracts deploy..."
-            docker compose --profile deploy run --rm contracts-deploy || true
+            # Explicit build: `up --build` only builds services it starts, and
+            # profile-gated one-shots are not among them. The deploy script is
+            # idempotent (skips when the artifact's MarketFactory already has
+            # code on the persisted chain), so a real failure here must fail
+            # the deploy — seeding against a stale artifact is worse than no
+            # deploy.
+            docker compose --profile deploy build contracts-deploy
+            docker compose --profile deploy run --rm contracts-deploy
+
+            # web caches the deployments artifact lazily (chain.ts) — restart it
+            # so it picks up the artifact contracts-deploy just wrote to the
+            # shared volume.
+            echo "==> Restarting web to pick up the fresh deployments artifact..."
+            docker compose restart web
 
             echo "==> Waiting for web healthcheck..."
+            WEB_HEALTHY=0
             for i in $(seq 1 24); do
               if docker compose ps web | grep -q "(healthy)"; then
                 echo "Web is healthy."
+                WEB_HEALTHY=1
                 break
               fi
               echo "  ...waiting ($i/24)"
               sleep 5
             done
+
+            if [ "$WEB_HEALTHY" -ne 1 ]; then
+              echo "::error::Web did not become healthy — skipping test-data seeding."
+              docker compose ps
+              docker compose logs --tail 100 web
+              exit 1
+            fi
+
+            # ── Test data: reconcile then seed users ────────────────────────
+            # reconcile-markets.ts drops DB market rows whose contracts no
+            # longer exist on the chain (only happens if the ganache-data
+            # volume was reset while postgres-data survived); without it,
+            # stale rows collide with fresh on-chain marketIds and block all
+            # new markets. Then the two idempotent seeds (upserts /
+            # skipDuplicates) create only what is missing: seed.ts first
+            # (founder + El Clásico backfill — needs DEPLOYMENTS_FILE), then
+            # seed-users.ts (demo users + bots + follow graph around the
+            # founder).
+            echo "==> Reconciling markets + seeding test users..."
+            docker compose exec -T web sh -c 'cd /app/web \
+              && npx tsx prisma/reconcile-markets.ts \
+              && npx tsx prisma/seed.ts \
+              && npx tsx prisma/seed-users.ts'
+
+            # ── Test data: markets ──────────────────────────────────────────
+            # One generator cycle (--once via `generate`, instead of the
+            # service's default loop CMD). The dedup store lives on the
+            # generator-state volume, so each deploy only creates markets for
+            # headlines not used by a previous deploy. Exits 0 even when no
+            # markets are created (caps reached / all deduped).
+            echo "==> Generating test markets (one generator cycle)..."
+            docker compose --profile generator build market-generator
+            docker compose --profile generator run --rm \
+              market-generator pnpm -F generator generate
 
             docker compose ps
           ENDSSH

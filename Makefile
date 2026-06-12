@@ -7,7 +7,7 @@
 COMPOSE := docker compose
 
 .PHONY: up down down-volumes logs logs-ganache logs-postgres dev install lint build test typecheck \
-        generate trade-bots generator-up generator-logs seed-users help
+        generate trade-bots generator-up generator-logs seed-users seed-test-data help
 
 ## up: Start Ganache + Postgres + prototype in the background
 up:
@@ -81,6 +81,18 @@ generator-logs:
 ## seed-users: Seed demo users into the web database
 seed-users:
 	corepack pnpm -F web exec tsx prisma/seed-users.ts
+
+## seed-test-data: Full in-container test-data pass (same steps deploy-dev.yml runs on each build)
+seed-test-data:
+	$(COMPOSE) --profile deploy build contracts-deploy
+	$(COMPOSE) --profile deploy run --rm contracts-deploy
+	$(COMPOSE) restart web
+	$(COMPOSE) exec -T web sh -c 'cd /app/web \
+	  && npx tsx prisma/reconcile-markets.ts \
+	  && npx tsx prisma/seed.ts \
+	  && npx tsx prisma/seed-users.ts'
+	$(COMPOSE) --profile generator build market-generator
+	$(COMPOSE) --profile generator run --rm market-generator pnpm -F generator generate
 
 ## help: Show this help
 help:

@@ -26,7 +26,10 @@ import * as path from "path";
 type HardhatEthers = typeof ethers & {
   getSigners(): Promise<(Signer & { address: string })[]>;
   getContractAt(name: string, address: string): Promise<ReturnType<typeof ethers.getContractAt>>;
-  provider: { getNetwork(): Promise<{ chainId: bigint }> };
+  provider: {
+    getNetwork(): Promise<{ chainId: bigint }>;
+    getCode(address: string): Promise<string>;
+  };
 };
 const hethers = ethers as unknown as HardhatEthers;
 
@@ -53,9 +56,38 @@ function usdc(n: bigint): string {
   return `${Number(n) / 1e6} USDC`;
 }
 
+// ── Idempotency guard ──────────────────────────────────────────────────────────
+// The chain (Ganache --database.dbPath volume) and the artifact (deployments
+// volume) both persist across `docker compose run contracts-deploy`. If the
+// artifact's MarketFactory still has code on this chain, the previous deploy is
+// intact — skip, so CI/CD can run the deploy unconditionally on every build
+// without orphaning addresses that web/generator/seeds already reference.
+async function alreadyDeployed(artifactPath: string): Promise<boolean> {
+  if (!fs.existsSync(artifactPath)) return false;
+  try {
+    const artifact = JSON.parse(fs.readFileSync(artifactPath, "utf8")) as {
+      chainId?: number;
+      contracts?: { MarketFactory?: { address?: string } };
+    };
+    const factoryAddress = artifact.contracts?.MarketFactory?.address;
+    if (artifact.chainId !== 1337 || !factoryAddress) return false;
+    const code = await hethers.provider.getCode(factoryAddress);
+    return code !== "0x";
+  } catch {
+    return false; // unreadable/corrupt artifact → redeploy
+  }
+}
+
 // ── Main ───────────────────────────────────────────────────────────────────────
 
 async function main() {
+  const artifactPath = path.join(__dirname, "..", "deployments", "ganache.json");
+  if (await alreadyDeployed(artifactPath)) {
+    console.log("Contracts already deployed on this chain (artifact matches live code) — skipping.");
+    console.log(`Artifact: ${artifactPath}`);
+    return;
+  }
+
   const signers = await hethers.getSigners();
 
   const deployer = signers[0]!;

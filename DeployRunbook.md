@@ -125,10 +125,32 @@ sudo docker compose up -d --build web        # rebake addresses into the browser
 make the web build consume the artifact produced by the one-shot deployer at deploy
 time rather than the committed file.
 
+**Update (server side fixed):** the `web` service now mounts the shared
+`contracts-deployments` volume and reads it via `DEPLOYMENTS_FILE`, so all
+*server-side* chain access (market creation, prices, faucet, seeds) uses the
+artifact the one-shot deployer actually wrote — no host-side copy needed. The
+remaining drift is the **browser bundle** (`web/src/lib/client/contracts.ts`
+hard-codes addresses for the wallet Buy flow, CEO-3/4); the workaround above is
+still required for that until the client module derives addresses at runtime.
+
 ### 2.6 Seed the founder (CEO-2 demo target)
 
-The runtime web image contains no Prisma CLI/seed tooling; the simplest method is
-the public register endpoint (idempotent — returns 409 if the user exists):
+**Automated:** `deploy-dev.yml` now runs the full test-data pass on every deploy —
+reconcile orphaned markets, seed the founder + demo users + bots (idempotent
+upserts), then one market-generator cycle. Manually, the same pass is:
+
+```bash
+make seed-test-data
+# or just the user seeds:
+sudo docker compose exec -T web sh -c \
+  'cd /app/web && npx tsx prisma/seed.ts && npx tsx prisma/seed-users.ts'
+```
+
+(The runtime web image ships `web/node_modules` including `tsx`/Prisma — the
+entrypoint already relies on this for `prisma migrate deploy`.)
+
+Fallback via the public register endpoint (idempotent — returns 409 if the user
+exists), e.g. when the DB is up but the container tooling is suspect:
 
 ```bash
 curl -s -X POST http://localhost:3000/api/auth/register \
