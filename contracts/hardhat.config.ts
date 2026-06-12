@@ -37,6 +37,12 @@ const config: HardhatUserConfig = {
         mnemonic: MNEMONIC,
         count: 10,
       },
+      // Arc's public RPC rejects hardhat's auto eth_estimateGas on txs that do
+      // nested CREATE (MarketFactory.createMarket deploys 2 contracts), even
+      // though the tx executes fine. Pin an explicit gas limit so hardhat skips
+      // estimation. 8M comfortably covers createMarket (~1.3M observed).
+      gas: 8_000_000,
+      gasPrice: 25_000_000_000, // ~25 gwei; Arc testnet gas price ~20 gwei
     },
   },
   paths: {
