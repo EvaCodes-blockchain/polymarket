@@ -72,37 +72,54 @@ jobs:
             git checkout mvp 2>/dev/null || true
             git reset --hard origin/mvp
 
-            echo "==> Building and starting compose stack..."
-            # Pass the public VPS IP so NEXT_PUBLIC_RPC_URL is baked correctly
-            # into the Next.js browser bundle.  The .env on the host provides
-            # NEXTAUTH_SECRET, and these vars override the defaults.
-            export NEXT_PUBLIC_RPC_URL="http://$(curl -sf http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || hostname -I | awk '{print $1}'):8545"
-            export NEXTAUTH_URL="http://$(curl -sf http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || hostname -I | awk '{print $1}'):3000"
-
-            # Load host-local secrets (.env must exist, chmod 600, NOT in repo)
+            # Load host-local config (.env must exist, chmod 600, NOT in repo).
+            # DEPLOY_TARGET (ganache|arc) selects the chain mode; defaults to
+            # ganache. On Arc the .env also carries NEXT_PUBLIC_CHAIN_ID=5042002,
+            # RPC_URL=https://rpc.testnet.arc.network, etc.
             if [ -f .env ]; then
               set -a; source .env; set +a
+            fi
+            DEPLOY_TARGET="${DEPLOY_TARGET:-ganache}"
+            echo "==> Deploy target: $DEPLOY_TARGET"
+
+            echo "==> Building and starting compose stack..."
+            export NEXTAUTH_URL="http://$(curl -sf http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || hostname -I | awk '{print $1}'):3000"
+            if [ "$DEPLOY_TARGET" = "ganache" ]; then
+              # Bake the public VPS IP into the browser bundle so wagmi/viem in
+              # the browser talk to the VPS Ganache node. On Arc, NEXT_PUBLIC_RPC_URL
+              # comes from .env (the public Arc RPC) — don't override it here.
+              export NEXT_PUBLIC_RPC_URL="http://$(curl -sf http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || hostname -I | awk '{print $1}'):8545"
             fi
 
             docker compose up -d --build --remove-orphans
 
-            echo "==> Running one-shot contracts deploy..."
-            # Explicit build: `up --build` only builds services it starts, and
-            # profile-gated one-shots are not among them. The deploy script is
-            # idempotent (skips when the artifact's MarketFactory already has
-            # code on the persisted chain), so a real failure here must fail
-            # the deploy — seeding against a stale artifact is worse than no
-            # deploy.
-            docker compose --profile deploy build contracts-deploy
-            # -T: no TTY in CI. (The script body is now in a file, not on
-            # stdin, so a missing -T can no longer swallow the rest of it —
-            # but -T is still correct for a non-interactive run.)
-            docker compose --profile deploy run --rm -T contracts-deploy
+            if [ "$DEPLOY_TARGET" = "arc" ]; then
+              # Contracts are already deployed on Arc; the committed artifact
+              # (contracts/deployments/arc.json) is the source of truth. Don't
+              # run contracts-deploy (it's pinned to --network ganache and would
+              # burn gas re-deploying). Just publish the artifact into the shared
+              # volume under the name web reads (DEPLOYMENTS_FILE → ganache.json).
+              echo "==> Arc: publishing committed arc.json into the deployments volume (no on-chain deploy)..."
+              docker run --rm \
+                -v polymarket-social_contracts-deployments:/d \
+                -v "$PWD/contracts/deployments:/src:ro" \
+                alpine sh -c 'cp /src/arc.json /d/ganache.json && echo "  ✓ arc.json -> volume/ganache.json"'
+            else
+              echo "==> Ganache: running one-shot contracts deploy..."
+              # Explicit build: `up --build` only builds services it starts, and
+              # profile-gated one-shots are not among them. The deploy script is
+              # idempotent (skips when the artifact's MarketFactory already has
+              # code on the persisted chain), so a real failure here must fail
+              # the deploy — seeding against a stale artifact is worse than no
+              # deploy.
+              docker compose --profile deploy build contracts-deploy
+              # -T: no TTY in CI (script body is in a file, not on stdin).
+              docker compose --profile deploy run --rm -T contracts-deploy
+            fi
 
             # web caches the deployments artifact lazily (chain.ts) — restart it
-            # so it picks up the artifact contracts-deploy just wrote to the
-            # shared volume.
-            echo "==> Restarting web to pick up the fresh deployments artifact..."
+            # so it picks up the artifact in the shared volume.
+            echo "==> Restarting web to pick up the deployments artifact..."
             docker compose restart web
 
             echo "==> Waiting for web healthcheck..."
@@ -140,16 +157,21 @@ jobs:
               && npx tsx prisma/seed.ts \
               && npx tsx prisma/seed-users.ts'
 
-            # ── Test data: markets ──────────────────────────────────────────
-            # One generator cycle (--once via `generate`, instead of the
-            # service's default loop CMD). The dedup store lives on the
-            # generator-state volume, so each deploy only creates markets for
-            # headlines not used by a previous deploy. Exits 0 even when no
+            # ── Test data: markets (Ganache only) ───────────────────────────
+            # One generator cycle (--once via `generate`). The dedup store lives
+            # on the generator-state volume, so each deploy only creates markets
+            # for headlines not used by a previous deploy. Exits 0 even when no
             # markets are created (caps reached / all deduped).
-            echo "==> Generating test markets (one generator cycle)..."
-            docker compose --profile generator build market-generator
-            docker compose --profile generator run --rm -T \
-              market-generator pnpm -F generator generate
+            # Skipped on Arc: creating markets there is a real on-chain tx that
+            # burns gas-USDC, so generated markets are added manually/deliberately.
+            if [ "$DEPLOY_TARGET" = "arc" ]; then
+              echo "==> Arc: skipping market generator (on-chain creation burns gas — run manually)."
+            else
+              echo "==> Generating test markets (one generator cycle)..."
+              docker compose --profile generator build market-generator
+              docker compose --profile generator run --rm -T \
+                market-generator pnpm -F generator generate
+            fi
 
             docker compose ps
           ENDSSH
