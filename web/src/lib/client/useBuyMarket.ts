@@ -25,10 +25,10 @@ import { formatUnits, parseUnits } from 'viem';
 import type { MarketDTO } from '@/lib/client/api';
 import { requestFaucet } from '@/lib/client/api';
 import {
-  CONTRACT_ADDRESSES,
   MARKET_AMM_ABI,
   MOCK_USDC_ABI,
 } from '@/lib/client/contracts';
+import { useGlobalAddresses } from '@/lib/client/useChainConfig';
 import { appChain } from '@/lib/client/wagmi';
 
 export const USDC_DECIMALS = 6;
@@ -89,6 +89,8 @@ export function useBuyMarket(market: MarketDTO): UseBuyMarketResult {
   const { address, chainId, isConnected } = useAccount();
   const { switchChain, switchChainAsync } = useSwitchChain();
   const { writeContractAsync } = useWriteContract();
+  // Global addresses resolved at runtime from /api/config (BUG-002 fallback-safe).
+  const globalAddresses = useGlobalAddresses();
 
   const [step, setStep] = useState<BuyStep>('idle');
   const [error, setError] = useState('');
@@ -98,7 +100,7 @@ export function useBuyMarket(market: MarketDTO): UseBuyMarketResult {
 
   // ── USDC balance (global MockUSDC) ──────────────────────────────────────────
   const { data: usdcBalance, refetch: refetchBalanceQuery } = useReadContract({
-    address: CONTRACT_ADDRESSES.MockUSDC,
+    address: globalAddresses.MockUSDC,
     abi: MOCK_USDC_ABI,
     functionName: 'balanceOf',
     args: address ? [address] : undefined,
@@ -172,7 +174,7 @@ export function useBuyMarket(market: MarketDTO): UseBuyMarketResult {
         // 1. Approve this market's AMM to pull the collateral
         setStep('approving');
         await writeContractAsync({
-          address: CONTRACT_ADDRESSES.MockUSDC,
+          address: globalAddresses.MockUSDC,
           abi: MOCK_USDC_ABI,
           functionName: 'approve',
           args: [ammAddress, parsedAmount],
@@ -204,7 +206,7 @@ export function useBuyMarket(market: MarketDTO): UseBuyMarketResult {
         return null;
       }
     },
-    [address, ammAddress, ensureChain, refetchBalance, refetchPrices, writeContractAsync],
+    [address, ammAddress, ensureChain, globalAddresses.MockUSDC, refetchBalance, refetchPrices, writeContractAsync],
   );
 
   const getTestUsdc = useCallback(

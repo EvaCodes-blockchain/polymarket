@@ -82,6 +82,16 @@ export interface UsersResponse {
   users: UserSummaryDTO[];
 }
 
+/** Runtime chain config from GET /api/config (closes BUG-002 — no baked addresses). */
+export interface ChainConfigDTO {
+  chainId: number;
+  rpcUrl: string;
+  addresses: {
+    MockUSDC: `0x${string}`;
+    OutcomeToken: `0x${string}`;
+  };
+}
+
 // ── Fetchers ─────────────────────────────────────────────────────────────────
 
 async function getJson<T>(url: string): Promise<T> {
@@ -150,6 +160,11 @@ export async function requestFaucet(address: `0x${string}`, amountUsdc?: number)
   }
   const data = (await res.json()) as { txHash: string };
   return data.txHash;
+}
+
+/** Fetch runtime chain config (global addresses + chain id) — closes BUG-002. */
+export async function fetchChainConfig(): Promise<ChainConfigDTO> {
+  return getJson<ChainConfigDTO>('/api/config');
 }
 
 // ── Display helpers (shared) ─────────────────────────────────────────────────

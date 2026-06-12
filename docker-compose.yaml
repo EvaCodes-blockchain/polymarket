@@ -84,8 +84,12 @@ services:
       context: .
       dockerfile: contracts/Dockerfile
     environment:
-      RPC_URL: http://ganache:8545
+      # Override RPC_URL to https://rpc.testnet.arc.network to deploy to Arc.
+      RPC_URL: "${RPC_URL:-http://ganache:8545}"
       GANACHE_MNEMONIC: "justify social prediction market mvp test test test test test test junk"
+      # Set to use external collateral USDC (Circle USDC on Arc): the deploy
+      # skips MockUSDC + mint-based seed/fund/smoke (fund via faucet instead).
+      COLLATERAL_USDC_ADDRESS: "${COLLATERAL_USDC_ADDRESS:-}"
     volumes:
       - contracts-deployments:/app/contracts/deployments
     depends_on:
@@ -106,6 +110,10 @@ services:
         NEXTAUTH_URL: "${NEXTAUTH_URL:-http://localhost:3000}"
         NEXT_PUBLIC_RPC_URL: "${NEXT_PUBLIC_RPC_URL:-http://localhost:8545}"
         NEXT_PUBLIC_CHAIN_ID: "${NEXT_PUBLIC_CHAIN_ID:-1337}"
+        # Chain display + native gas symbol. Arc testnet: name "Arc Testnet",
+        # symbol "USDC" (Arc pays gas in USDC). Defaults keep Ganache/ETH.
+        NEXT_PUBLIC_CHAIN_NAME: "${NEXT_PUBLIC_CHAIN_NAME:-Ganache}"
+        NEXT_PUBLIC_NATIVE_SYMBOL: "${NEXT_PUBLIC_NATIVE_SYMBOL:-ETH}"
     ports:
       - "3000:3000"
     environment:
@@ -114,10 +122,17 @@ services:
       NEXTAUTH_URL: "${NEXTAUTH_URL:-http://localhost:3000}"
       NEXT_PUBLIC_RPC_URL: "${NEXT_PUBLIC_RPC_URL:-http://localhost:8545}"
       NEXT_PUBLIC_CHAIN_ID: "${NEXT_PUBLIC_CHAIN_ID:-1337}"
+      NEXT_PUBLIC_CHAIN_NAME: "${NEXT_PUBLIC_CHAIN_NAME:-Ganache}"
+      NEXT_PUBLIC_NATIVE_SYMBOL: "${NEXT_PUBLIC_NATIVE_SYMBOL:-ETH}"
       # Server-side chain access (web/src/lib/server/chain.ts): signs market
-      # creation + faucet txs against the compose Ganache node.
-      RPC_URL: "http://ganache:8545"
+      # creation + faucet txs. Points at the compose Ganache node by default;
+      # override RPC_URL to https://rpc.testnet.arc.network for Arc.
+      RPC_URL: "${RPC_URL:-http://ganache:8545}"
       GANACHE_MNEMONIC: "justify social prediction market mvp test test test test test test junk"
+      # External collateral USDC (e.g. Circle USDC on Arc). When set, the in-app
+      # mint faucet is disabled and the deploy script skips mint-based seeding.
+      # Unset → our mintable MockUSDC (local Ganache).
+      COLLATERAL_USDC_ADDRESS: "${COLLATERAL_USDC_ADDRESS:-}"
       # Shared secret for the market generator's x-generator-key header
       # (web/src/lib/server/generatorAuth.ts). Dev default only — set a real
       # value in any shared environment.

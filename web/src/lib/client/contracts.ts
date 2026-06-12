@@ -8,7 +8,11 @@
  */
 
 // ── Addresses ────────────────────────────────────────────────────────────────
-// Canonical addresses from compose-Ganache deployment (contracts/deployments/ganache.json)
+// FALLBACK addresses only. At runtime, prefer GET /api/config (fetchChainConfig)
+// which serves the LIVE addresses from the deployment artifact — that's what
+// closes BUG-002 (a redeploy, e.g. Ganache→Arc, no longer requires rebuilding
+// the bundle). These constants are the seed/dev default used until the runtime
+// config resolves, and as a fallback if /api/config is unavailable.
 export const CONTRACT_ADDRESSES = {
   MockUSDC: '0xAF7244998ee2969df3D436935E455934121da5C0',
   OutcomeToken: '0xF6208811B8f309C8184f7391c61748e094bEc10A',

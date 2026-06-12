@@ -62,7 +62,7 @@ stall the prizes we can already bank.
 | Param | Value |
 |-------|-------|
 | Network | Arc Network Testnet (Circle) |
-| **Chain ID** | **5042002** (`0x4ce4b2`) |
+| **Chain ID** | **5042002** (`0x4cef52`) |
 | RPC | `https://rpc.testnet.arc.network` (+ QuickNode / Blockdaemon mirrors, wss) |
 | Explorer | `https://testnet.arcscan.app` (Arcscan) |
 | Faucet | `https://faucet.circle.com/` (public — testnet is open, not waitlisted) |
@@ -97,7 +97,7 @@ that's the network's rule, not our option. For the demo:
 ## Open items to confirm before coding Step 1 (hands-on, ~15 min, no code)
 - [ ] `faucet.circle.com` issues gas-USDC to the deployer address on Arc testnet.
 - [ ] Collateral USDC ERC-20 **address** + **decimals** from Arcscan.
-- [ ] `https://rpc.testnet.arc.network` answers `eth_chainId` → `0x4ce4b2`.
+- [ ] `https://rpc.testnet.arc.network` answers `eth_chainId` → `0x4cef52`.
 - [ ] Confirm our `USDC_DECIMALS` (currently `1_000_000` = 6) matches Circle USDC.
 
 ## Risks (honest)
