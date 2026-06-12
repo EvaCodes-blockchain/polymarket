@@ -56,7 +56,14 @@ jobs:
         env:
           DEV_HOST: ${{ secrets.DEV_HOST }}
         run: |
-          ssh "$DEV_HOST" 'bash -s' << 'ENDSSH'
+          # Ship the deploy script to the host as a FILE, then execute it with
+          # stdin detached (`bash script </dev/null`). Do NOT pipe it over
+          # stdin (`bash -s` + heredoc): the body then lives on stdin, and any
+          # `docker compose run`/`exec` inside reads from that same stream and
+          # swallows the rest of the script — the deploy exits 0 having run
+          # only the commands before the first such call. With the body in a
+          # file, nothing can consume it.
+          ssh "$DEV_HOST" 'cat > /tmp/deploy-dev.sh' << 'ENDSSH'
             set -euo pipefail
             cd ~/polymarket
 
@@ -87,12 +94,10 @@ jobs:
             # the deploy — seeding against a stale artifact is worse than no
             # deploy.
             docker compose --profile deploy build contracts-deploy
-            # -T + </dev/null: this whole script is piped to `bash -s` over
-            # stdin, and `docker compose run` WITHOUT -T grabs an interactive
-            # stdin — it would swallow every command after it (restart web,
-            # reconcile, seeds, generator), so the deploy exits 0 having only
-            # deployed contracts. Disable the TTY and detach stdin.
-            docker compose --profile deploy run --rm -T contracts-deploy </dev/null
+            # -T: no TTY in CI. (The script body is now in a file, not on
+            # stdin, so a missing -T can no longer swallow the rest of it —
+            # but -T is still correct for a non-interactive run.)
+            docker compose --profile deploy run --rm -T contracts-deploy
 
             # web caches the deployments artifact lazily (chain.ts) — restart it
             # so it picks up the artifact contracts-deploy just wrote to the
@@ -143,13 +148,14 @@ jobs:
             # markets are created (caps reached / all deduped).
             echo "==> Generating test markets (one generator cycle)..."
             docker compose --profile generator build market-generator
-            # -T + </dev/null for the same stdin-swallowing reason as the
-            # contracts-deploy run above.
             docker compose --profile generator run --rm -T \
-              market-generator pnpm -F generator generate </dev/null
+              market-generator pnpm -F generator generate
 
             docker compose ps
           ENDSSH
+
+          echo "==> Executing deploy script on VPS (stdin detached)..."
+          ssh "$DEV_HOST" 'bash /tmp/deploy-dev.sh' < /dev/null
 
       - name: Smoke-check web from runner
         env:
