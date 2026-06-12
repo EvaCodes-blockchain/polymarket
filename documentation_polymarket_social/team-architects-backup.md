@@ -4,11 +4,12 @@
 
 **Archived:** 2026-06-11
 
-**Status:** RETIRED — this team is no longer the working Claude Code agent team. It was
-replaced on 2026-06-11 by the maximum parallel **developer** team derived from
+**Status:** ACTIVE (restored 2026-06-12) — this team was retired on 2026-06-11 in favor of
+the maximum parallel **developer** team derived from
 [team-composition.md](team-composition.md) (Groups B–F instantiated as agents in
-`.claude/agents/`). This file is the verbatim backup of the five architect agent
-definitions that previously lived in `.claude/agents/`.
+`.claude/agents/`), then restored on 2026-06-12; the developer team is archived in
+[team-developers-backup.md](team-developers-backup.md). This file is the verbatim backup
+of the five architect agent definitions, which currently live in `.claude/agents/`.
 
 **To restore an architect agent:** copy the corresponding fenced block below back into
 `.claude/agents/<name>.md` (the block content is the complete file, including frontmatter).
