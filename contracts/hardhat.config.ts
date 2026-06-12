@@ -28,6 +28,16 @@ const config: HardhatUserConfig = {
         count: 10,
       },
     },
+    // Circle Arc testnet — chain 5042002, gas paid in USDC. RPC + mnemonic come
+    // from env so the same deploy script targets Arc with no code change.
+    arc: {
+      url: process.env["RPC_URL"] ?? "https://rpc.testnet.arc.network",
+      chainId: Number(process.env["CHAIN_ID"] ?? 5042002),
+      accounts: {
+        mnemonic: MNEMONIC,
+        count: 10,
+      },
+    },
   },
   paths: {
     sources: "./src",

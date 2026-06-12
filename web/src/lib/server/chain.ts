@@ -88,10 +88,17 @@ function loadAmmAbi(): Abi {
 
 // ── Clients / signers ────────────────────────────────────────────────────────
 
-const ganache = defineChain({
-  id: 1337,
-  name: 'Ganache',
-  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+// Env-driven so the same code targets Ganache (1337) or Arc testnet (5042002).
+// Arc's native gas token is USDC (18 decimals); Ganache uses ETH. This native
+// currency is the GAS token, distinct from the collateral USDC the markets use.
+const appChain = defineChain({
+  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID ?? process.env.CHAIN_ID ?? '1337'),
+  name: process.env.NEXT_PUBLIC_CHAIN_NAME ?? 'Ganache',
+  nativeCurrency: {
+    name: process.env.NEXT_PUBLIC_NATIVE_SYMBOL ?? 'ETH',
+    symbol: process.env.NEXT_PUBLIC_NATIVE_SYMBOL ?? 'ETH',
+    decimals: 18,
+  },
   rpcUrls: { default: { http: [process.env.RPC_URL ?? 'http://localhost:8545'] } },
 });
 
@@ -116,11 +123,11 @@ function creatorAccount(): Account {
 }
 
 function publicClient(): PublicClient {
-  return createPublicClient({ chain: ganache, transport: rpcTransport() });
+  return createPublicClient({ chain: appChain, transport: rpcTransport() });
 }
 
 function walletClient(account: Account): WalletClient<Transport, Chain, Account> {
-  return createWalletClient({ account, chain: ganache, transport: rpcTransport() });
+  return createWalletClient({ account, chain: appChain, transport: rpcTransport() });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────

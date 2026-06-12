@@ -29,9 +29,12 @@ import {
   MARKET_AMM_ABI,
   MOCK_USDC_ABI,
 } from '@/lib/client/contracts';
-import { ganache } from '@/lib/client/wagmi';
+import { appChain } from '@/lib/client/wagmi';
 
 export const USDC_DECIMALS = 6;
+
+/** Display name of the app's configured chain (Ganache locally, Arc on testnet). */
+const CHAIN_NAME = process.env.NEXT_PUBLIC_CHAIN_NAME ?? 'Ganache';
 
 export type BuyStep = 'idle' | 'faucet' | 'approving' | 'buying' | 'success' | 'error';
 
@@ -119,7 +122,7 @@ export function useBuyMarket(market: MarketDTO): UseBuyMarketResult {
   const priceYes = probBps0 !== undefined ? Number(probBps0) / 10_000 : market.priceYes;
   const priceNo = probBps1 !== undefined ? Number(probBps1) / 10_000 : market.priceNo;
 
-  const isOnGanache = chainId === ganache.id;
+  const isOnGanache = chainId === appChain.id;
   const isBusy = step === 'faucet' || step === 'approving' || step === 'buying';
 
   const usdcBalanceFormatted =
@@ -136,14 +139,14 @@ export function useBuyMarket(market: MarketDTO): UseBuyMarketResult {
     void refetchProb1();
   }, [refetchProb0, refetchProb1]);
 
-  /** Make sure the wallet is on Ganache 1337; prompt a switch when it isn't. */
+  /** Make sure the wallet is on the app chain; prompt a switch when it isn't. */
   const ensureChain = useCallback(async (): Promise<boolean> => {
-    if (chainId === ganache.id) return true;
+    if (chainId === appChain.id) return true;
     try {
-      await switchChainAsync({ chainId: ganache.id });
+      await switchChainAsync({ chainId: appChain.id });
       return true;
     } catch {
-      setError('Please switch MetaMask to Ganache (chain 1337)');
+      setError(`Please switch MetaMask to ${CHAIN_NAME} (chain ${appChain.id})`);
       setStep('error');
       return false;
     }
@@ -236,7 +239,7 @@ export function useBuyMarket(market: MarketDTO): UseBuyMarketResult {
   }, []);
 
   const switchToGanache = useCallback(() => {
-    switchChain({ chainId: ganache.id });
+    switchChain({ chainId: appChain.id });
   }, [switchChain]);
 
   return {
