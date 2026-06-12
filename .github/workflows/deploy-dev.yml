@@ -87,7 +87,12 @@ jobs:
             # the deploy — seeding against a stale artifact is worse than no
             # deploy.
             docker compose --profile deploy build contracts-deploy
-            docker compose --profile deploy run --rm contracts-deploy
+            # -T + </dev/null: this whole script is piped to `bash -s` over
+            # stdin, and `docker compose run` WITHOUT -T grabs an interactive
+            # stdin — it would swallow every command after it (restart web,
+            # reconcile, seeds, generator), so the deploy exits 0 having only
+            # deployed contracts. Disable the TTY and detach stdin.
+            docker compose --profile deploy run --rm -T contracts-deploy </dev/null
 
             # web caches the deployments artifact lazily (chain.ts) — restart it
             # so it picks up the artifact contracts-deploy just wrote to the
@@ -138,8 +143,10 @@ jobs:
             # markets are created (caps reached / all deduped).
             echo "==> Generating test markets (one generator cycle)..."
             docker compose --profile generator build market-generator
-            docker compose --profile generator run --rm \
-              market-generator pnpm -F generator generate
+            # -T + </dev/null for the same stdin-swallowing reason as the
+            # contracts-deploy run above.
+            docker compose --profile generator run --rm -T \
+              market-generator pnpm -F generator generate </dev/null
 
             docker compose ps
           ENDSSH
