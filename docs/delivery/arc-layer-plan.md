@@ -101,7 +101,7 @@ amounts must shrink to what the faucet gives (not 6000/4000 — use small amount
 | Param | Value |
 |-------|-------|
 | Network | Arc Network Testnet (Circle) |
-| Chain ID | **5042002** (`0x4ce4b2`) |
+| Chain ID | **5042002** (`0x4cef52`) |
 | RPC | `https://rpc.testnet.arc.network` |
 | Explorer | `https://testnet.arcscan.app` |
 | Faucet | `https://faucet.circle.com/` (public) |
@@ -115,7 +115,7 @@ amounts must shrink to what the faucet gives (not 6000/4000 — use small amount
 - [ ] `faucet.circle.com` gives gas-USDC to the deployer address on Arc testnet.
 - [ ] **Collateral USDC ERC-20 address + decimals** on Arc (from Arcscan / Circle
       docs). ← blocks the "real USDC" path; until then use MockUSDC fallback.
-- [ ] `https://rpc.testnet.arc.network` answers `eth_chainId` → `0x4ce4b2`.
+- [ ] `https://rpc.testnet.arc.network` answers `eth_chainId` → `0x4cef52`.
 - [ ] Whether Circle issues a faucet-able **ERC-20** USDC on Arc (vs only gas).
 
 ---

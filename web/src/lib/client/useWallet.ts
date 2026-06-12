@@ -10,12 +10,12 @@ interface WalletState {
   isConnected: boolean;
   /** Chain ID of the connected wallet */
   chainId: number | undefined;
-  /** Whether the wallet is on the correct Ganache chain */
+  /** Whether the wallet is on the app's configured chain (Ganache or Arc) */
   isCorrectChain: boolean;
   disconnect: () => void;
 }
 
-const GANACHE_CHAIN_ID = 1337;
+const APP_CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID ?? '1337');
 
 /**
  * Convenience hook: reads wagmi account state + checks chain.
@@ -29,7 +29,7 @@ export function useWallet(): WalletState {
     address: address ?? null,
     isConnected,
     chainId: chain?.id,
-    isCorrectChain: chain?.id === GANACHE_CHAIN_ID,
+    isCorrectChain: chain?.id === APP_CHAIN_ID,
     disconnect,
   };
 }

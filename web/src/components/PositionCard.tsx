@@ -4,7 +4,8 @@ import { useEffect } from 'react';
 import { useAccount, useReadContracts } from 'wagmi';
 import { formatUnits } from 'viem';
 import type { MarketDTO } from '@/lib/client/api';
-import { CONTRACT_ADDRESSES, OUTCOME_TOKEN_ABI } from '@/lib/client/contracts';
+import { OUTCOME_TOKEN_ABI } from '@/lib/client/contracts';
+import { useGlobalAddresses } from '@/lib/client/useChainConfig';
 
 const USDC_DECIMALS = 6;
 
@@ -24,6 +25,7 @@ interface PositionCardProps {
  */
 export default function PositionCard({ market, refreshKey }: PositionCardProps) {
   const { address, isConnected } = useAccount();
+  const { OutcomeToken } = useGlobalAddresses();
 
   // Encode token IDs: tokenId = (marketId << 8) | outcomeIndex
   const marketId = BigInt(market.marketId);
@@ -33,13 +35,13 @@ export default function PositionCard({ market, refreshKey }: PositionCardProps) 
   const { data: balances, refetch } = useReadContracts({
     contracts: [
       {
-        address: CONTRACT_ADDRESSES.OutcomeToken,
+        address: OutcomeToken,
         abi: OUTCOME_TOKEN_ABI,
         functionName: 'balanceOf',
         args: address ? [address, yesTokenId] : undefined,
       },
       {
-        address: CONTRACT_ADDRESSES.OutcomeToken,
+        address: OutcomeToken,
         abi: OUTCOME_TOKEN_ABI,
         functionName: 'balanceOf',
         args: address ? [address, noTokenId] : undefined,

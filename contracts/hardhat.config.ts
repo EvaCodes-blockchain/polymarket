@@ -28,6 +28,22 @@ const config: HardhatUserConfig = {
         count: 10,
       },
     },
+    // Circle Arc testnet — chain 5042002, gas paid in USDC. RPC + mnemonic come
+    // from env so the same deploy script targets Arc with no code change.
+    arc: {
+      url: process.env["RPC_URL"] ?? "https://rpc.testnet.arc.network",
+      chainId: Number(process.env["CHAIN_ID"] ?? 5042002),
+      accounts: {
+        mnemonic: MNEMONIC,
+        count: 10,
+      },
+      // Arc's public RPC rejects hardhat's auto eth_estimateGas on txs that do
+      // nested CREATE (MarketFactory.createMarket deploys 2 contracts), even
+      // though the tx executes fine. Pin an explicit gas limit so hardhat skips
+      // estimation. 8M comfortably covers createMarket (~1.3M observed).
+      gas: 8_000_000,
+      gasPrice: 25_000_000_000, // ~25 gwei; Arc testnet gas price ~20 gwei
+    },
   },
   paths: {
     sources: "./src",

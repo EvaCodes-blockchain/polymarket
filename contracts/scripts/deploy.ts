@@ -56,6 +56,15 @@ function usdc(n: bigint): string {
   return `${Number(n) / 1e6} USDC`;
 }
 
+// Some public RPCs (e.g. Arc testnet) reject hardhat's auto eth_estimateGas on
+// txs that do nested CREATE (createMarket deploys 2 contracts) even though the
+// tx executes fine. Set TX_GAS_LIMIT to pin an explicit gas limit and skip
+// estimation. Empty (Ganache) → no override, normal estimation.
+const TX_GAS_LIMIT = process.env.TX_GAS_LIMIT?.trim();
+const txOverrides: { gasLimit?: bigint } = TX_GAS_LIMIT
+  ? { gasLimit: BigInt(TX_GAS_LIMIT) }
+  : {};
+
 // ── Idempotency guard ──────────────────────────────────────────────────────────
 // The chain (Ganache --database.dbPath volume) and the artifact (deployments
 // volume) both persist across `docker compose run contracts-deploy`. If the
@@ -70,7 +79,11 @@ async function alreadyDeployed(artifactPath: string): Promise<boolean> {
       contracts?: { MarketFactory?: { address?: string } };
     };
     const factoryAddress = artifact.contracts?.MarketFactory?.address;
-    if (artifact.chainId !== 1337 || !factoryAddress) return false;
+    // Match the artifact's chain to the chain we're actually connected to, so
+    // an artifact from a different network (e.g. Ganache 1337 vs Arc 5042002)
+    // never counts as "already deployed" here.
+    const liveChainId = Number((await hethers.provider.getNetwork()).chainId);
+    if (artifact.chainId !== liveChainId || !factoryAddress) return false;
     const code = await hethers.provider.getCode(factoryAddress);
     return code !== "0x";
   } catch {
@@ -81,7 +94,10 @@ async function alreadyDeployed(artifactPath: string): Promise<boolean> {
 // ── Main ───────────────────────────────────────────────────────────────────────
 
 async function main() {
-  const artifactPath = path.join(__dirname, "..", "deployments", "ganache.json");
+  // Artifact filename is env-driven so an Arc deploy (arc.json) doesn't clobber
+  // the Ganache one (ganache.json). Defaults to ganache.json for local dev.
+  const artifactName = process.env.DEPLOY_ARTIFACT?.trim() || "ganache.json";
+  const artifactPath = path.join(__dirname, "..", "deployments", artifactName);
   if (await alreadyDeployed(artifactPath)) {
     console.log("Contracts already deployed on this chain (artifact matches live code) — skipping.");
     console.log(`Artifact: ${artifactPath}`);
@@ -116,13 +132,35 @@ async function main() {
   await acl.grantRole(await acl.RESOLVER_ROLE(), oracle.address);
   console.log(`  ✓ Granted RESOLVER_ROLE to oracle (${oracle.address})`);
 
-  // ── 2. MockUSDC ────────────────────────────────────────────────────────────
-  console.log("Deploying MockUSDC...");
-  const USDCFactory = await ethers.getContractFactory("MockUSDC", deployer);
-  const usdc_ = await USDCFactory.deploy(deployer.address);
-  await usdc_.waitForDeployment();
-  const usdcAddress = await usdc_.getAddress();
-  console.log(`  ✓ MockUSDC @ ${usdcAddress}`);
+  // ── 2. Collateral USDC ─────────────────────────────────────────────────────
+  // Two modes:
+  //   • COLLATERAL_USDC_ADDRESS set → use that external ERC-20 (e.g. Circle
+  //     testnet USDC on Arc). We can't mint it, so seeding / trader funding /
+  //     the on-chain smoke buy are SKIPPED — those accounts must be funded from
+  //     a faucet (faucet.circle.com) beforehand.
+  //   • unset → deploy our mintable MockUSDC (local Ganache + fallback path).
+  const externalCollateral = process.env.COLLATERAL_USDC_ADDRESS?.trim();
+  const useExternalCollateral = !!externalCollateral;
+
+  let usdcAddress: string;
+  // `usdc_` is the mintable MockUSDC handle; null when using external collateral.
+  let usdc_: Awaited<ReturnType<typeof USDCFactoryDeploy>> | null = null;
+  async function USDCFactoryDeploy() {
+    const USDCFactory = await ethers.getContractFactory("MockUSDC", deployer);
+    const c = await USDCFactory.deploy(deployer.address);
+    await c.waitForDeployment();
+    return c;
+  }
+
+  if (useExternalCollateral) {
+    usdcAddress = externalCollateral!;
+    console.log(`Using external collateral USDC @ ${usdcAddress} (no mint; fund via faucet)`);
+  } else {
+    console.log("Deploying MockUSDC...");
+    usdc_ = await USDCFactoryDeploy();
+    usdcAddress = await usdc_.getAddress();
+    console.log(`  ✓ MockUSDC @ ${usdcAddress}`);
+  }
 
   // ── 3. OutcomeToken ────────────────────────────────────────────────────────
   console.log("Deploying OutcomeToken...");
@@ -177,7 +215,8 @@ async function main() {
     SEEDED_MARKET.question,
     SEEDED_MARKET.outcomeLabels,
     closeTime,
-    SEEDED_MARKET.oracleProofUrl
+    SEEDED_MARKET.oracleProofUrl,
+    txOverrides
   );
   const createReceipt = await createTx.wait();
 
@@ -202,44 +241,62 @@ async function main() {
   console.log(`    PredictionMarket @ ${predictionMarketAddress}`);
   console.log(`    MarketAMM        @ ${ammAddress}`);
 
-  // ── 8. Seed the AMM ────────────────────────────────────────────────────────
-  console.log("\nSeeding AMM pool...");
-  const totalSeed = SEED_YES + SEED_NO;
-  await usdc_.mint(deployer.address, totalSeed);
-  await usdc_.approve(ammAddress, totalSeed);
-  const amm = await hethers.getContractAt("MarketAMM", ammAddress);
-  await amm.seed(SEED_YES, SEED_NO);
-  console.log(`  ✓ Seeded: YES=${usdc(SEED_YES)}, NO=${usdc(SEED_NO)}`);
-  console.log(`    Implied YES probability: ~${Math.round(Number(SEED_NO) / Number(SEED_YES + SEED_NO) * 100)}%`);
+  // ── 8-10. Seed / fund / smoke — only when we control a mintable MockUSDC ────
+  // With external collateral (real Circle USDC) we can't mint, so these steps
+  // are skipped; seed the AMM and fund wallets manually from the faucet. The
+  // market + AMM already exist on-chain, which is enough for the Arc artifact.
+  if (!usdc_) {
+    console.log("\nExternal collateral — skipping AMM seed, trader funding, and smoke buy.");
+    console.log("  → Seed the AMM and fund wallets from faucet.circle.com, then trade via the UI.");
+  } else {
+    // ── 8. Seed the AMM ──────────────────────────────────────────────────────
+    console.log("\nSeeding AMM pool...");
+    const totalSeed = SEED_YES + SEED_NO;
+    await (await usdc_.mint(deployer.address, totalSeed, txOverrides)).wait();
+    await (await usdc_.approve(ammAddress, totalSeed, txOverrides)).wait();
+    const amm = await hethers.getContractAt("MarketAMM", ammAddress);
+    await (await amm.seed(SEED_YES, SEED_NO, txOverrides)).wait();
+    console.log(`  ✓ Seeded: YES=${usdc(SEED_YES)}, NO=${usdc(SEED_NO)}`);
+    console.log(`    Implied YES probability: ~${Math.round(Number(SEED_NO) / Number(SEED_YES + SEED_NO) * 100)}%`);
 
-  // ── 9. Pre-fund traders 2-5 with MockUSDC ─────────────────────────────────
-  console.log("\nPre-funding traders...");
-  for (let i = 0; i < traders.length; i++) {
-    const trader = traders[i]!;
-    await usdc_.mint(trader.address, TRADER_USDC_FUNDING);
-    console.log(`  ✓ trader ${i + 2} (${trader.address}): ${usdc(TRADER_USDC_FUNDING)}`);
+    // ── 9. Pre-fund traders 2-5 with MockUSDC ───────────────────────────────
+    console.log("\nPre-funding traders...");
+    for (let i = 0; i < traders.length; i++) {
+      const trader = traders[i]!;
+      await (await usdc_.mint(trader.address, TRADER_USDC_FUNDING, txOverrides)).wait();
+      console.log(`  ✓ trader ${i + 2} (${trader.address}): ${usdc(TRADER_USDC_FUNDING)}`);
+    }
+
+    // ── 10. Smoke test: one Buy transaction from trader 2 ───────────────────
+    // Skips when the trader has no native gas (e.g. fresh Arc deploy where only
+    // deployer/creator were funded from the faucet). The market + seeded AMM are
+    // already live, so the artifact is valid either way.
+    const smokeTrader = traders[0]!; // account index 2
+    const traderGas = await hethers.provider.getBalance?.(smokeTrader.address)
+      .catch(() => 0n) ?? 0n;
+    if (traderGas === 0n) {
+      console.log("\nSmoke test: skipped (trader 2 has no gas — fund from faucet to trade).");
+    } else {
+    console.log("\nSmoke test: Buy flow...");
+    const buyAmount = 10n * 10n ** 6n; // $10 USDC
+
+    await (await usdc_.connect(smokeTrader).approve(ammAddress, buyAmount, txOverrides)).wait();
+    const outcomeTokenContract = await hethers.getContractAt("OutcomeToken", outcomeTokenAddress);
+    const yesTokenId = await outcomeTokenContract.encodeId(seededMarketId, 0);
+
+    const balBefore = await outcomeTokenContract.balanceOf(smokeTrader.address, yesTokenId);
+
+    const buyTx = await amm.connect(smokeTrader).buy(0, buyAmount, 0n, txOverrides);
+    await buyTx.wait();
+
+    const balAfter = await outcomeTokenContract.balanceOf(smokeTrader.address, yesTokenId);
+
+    const sharesReceived = balAfter - balBefore;
+    if (sharesReceived <= 0n) throw new Error("Smoke test failed: no YES shares minted");
+    console.log(`  ✓ Bought ${usdc(buyAmount)} → ${sharesReceived.toString()} YES shares`);
+    console.log(`  ✓ ERC-1155 token ID: ${yesTokenId}`);
+    }
   }
-
-  // ── 10. Smoke test: one Buy transaction from trader 2 ─────────────────────
-  console.log("\nSmoke test: Buy flow...");
-  const smokeTrader = traders[0]!; // account index 2
-  const buyAmount = 10n * 10n ** 6n; // $10 USDC
-
-  await usdc_.connect(smokeTrader).approve(ammAddress, buyAmount);
-  const outcomeTokenContract = await hethers.getContractAt("OutcomeToken", outcomeTokenAddress);
-  const yesTokenId = await outcomeTokenContract.encodeId(seededMarketId, 0);
-
-  const balBefore = await outcomeTokenContract.balanceOf(smokeTrader.address, yesTokenId);
-
-  const buyTx = await amm.connect(smokeTrader).buy(0, buyAmount, 0n);
-  await buyTx.wait();
-
-  const balAfter = await outcomeTokenContract.balanceOf(smokeTrader.address, yesTokenId);
-
-  const sharesReceived = balAfter - balBefore;
-  if (sharesReceived <= 0n) throw new Error("Smoke test failed: no YES shares minted");
-  console.log(`  ✓ Bought ${usdc(buyAmount)} → ${sharesReceived.toString()} YES shares`);
-  console.log(`  ✓ ERC-1155 token ID: ${yesTokenId}`);
 
   // ── 11. Build ABIs from artifacts ─────────────────────────────────────────
   // Map contract name → source file name (for the one case they differ).
@@ -318,7 +375,9 @@ async function main() {
   const outputDir = path.join(__dirname, "..", "deployments");
   if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
-  const outputPath = path.join(outputDir, "ganache.json");
+  // Reuse the env-driven artifact path resolved at the top (ganache.json by
+  // default, arc.json for Arc deploys).
+  const outputPath = artifactPath;
   fs.writeFileSync(outputPath, JSON.stringify(artifact, null, 2));
 
   console.log(`\n${"=".repeat(60)}`);

@@ -88,10 +88,17 @@ function loadAmmAbi(): Abi {
 
 // ── Clients / signers ────────────────────────────────────────────────────────
 
-const ganache = defineChain({
-  id: 1337,
-  name: 'Ganache',
-  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+// Env-driven so the same code targets Ganache (1337) or Arc testnet (5042002).
+// Arc's native gas token is USDC (18 decimals); Ganache uses ETH. This native
+// currency is the GAS token, distinct from the collateral USDC the markets use.
+const appChain = defineChain({
+  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID ?? process.env.CHAIN_ID ?? '1337'),
+  name: process.env.NEXT_PUBLIC_CHAIN_NAME ?? 'Ganache',
+  nativeCurrency: {
+    name: process.env.NEXT_PUBLIC_NATIVE_SYMBOL ?? 'ETH',
+    symbol: process.env.NEXT_PUBLIC_NATIVE_SYMBOL ?? 'ETH',
+    decimals: 18,
+  },
   rpcUrls: { default: { http: [process.env.RPC_URL ?? 'http://localhost:8545'] } },
 });
 
@@ -116,11 +123,11 @@ function creatorAccount(): Account {
 }
 
 function publicClient(): PublicClient {
-  return createPublicClient({ chain: ganache, transport: rpcTransport() });
+  return createPublicClient({ chain: appChain, transport: rpcTransport() });
 }
 
 function walletClient(account: Account): WalletClient<Transport, Chain, Account> {
-  return createWalletClient({ account, chain: ganache, transport: rpcTransport() });
+  return createWalletClient({ account, chain: appChain, transport: rpcTransport() });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -254,11 +261,64 @@ export async function readMarketPrices(amm: `0x${string}`): Promise<{
   };
 }
 
-/** Deployer mints MockUSDC to `to` (Ganache-only faucet). Returns the tx hash. */
+/**
+ * Thrown when the in-app mint faucet can't run because the collateral token is
+ * an external ERC-20 we don't own (e.g. Circle USDC on Arc). Callers surface a
+ * link to the public faucet instead. Distinct from an on-chain mint failure.
+ */
+export class FaucetUnavailableError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'FaucetUnavailableError';
+  }
+}
+
+/**
+ * True when the collateral is our own mintable MockUSDC (Ganache / fallback),
+ * i.e. no external collateral address is configured. When false the deployer
+ * does not own the token and cannot mint — use the public faucet.
+ */
+export function isMintableCollateral(): boolean {
+  return !process.env.COLLATERAL_USDC_ADDRESS?.trim();
+}
+
+/**
+ * Public, browser-safe chain config — addresses + chain id resolved from the
+ * live deployment artifact at runtime, so the browser bundle never bakes in
+ * stale addresses after a redeploy (closes BUG-002). Returns only the two
+ * global addresses the client needs; per-market addresses come from the
+ * Markets API DTO.
+ */
+export function getPublicChainConfig(): {
+  chainId: number;
+  rpcUrl: string;
+  addresses: { MockUSDC: `0x${string}`; OutcomeToken: `0x${string}` };
+} {
+  const d = loadDeployments();
+  return {
+    chainId: d.chainId,
+    rpcUrl: process.env.NEXT_PUBLIC_RPC_URL ?? process.env.RPC_URL ?? 'http://localhost:8545',
+    addresses: {
+      MockUSDC: d.contracts.MockUSDC.address,
+      OutcomeToken: d.contracts.OutcomeToken.address,
+    },
+  };
+}
+
+/**
+ * Deployer mints collateral USDC to `to` (only when it's our mintable MockUSDC).
+ * Throws FaucetUnavailableError when collateral is an external token. Returns
+ * the tx hash on success.
+ */
 export async function mintUsdcTo(
   to: `0x${string}`,
   amountUsdc: number
 ): Promise<`0x${string}`> {
+  if (!isMintableCollateral()) {
+    throw new FaucetUnavailableError(
+      'Collateral is an external USDC token — in-app minting is disabled. Use the public faucet.'
+    );
+  }
   const deployments = loadDeployments();
   const usdc = deployments.contracts.MockUSDC;
 

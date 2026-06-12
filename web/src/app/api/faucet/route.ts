@@ -15,8 +15,12 @@ import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { authOptions } from '@/lib/server/auth';
-import { mintUsdcTo } from '@/lib/server/chain';
+import { mintUsdcTo, FaucetUnavailableError } from '@/lib/server/chain';
 import { isGeneratorRequest } from '@/lib/server/generatorAuth';
+
+// Public faucet to point users at when in-app minting is disabled (external
+// collateral, e.g. Circle USDC on Arc).
+const PUBLIC_FAUCET_URL = process.env.PUBLIC_FAUCET_URL ?? 'https://faucet.circle.com/';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,6 +68,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const txHash = await mintUsdcTo(address as `0x${string}`, amount);
     return NextResponse.json({ txHash });
   } catch (err) {
+    // External collateral (e.g. Circle USDC on Arc) — we can't mint it.
+    if (err instanceof FaucetUnavailableError) {
+      return NextResponse.json(
+        { error: 'In-app faucet disabled for external USDC', faucetUrl: PUBLIC_FAUCET_URL },
+        { status: 503 }
+      );
+    }
     console.error('[faucet POST] mint failed', err);
     return NextResponse.json({ error: 'On-chain mint failed' }, { status: 502 });
   }
