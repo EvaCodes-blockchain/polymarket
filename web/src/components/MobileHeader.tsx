@@ -22,6 +22,16 @@ export default function MobileHeader({
         <Image src="/img/logo.png" alt="Justify" width={32} height={32} />
       </Link>
 
+      <a
+        href="/justify-whitepaper.pdf"
+        download
+        title="Download whitepaper"
+        aria-label="Download whitepaper"
+        className="text-gray-400 hover:text-white transition-colors flex items-center"
+      >
+        <span className="material-icons md-18">download</span>
+      </a>
+
       {session?.user ? (
         <div className="ml-auto flex items-center gap-2">
           {session.user.image ? (

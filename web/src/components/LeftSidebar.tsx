@@ -32,7 +32,7 @@ export default function LeftSidebar({ onSignInClick, session }: LeftSidebarProps
     <aside className="col-span-3 hidden xl:block">
       <div className="fix-sidebar py-3 pr-3 sticky top-0 h-screen flex flex-col">
         {/* Logo */}
-        <div className="pb-8 mb-4">
+        <div className="pb-8 mb-4 flex items-center justify-between">
           <Link
             href="/"
             className="no-underline text-white"
@@ -45,6 +45,15 @@ export default function LeftSidebar({ onSignInClick, session }: LeftSidebarProps
           >
             JUSTIFY
           </Link>
+          <a
+            href="/justify-whitepaper.pdf"
+            download
+            title="Download whitepaper"
+            aria-label="Download whitepaper"
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            <span className="material-icons md-20">download</span>
+          </a>
         </div>
 
         {/* Main nav */}
