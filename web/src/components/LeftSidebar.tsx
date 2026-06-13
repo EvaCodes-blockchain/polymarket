@@ -9,6 +9,7 @@ import type { Session } from 'next-auth';
 const NAV_ITEMS = [
   { href: '/', label: 'Feed', icon: 'house' },
   { href: '/markets', label: 'Markets', icon: 'candlestick_chart' },
+  { href: '/bridge', label: 'Global Markets', icon: 'hub' },
   { href: '/portfolio', label: 'Portfolio', icon: 'cases' },
   { href: '/notifications', label: 'Notifications', icon: 'notification_add' },
   { href: '/profile', label: 'My Profile', icon: 'account_circle' },
