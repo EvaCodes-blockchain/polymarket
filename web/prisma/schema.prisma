@@ -174,3 +174,67 @@ model Post {
   @@index([createdAt])
   @@map("posts")
 }
+
+// ---------------------------------------------------------------------------
+// Bridge dashboard (feature/bridge-1) — NEW, additive, mocked-data-only.
+// Powers the bridging / Global Event Markets dashboard. No on-chain calls.
+// Serializers derive marketCount, chainKeys, priceNo and chancePct at
+// request time (see web/src/lib/client/bridgeApi.ts) — never stored here.
+// ---------------------------------------------------------------------------
+
+model BridgeChain {
+  id             String           @id @default(cuid())
+  key            String           @unique // stable slug: "arc", "base", …
+  name           String
+  chainId        String // EVM numeric or non-EVM string id (e.g. "sui:mainnet")
+  family         String // "evm" | "move"
+  transport      String // "chainlink-ccip" | "wormhole" | "native"
+  transportLabel String
+  collateral     String
+  accent         String
+  explorerUrl    String?
+  blurb          String
+  sortOrder      Int              @default(0)
+  markets        ExternalMarket[]
+
+  @@map("bridge_chains")
+}
+
+model BridgeSystem {
+  id         String           @id @default(cuid())
+  key        String           @unique // "justify", "polymarket", …
+  name       String
+  kind       String // "first-party" | "third-party"
+  logoUrl    String?
+  blurb      String
+  websiteUrl String?
+  sortOrder  Int              @default(0)
+  markets    ExternalMarket[]
+
+  @@map("bridge_systems")
+}
+
+model ExternalMarket {
+  id            String       @id @default(cuid())
+  systemKey     String
+  chainKey      String
+  question      String
+  category      String // crypto|politics|sports|tech|world|science
+  imageUrl      String?
+  priceYes      Float // YES probability 0..1 (priceNo/chancePct derived)
+  volumeUsdc    Float
+  liquidityUsdc Float
+  outcomeYes    String       @default("Yes")
+  outcomeNo     String       @default("No")
+  closeTime     DateTime
+  status        String       @default("LIVE") // LIVE | CLOSED | RESOLVED
+  sourceUrl     String?
+  createdAt     DateTime     @default(now())
+
+  system BridgeSystem @relation(fields: [systemKey], references: [key])
+  chain  BridgeChain  @relation(fields: [chainKey], references: [key])
+
+  @@index([chainKey])
+  @@index([systemKey])
+  @@map("external_markets")
+}
