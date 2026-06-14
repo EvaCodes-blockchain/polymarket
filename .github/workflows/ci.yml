@@ -98,6 +98,14 @@ jobs:
             pnpm install
           fi
 
+      # Prisma client must be generated before tsc — typecheck imports named
+      # types (User, Market, BridgeChain, …) from @prisma/client, and unlike
+      # `build` (which runs `prisma generate` itself), `tsc --noEmit` does not.
+      - name: Generate Prisma client (web)
+        if: hashFiles('web/package.json') != ''
+        working-directory: web
+        run: pnpm db:generate
+
       - name: Typecheck (web)
         if: hashFiles('web/package.json') != ''
         working-directory: web
